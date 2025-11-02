@@ -66,7 +66,7 @@ class SnippetServiceClient(
      * @param userId ID del usuario
      * @return Número de snippets o 0 si hay error
      */
-    fun countSnippetsByUserId(userId: String): Int {
+    fun countSnippetsByUserId(userId: Int): Int {
         logger.debug("Counting snippets for user: $userId")
 
         return try {
