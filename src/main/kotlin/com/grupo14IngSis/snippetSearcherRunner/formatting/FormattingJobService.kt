@@ -14,20 +14,20 @@ class FormattingJobService(
     private val snippetServiceClient: SnippetServiceClient,
     private val formattingConfigService: FormattingConfigService, // ← Nueva dependencia
 ) {
-
     fun createFormattingJob(
         ruleId: String,
         userId: Int,
     ): FormattingJob {
         val totalSnippets = snippetServiceClient.countSnippetsByUserId(userId)
 
-        val job = FormattingJob(
-            id = UUID.randomUUID(),
-            ruleId = ruleId,
-            userId = userId,
-            totalSnippets = totalSnippets,
-            status = FormattingJobStatus.PENDING,
-        )
+        val job =
+            FormattingJob(
+                id = UUID.randomUUID(),
+                ruleId = ruleId,
+                userId = userId,
+                totalSnippets = totalSnippets,
+                status = FormattingJobStatus.PENDING,
+            )
 
         return formattingJobRepository.save(job)
     }
@@ -41,7 +41,10 @@ class FormattingJobService(
         return formattingJobRepository.findById(jobId)
     }
 
-    fun formatSnippet(snippetId: String, userId: String): String {
+    fun formatSnippet(
+        snippetId: String,
+        userId: String,
+    ): String {
         val enabledRules = formattingConfigService.getEnabledRules(userId)
 
         // Aquí iría la lógica de formateo real usando las reglas habilitadas

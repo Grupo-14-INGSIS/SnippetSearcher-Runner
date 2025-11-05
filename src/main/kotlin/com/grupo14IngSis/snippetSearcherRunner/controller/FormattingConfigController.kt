@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/formatting")
 class FormattingConfigController(
-    private val formattingConfigService: FormattingConfigService
+    private val formattingConfigService: FormattingConfigService,
 ) {
-
     /**
      * Obtiene todas las reglas de formateo disponibles
      *
@@ -29,7 +28,7 @@ class FormattingConfigController(
      */
     @GetMapping("/config")
     fun getUserConfig(
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<FormattingConfigDto> {
         val config = formattingConfigService.getUserConfig(userId)
         return ResponseEntity.ok(config)
@@ -44,13 +43,14 @@ class FormattingConfigController(
     @PutMapping("/config/rule")
     fun updateRule(
         @RequestParam userId: String,
-        @RequestBody request: UpdateRuleRequest
+        @RequestBody request: UpdateRuleRequest,
     ): ResponseEntity<FormattingConfigResponse> {
-        val response = formattingConfigService.updateRule(
-            userId,
-            request.ruleId,
-            request.enabled
-        )
+        val response =
+            formattingConfigService.updateRule(
+                userId,
+                request.ruleId,
+                request.enabled,
+            )
         return ResponseEntity.ok(response)
     }
 
@@ -69,12 +69,13 @@ class FormattingConfigController(
     @PutMapping("/config/bulk")
     fun bulkUpdateRules(
         @RequestParam userId: String,
-        @RequestBody request: BulkUpdateRulesRequest
+        @RequestBody request: BulkUpdateRulesRequest,
     ): ResponseEntity<FormattingConfigResponse> {
-        val response = formattingConfigService.bulkUpdateRules(
-            userId,
-            request.rules
-        )
+        val response =
+            formattingConfigService.bulkUpdateRules(
+                userId,
+                request.rules,
+            )
         return ResponseEntity.ok(response)
     }
 
@@ -85,7 +86,7 @@ class FormattingConfigController(
      */
     @PostMapping("/config/reset")
     fun resetToDefaults(
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<FormattingConfigResponse> {
         val response = formattingConfigService.resetToDefaults(userId)
         return ResponseEntity.ok(response)
@@ -98,18 +99,19 @@ class FormattingConfigController(
      */
     @GetMapping("/config/enabled")
     fun getEnabledRules(
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<List<FormattingRuleDto>> {
-        val enabledRules = formattingConfigService.getEnabledRules(userId)
-            .map { rule ->
-                FormattingRuleDto(
-                    id = rule.id,
-                    name = rule.name,
-                    description = rule.description,
-                    enabled = rule.enabled,
-                    category = rule.category.name
-                )
-            }
+        val enabledRules =
+            formattingConfigService.getEnabledRules(userId)
+                .map { rule ->
+                    FormattingRuleDto(
+                        id = rule.id,
+                        name = rule.name,
+                        description = rule.description,
+                        enabled = rule.enabled,
+                        category = rule.category.name,
+                    )
+                }
         return ResponseEntity.ok(enabledRules)
     }
 
@@ -121,7 +123,7 @@ class FormattingConfigController(
     @GetMapping("/config/enabled/{ruleId}")
     fun isRuleEnabled(
         @PathVariable ruleId: String,
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<Map<String, Boolean>> {
         val enabled = formattingConfigService.isRuleEnabled(userId, ruleId)
         return ResponseEntity.ok(mapOf("enabled" to enabled))

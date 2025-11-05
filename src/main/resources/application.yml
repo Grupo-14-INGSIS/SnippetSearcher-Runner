@@ -1,7 +1,14 @@
 spring:
   application:
     name: snippet-searcher-runner
-
+  kafka:
+    consumer:
+      topics:
+        - snippet.updated
+        - snippet.created
+    producer:
+      topics:
+        - testing.completed
   #datasource:
   #  url: jdbc:postgresql://postgres:5432/userdb
   #  username: postgres
@@ -17,3 +24,5 @@ server:
 #jwt:
 #  secret: tu-super-secreto-jwt-key-minimo-256-bits
 #  expiration: 86400000 # 24 horas en ms
+
+

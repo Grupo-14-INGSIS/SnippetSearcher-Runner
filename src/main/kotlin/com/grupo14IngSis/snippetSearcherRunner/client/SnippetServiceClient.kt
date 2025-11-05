@@ -2,8 +2,6 @@ package com.grupo14IngSis.snippetSearcherRunner.client
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToMono
 
 /**
  * DTO que representa un snippet del servicio externo
@@ -14,6 +12,24 @@ data class SnippetDto(
     val content: String,
     val language: String,
     val name: String,
+)
+
+/**
+ * DTO para test cases
+ */
+data class TestCaseDto(
+    val id: String,
+    val name: String,
+    val input: List<String>,
+    val expectedOutput: List<String>,
+)
+
+/**
+ * DTO para respuesta de ejecución
+ */
+data class ExecutionResponse(
+    val output: List<String>,
+    val errors: List<String>?,
 )
 
 /**
@@ -161,6 +177,72 @@ class SnippetServiceClient(
         } catch (e: Exception) {
             logger.warn("Snippet Service is not available at $snippetServiceUrl")
             false
+        }
+    }
+
+    /**
+     * Obtiene los test cases de un snippet
+     *
+     * @param snippetId ID del snippet
+     * @return Lista de test cases o lista vacía si hay error
+     */
+    fun getTestCases(snippetId: String): List<TestCaseDto> {
+        logger.debug("Fetching test cases for snippet: $snippetId")
+
+        return try {
+            val testCases =
+                webClient.get()
+                    .uri("$snippetServiceUrl/api/snippets/$snippetId/test-cases")
+                    .retrieve()
+                    .bodyToMono<List<TestCaseDto>>()
+                    .block() ?: emptyList()
+
+            logger.info("Fetched ${testCases.size} test cases for snippet $snippetId")
+            testCases
+        } catch (e: Exception) {
+            logger.error("Error fetching test cases for snippet $snippetId", e)
+            emptyList()
+        }
+    }
+
+    /**
+     * Ejecuta un snippet con PrintScript
+     *
+     * @param content Código del snippet
+     * @param language Lenguaje (printscript)
+     * @param version Versión (1.0, 1.1)
+     * @param inputs Entradas del usuario
+     * @return Lista con las salidas de la ejecución
+     */
+    fun executeSnippet(
+        content: String,
+        language: String,
+        version: String,
+        inputs: List<String>,
+    ): List<String> {
+        logger.debug("Executing snippet via PrintScript")
+
+        return try {
+            val request =
+                mapOf(
+                    "content" to content,
+                    "language" to language,
+                    "version" to version,
+                    "inputs" to inputs,
+                )
+
+            val response =
+                webClient.post()
+                    .uri("$snippetServiceUrl/api/snippets/execute")
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono<ExecutionResponse>()
+                    .block()
+
+            response?.output ?: emptyList()
+        } catch (e: Exception) {
+            logger.error("Error executing snippet", e)
+            throw RuntimeException("Execution failed: ${e.message}")
         }
     }
 }

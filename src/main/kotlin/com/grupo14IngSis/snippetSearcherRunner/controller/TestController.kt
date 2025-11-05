@@ -9,15 +9,14 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1")
 class TestController(
-    private val testService: TestService
+    private val testService: TestService,
 ) {
-
     // Crear test para un snippet
     @PostMapping("/snippets/{snippetId}/tests")
     fun createTest(
         @PathVariable snippetId: Long,
         @RequestParam userId: String,
-        @RequestBody request: CreateTestRequest
+        @RequestBody request: CreateTestRequest,
     ): ResponseEntity<TestCaseDto> {
         return try {
             val test = testService.createTest(snippetId, userId, request)
@@ -31,7 +30,7 @@ class TestController(
     @GetMapping("/snippets/{snippetId}/tests")
     fun getTestsBySnippet(
         @PathVariable snippetId: Long,
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<List<TestCaseDto>> {
         return try {
             val tests = testService.getTestsBySnippet(snippetId, userId)
@@ -45,7 +44,7 @@ class TestController(
     @GetMapping("/tests/{testId}")
     fun getTest(
         @PathVariable testId: String,
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<TestCaseDto> {
         return try {
             val test = testService.getTest(testId, userId)
@@ -60,7 +59,7 @@ class TestController(
     fun updateTest(
         @PathVariable testId: String,
         @RequestParam userId: String,
-        @RequestBody request: UpdateTestRequest
+        @RequestBody request: UpdateTestRequest,
     ): ResponseEntity<TestCaseDto> {
         return try {
             val test = testService.updateTest(testId, userId, request)
@@ -74,7 +73,7 @@ class TestController(
     @DeleteMapping("/tests/{testId}")
     fun deleteTest(
         @PathVariable testId: String,
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<Void> {
         return try {
             testService.deleteTest(testId, userId)
@@ -91,7 +90,7 @@ class TestController(
     fun runTest(
         @PathVariable snippetId: Long,
         @PathVariable testId: String,
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<TestResultDto> {
         return try {
             val result = testService.runTest(snippetId, testId, userId)
@@ -105,7 +104,7 @@ class TestController(
     @PostMapping("/snippets/{snippetId}/tests/run-all")
     fun runAllTests(
         @PathVariable snippetId: Long,
-        @RequestParam userId: String
+        @RequestParam userId: String,
     ): ResponseEntity<List<TestResultDto>> {
         return try {
             val results = testService.runAllTests(snippetId, userId)

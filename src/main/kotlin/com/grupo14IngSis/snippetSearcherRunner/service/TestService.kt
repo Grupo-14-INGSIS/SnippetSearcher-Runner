@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class TestService(
     private val testExecutionService: TestExecutionService,
-    private val snippetService: SnippetService
+    private val snippetService: SnippetService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -19,7 +19,11 @@ class TestService(
     private val tests = ConcurrentHashMap<String, TestCase>()
     private val testsBySnippet = ConcurrentHashMap<Long, MutableList<String>>()
 
-    fun createTest(snippetId: Long, userId: String, request: CreateTestRequest): TestCaseDto {
+    fun createTest(
+        snippetId: Long,
+        userId: String,
+        request: CreateTestRequest,
+    ): TestCaseDto {
         logger.info("Creating test '${request.name}' for snippet $snippetId")
 
         // Verificar que el snippet existe y el usuario tiene acceso
@@ -30,13 +34,14 @@ class TestService(
         }
 
         val testId = UUID.randomUUID().toString()
-        val test = TestCase(
-            id = testId,
-            snippetId = snippetId,
-            name = request.name,
-            inputs = request.inputs,
-            expectedOutputs = request.expectedOutputs
-        )
+        val test =
+            TestCase(
+                id = testId,
+                snippetId = snippetId,
+                name = request.name,
+                inputs = request.inputs,
+                expectedOutputs = request.expectedOutputs,
+            )
 
         tests[testId] = test
         testsBySnippet.computeIfAbsent(snippetId) { mutableListOf() }.add(testId)
@@ -45,7 +50,10 @@ class TestService(
         return test.toDto()
     }
 
-    fun getTestsBySnippet(snippetId: Long, userId: String): List<TestCaseDto> {
+    fun getTestsBySnippet(
+        snippetId: Long,
+        userId: String,
+    ): List<TestCaseDto> {
         logger.debug("Fetching tests for snippet $snippetId")
 
         // Verificar acceso al snippet
@@ -59,7 +67,10 @@ class TestService(
         return testIds.mapNotNull { tests[it]?.toDto() }
     }
 
-    fun getTest(testId: String, userId: String): TestCaseDto {
+    fun getTest(
+        testId: String,
+        userId: String,
+    ): TestCaseDto {
         logger.debug("Fetching test $testId")
 
         val test = tests[testId] ?: throw TestException("Test not found: $testId")
@@ -74,7 +85,11 @@ class TestService(
         return test.toDto()
     }
 
-    fun updateTest(testId: String, userId: String, request: UpdateTestRequest): TestCaseDto {
+    fun updateTest(
+        testId: String,
+        userId: String,
+        request: UpdateTestRequest,
+    ): TestCaseDto {
         logger.info("Updating test $testId")
 
         val existing = tests[testId] ?: throw TestException("Test not found: $testId")
@@ -86,19 +101,23 @@ class TestService(
             throw TestException("Access denied to test: $testId")
         }
 
-        val updated = existing.copy(
-            name = request.name ?: existing.name,
-            inputs = request.inputs ?: existing.inputs,
-            expectedOutputs = request.expectedOutputs ?: existing.expectedOutputs,
-            updatedAt = LocalDateTime.now()
-        )
+        val updated =
+            existing.copy(
+                name = request.name ?: existing.name,
+                inputs = request.inputs ?: existing.inputs,
+                expectedOutputs = request.expectedOutputs ?: existing.expectedOutputs,
+                updatedAt = LocalDateTime.now(),
+            )
 
         tests[testId] = updated
         logger.info("Test $testId updated")
         return updated.toDto()
     }
 
-    fun deleteTest(testId: String, userId: String) {
+    fun deleteTest(
+        testId: String,
+        userId: String,
+    ) {
         logger.info("Deleting test $testId")
 
         val test = tests[testId] ?: throw TestException("Test not found: $testId")
@@ -116,7 +135,11 @@ class TestService(
         logger.info("Test $testId deleted")
     }
 
-    fun runTest(snippetId: Long, testId: String, userId: String): TestResultDto {
+    fun runTest(
+        snippetId: Long,
+        testId: String,
+        userId: String,
+    ): TestResultDto {
         logger.info("Running test $testId for snippet $snippetId")
 
         val test = tests[testId] ?: throw TestException("Test not found: $testId")
@@ -125,23 +148,28 @@ class TestService(
             throw TestException("Test does not belong to this snippet")
         }
 
-        val snippet = try {
-            snippetService.getSnippetById(snippetId, userId)
-        } catch (e: Exception) {
-            throw TestException("Snippet not found or access denied: $snippetId")
-        }
+        val snippet =
+            try {
+                snippetService.getSnippetById(snippetId, userId)
+            } catch (e: Exception) {
+                throw TestException("Snippet not found or access denied: $snippetId")
+            }
 
         return testExecutionService.executeTest(snippet, test)
     }
 
-    fun runAllTests(snippetId: Long, userId: String): List<TestResultDto> {
+    fun runAllTests(
+        snippetId: Long,
+        userId: String,
+    ): List<TestResultDto> {
         logger.info("Running all tests for snippet $snippetId")
 
-        val snippet = try {
-            snippetService.getSnippetById(snippetId, userId)
-        } catch (e: Exception) {
-            throw TestException("Snippet not found or access denied: $snippetId")
-        }
+        val snippet =
+            try {
+                snippetService.getSnippetById(snippetId, userId)
+            } catch (e: Exception) {
+                throw TestException("Snippet not found or access denied: $snippetId")
+            }
 
         val testIds = testsBySnippet[snippetId] ?: emptyList()
 
@@ -152,13 +180,14 @@ class TestService(
         }
     }
 
-    private fun TestCase.toDto() = TestCaseDto(
-        id = id,
-        snippetId = snippetId,
-        name = name,
-        inputs = inputs,
-        expectedOutputs = expectedOutputs
-    )
+    private fun TestCase.toDto() =
+        TestCaseDto(
+            id = id,
+            snippetId = snippetId,
+            name = name,
+            inputs = inputs,
+            expectedOutputs = expectedOutputs,
+        )
 }
 
 class TestException(message: String) : RuntimeException(message)

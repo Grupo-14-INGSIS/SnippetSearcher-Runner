@@ -9,5 +9,5 @@ data class TestCase(
     val inputs: List<String>,
     val expectedOutputs: List<String>,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )

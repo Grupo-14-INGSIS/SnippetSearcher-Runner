@@ -7,15 +7,15 @@ import com.grupo14IngSis.snippetSearcherRunner.model.Snippet
 import com.grupo14IngSis.snippetSearcherRunner.model.TestCase
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 
 @Service
 class TestExecutionService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun executeTest(snippet: Snippet, test: TestCase): TestResultDto {
+    fun executeTest(
+        snippet: Snippet,
+        test: TestCase,
+    ): TestResultDto {
         logger.info("Executing test '${test.name}' for snippet ${snippet.id}")
 
         val executionSteps = mutableListOf<ExecutionStep>()
@@ -30,8 +30,8 @@ class TestExecutionService {
                     ExecutionStep(
                         stepNumber = stepNumber++,
                         type = StepType.INPUT,
-                        content = "Input: $input"
-                    )
+                        content = "Input: $input",
+                    ),
                 )
             }
 
@@ -45,8 +45,8 @@ class TestExecutionService {
                     ExecutionStep(
                         stepNumber = stepNumber++,
                         type = StepType.OUTPUT,
-                        content = "Output: $output"
-                    )
+                        content = "Output: $output",
+                    ),
                 )
             }
 
@@ -60,9 +60,8 @@ class TestExecutionService {
                 testName = test.name,
                 passed = passed,
                 executionSteps = executionSteps,
-                error = null
+                error = null,
             )
-
         } catch (e: Exception) {
             logger.error("Error executing test '${test.name}': ${e.message}", e)
 
@@ -70,8 +69,8 @@ class TestExecutionService {
                 ExecutionStep(
                     stepNumber = executionSteps.size + 1,
                     type = StepType.ERROR,
-                    content = "Error: ${e.message ?: "Unknown error"}"
-                )
+                    content = "Error: ${e.message ?: "Unknown error"}",
+                ),
             )
 
             return TestResultDto(
@@ -79,12 +78,15 @@ class TestExecutionService {
                 testName = test.name,
                 passed = false,
                 executionSteps = executionSteps,
-                error = e.message
+                error = e.message,
             )
         }
     }
 
-    private fun executeSnippetCode(code: String, inputs: List<String>): List<String> {
+    private fun executeSnippetCode(
+        code: String,
+        inputs: List<String>,
+    ): List<String> {
         // SIMULACIÓN: Aquí deberías ejecutar el código real
         // Por ahora, simulamos algunos outputs basados en los inputs
 
@@ -101,15 +103,19 @@ class TestExecutionService {
         return outputs
     }
 
-    private fun compareOutputs(actual: List<String>, expected: List<String>): Boolean {
+    private fun compareOutputs(
+        actual: List<String>,
+        expected: List<String>,
+    ): Boolean {
         if (actual.size != expected.size) {
             logger.debug("Output size mismatch: expected ${expected.size}, got ${actual.size}")
             return false
         }
 
-        val matches = actual.zip(expected).all { (actualOutput, expectedOutput) ->
-            actualOutput.trim() == expectedOutput.trim()
-        }
+        val matches =
+            actual.zip(expected).all { (actualOutput, expectedOutput) ->
+                actualOutput.trim() == expectedOutput.trim()
+            }
 
         if (!matches) {
             logger.debug("Output content mismatch")

@@ -32,13 +32,14 @@ class FormattingConfigService {
     fun getUserConfig(userId: String): FormattingConfigDto {
         logger.debug("Fetching formatting config for user: $userId")
 
-        val config = userConfigs.getOrPut(userId) {
-            logger.info("Creating default formatting config for user: $userId")
-            FormattingConfig(
-                userId = userId,
-                rules = DefaultPrintScriptRules.getDefaultConfig()
-            )
-        }
+        val config =
+            userConfigs.getOrPut(userId) {
+                logger.info("Creating default formatting config for user: $userId")
+                FormattingConfig(
+                    userId = userId,
+                    rules = DefaultPrintScriptRules.getDefaultConfig(),
+                )
+            }
 
         return config.toDto()
     }
@@ -46,7 +47,11 @@ class FormattingConfigService {
     /**
      * Habilita o deshabilita una regla específica
      */
-    fun updateRule(userId: String, ruleId: String, enabled: Boolean): FormattingConfigResponse {
+    fun updateRule(
+        userId: String,
+        ruleId: String,
+        enabled: Boolean,
+    ): FormattingConfigResponse {
         logger.info("Updating rule '$ruleId' to $enabled for user: $userId")
 
         // Verificar que la regla existe
@@ -56,26 +61,28 @@ class FormattingConfigService {
             return FormattingConfigResponse(
                 success = false,
                 message = "Rule not found: $ruleId",
-                config = null
+                config = null,
             )
         }
 
         // Obtener o crear configuración del usuario
-        val config = userConfigs.getOrPut(userId) {
-            FormattingConfig(
-                userId = userId,
-                rules = DefaultPrintScriptRules.getDefaultConfig()
-            )
-        }
+        val config =
+            userConfigs.getOrPut(userId) {
+                FormattingConfig(
+                    userId = userId,
+                    rules = DefaultPrintScriptRules.getDefaultConfig(),
+                )
+            }
 
         // Actualizar la regla
         val updatedRules = config.rules.toMutableMap()
         updatedRules[ruleId] = enabled
 
-        val updatedConfig = config.copy(
-            rules = updatedRules,
-            lastUpdated = LocalDateTime.now().toString()
-        )
+        val updatedConfig =
+            config.copy(
+                rules = updatedRules,
+                lastUpdated = LocalDateTime.now().toString(),
+            )
 
         userConfigs[userId] = updatedConfig
 
@@ -84,14 +91,17 @@ class FormattingConfigService {
         return FormattingConfigResponse(
             success = true,
             message = "Rule updated successfully",
-            config = updatedConfig.toDto()
+            config = updatedConfig.toDto(),
         )
     }
 
     /**
      * Actualiza múltiples reglas a la vez
      */
-    fun bulkUpdateRules(userId: String, rulesUpdate: Map<String, Boolean>): FormattingConfigResponse {
+    fun bulkUpdateRules(
+        userId: String,
+        rulesUpdate: Map<String, Boolean>,
+    ): FormattingConfigResponse {
         logger.info("Bulk updating ${rulesUpdate.size} rules for user: $userId")
 
         // Verificar que todas las reglas existen
@@ -103,26 +113,28 @@ class FormattingConfigService {
             return FormattingConfigResponse(
                 success = false,
                 message = "Invalid rules: ${invalidRules.joinToString(", ")}",
-                config = null
+                config = null,
             )
         }
 
         // Obtener o crear configuración del usuario
-        val config = userConfigs.getOrPut(userId) {
-            FormattingConfig(
-                userId = userId,
-                rules = DefaultPrintScriptRules.getDefaultConfig()
-            )
-        }
+        val config =
+            userConfigs.getOrPut(userId) {
+                FormattingConfig(
+                    userId = userId,
+                    rules = DefaultPrintScriptRules.getDefaultConfig(),
+                )
+            }
 
         // Actualizar todas las reglas
         val updatedRules = config.rules.toMutableMap()
         updatedRules.putAll(rulesUpdate)
 
-        val updatedConfig = config.copy(
-            rules = updatedRules,
-            lastUpdated = LocalDateTime.now().toString()
-        )
+        val updatedConfig =
+            config.copy(
+                rules = updatedRules,
+                lastUpdated = LocalDateTime.now().toString(),
+            )
 
         userConfigs[userId] = updatedConfig
 
@@ -131,7 +143,7 @@ class FormattingConfigService {
         return FormattingConfigResponse(
             success = true,
             message = "Rules updated successfully",
-            config = updatedConfig.toDto()
+            config = updatedConfig.toDto(),
         )
     }
 
@@ -141,11 +153,12 @@ class FormattingConfigService {
     fun resetToDefaults(userId: String): FormattingConfigResponse {
         logger.info("Resetting formatting config to defaults for user: $userId")
 
-        val defaultConfig = FormattingConfig(
-            userId = userId,
-            rules = DefaultPrintScriptRules.getDefaultConfig(),
-            lastUpdated = LocalDateTime.now().toString()
-        )
+        val defaultConfig =
+            FormattingConfig(
+                userId = userId,
+                rules = DefaultPrintScriptRules.getDefaultConfig(),
+                lastUpdated = LocalDateTime.now().toString(),
+            )
 
         userConfigs[userId] = defaultConfig
 
@@ -154,7 +167,7 @@ class FormattingConfigService {
         return FormattingConfigResponse(
             success = true,
             message = "Configuration reset to defaults",
-            config = defaultConfig.toDto()
+            config = defaultConfig.toDto(),
         )
     }
 
@@ -162,12 +175,13 @@ class FormattingConfigService {
      * Obtiene solo las reglas habilitadas para un usuario
      */
     fun getEnabledRules(userId: String): List<FormattingRule> {
-        val config = userConfigs.getOrPut(userId) {
-            FormattingConfig(
-                userId = userId,
-                rules = DefaultPrintScriptRules.getDefaultConfig()
-            )
-        }
+        val config =
+            userConfigs.getOrPut(userId) {
+                FormattingConfig(
+                    userId = userId,
+                    rules = DefaultPrintScriptRules.getDefaultConfig(),
+                )
+            }
 
         return DefaultPrintScriptRules.ALL_RULES.filter { rule ->
             config.rules[rule.id] == true
@@ -177,41 +191,47 @@ class FormattingConfigService {
     /**
      * Verifica si una regla específica está habilitada
      */
-    fun isRuleEnabled(userId: String, ruleId: String): Boolean {
-        val config = userConfigs.getOrPut(userId) {
-            FormattingConfig(
-                userId = userId,
-                rules = DefaultPrintScriptRules.getDefaultConfig()
-            )
-        }
+    fun isRuleEnabled(
+        userId: String,
+        ruleId: String,
+    ): Boolean {
+        val config =
+            userConfigs.getOrPut(userId) {
+                FormattingConfig(
+                    userId = userId,
+                    rules = DefaultPrintScriptRules.getDefaultConfig(),
+                )
+            }
 
         return config.rules[ruleId] ?: false
     }
 
     // Extension functions para conversión
-    private fun FormattingRule.toDto() = FormattingRuleDto(
-        id = id,
-        name = name,
-        description = description,
-        enabled = enabled,
-        category = category.name
-    )
+    private fun FormattingRule.toDto() =
+        FormattingRuleDto(
+            id = id,
+            name = name,
+            description = description,
+            enabled = enabled,
+            category = category.name,
+        )
 
     private fun FormattingConfig.toDto(): FormattingConfigDto {
-        val rulesWithStatus = DefaultPrintScriptRules.ALL_RULES.map { rule ->
-            FormattingRuleDto(
-                id = rule.id,
-                name = rule.name,
-                description = rule.description,
-                enabled = this.rules[rule.id] ?: rule.enabled,
-                category = rule.category.name
-            )
-        }
+        val rulesWithStatus =
+            DefaultPrintScriptRules.ALL_RULES.map { rule ->
+                FormattingRuleDto(
+                    id = rule.id,
+                    name = rule.name,
+                    description = rule.description,
+                    enabled = this.rules[rule.id] ?: rule.enabled,
+                    category = rule.category.name,
+                )
+            }
 
         return FormattingConfigDto(
             userId = userId,
             rules = rulesWithStatus,
-            lastUpdated = lastUpdated
+            lastUpdated = lastUpdated,
         )
     }
 }

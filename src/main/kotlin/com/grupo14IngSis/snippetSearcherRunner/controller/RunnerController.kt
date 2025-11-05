@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/internal/snippets")
 class RunnerController(private val snippetService: SnippetService) {
-
     // ========== CREAR SNIPPET ==========
     @PostMapping
     fun processAndSave(
@@ -33,7 +32,7 @@ class RunnerController(private val snippetService: SnippetService) {
     fun updateSnippet(
         @PathVariable snippetId: Long,
         @RequestHeader("X-User-Id") userId: String,
-        @RequestBody updateRequest: SnippetUpdateRequest
+        @RequestBody updateRequest: SnippetUpdateRequest,
     ): ResponseEntity<SnippetUpdateResponse> {
         // Validar y actualizar el snippet
         val response = snippetService.validateAndUpdate(snippetId, userId, updateRequest)
@@ -45,7 +44,7 @@ class RunnerController(private val snippetService: SnippetService) {
     @GetMapping("/{snippetId}")
     fun getSnippet(
         @PathVariable snippetId: Long,
-        @RequestHeader("X-User-Id") userId: String
+        @RequestHeader("X-User-Id") userId: String,
     ): ResponseEntity<Snippet> {
         val snippet = snippetService.getSnippetById(snippetId, userId)
 
@@ -55,7 +54,7 @@ class RunnerController(private val snippetService: SnippetService) {
     // ========== OBTENER TODOS LOS SNIPPETS DEL USUARIO ==========
     @GetMapping
     fun getAllSnippets(
-        @RequestHeader("X-User-Id") userId: String
+        @RequestHeader("X-User-Id") userId: String,
     ): ResponseEntity<List<Snippet>> {
         val snippets = snippetService.getAllSnippetsByUser(userId)
 

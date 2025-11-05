@@ -5,26 +5,26 @@ data class FormattingRuleDto(
     val name: String,
     val description: String,
     val enabled: Boolean,
-    val category: String
+    val category: String,
 )
 
 data class FormattingConfigDto(
     val userId: String,
     val rules: List<FormattingRuleDto>,
-    val lastUpdated: String
+    val lastUpdated: String,
 )
 
 data class UpdateRuleRequest(
     val ruleId: String,
-    val enabled: Boolean
+    val enabled: Boolean,
 )
 
 data class BulkUpdateRulesRequest(
-    val rules: Map<String, Boolean> // ruleId -> enabled
+    val rules: Map<String, Boolean>, // ruleId -> enabled
 )
 
 data class FormattingConfigResponse(
     val success: Boolean,
     val message: String,
-    val config: FormattingConfigDto?
+    val config: FormattingConfigDto?,
 )

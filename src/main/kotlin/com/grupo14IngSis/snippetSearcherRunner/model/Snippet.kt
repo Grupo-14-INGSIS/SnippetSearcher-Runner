@@ -7,5 +7,5 @@ data class Snippet(
     val language: String,
     val version: String,
     val code: String,
-    val ownerId: String
+    val ownerId: String,
 )

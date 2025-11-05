@@ -17,7 +17,6 @@ data class ValidationResult(
 
 @Service
 class SnippetService(/* private val snippetRepository: SnippetRepository */) {
-
     // Simulación de base de datos en memoria
     private val snippetsDB = mutableMapOf<Long, Snippet>()
     private var nextId = 1L
@@ -39,15 +38,16 @@ class SnippetService(/* private val snippetRepository: SnippetRepository */) {
 
         // 2. Persistencia (Simulación en memoria)
         val snippetId = nextId++
-        val snippet = Snippet(
-            id = snippetId,
-            name = request.name,
-            description = request.description,
-            language = request.language,
-            version = "1.0",
-            code = request.code,
-            ownerId = request.userId
-        )
+        val snippet =
+            Snippet(
+                id = snippetId,
+                name = request.name,
+                description = request.description,
+                language = request.language,
+                version = "1.0",
+                code = request.code,
+                ownerId = request.userId,
+            )
         snippetsDB[snippetId] = snippet
 
         // 3. Respuesta Exitosa
@@ -61,11 +61,12 @@ class SnippetService(/* private val snippetRepository: SnippetRepository */) {
     fun validateAndUpdate(
         snippetId: Long,
         userId: String,
-        updateRequest: SnippetUpdateRequest
+        updateRequest: SnippetUpdateRequest,
     ): SnippetUpdateResponse {
         // 1. Verificar que el snippet existe
-        val existingSnippet = snippetsDB[snippetId]
-            ?: throw IllegalArgumentException("Snippet con ID $snippetId no encontrado")
+        val existingSnippet =
+            snippetsDB[snippetId]
+                ?: throw IllegalArgumentException("Snippet con ID $snippetId no encontrado")
 
         // 2. Verificar permisos (que el usuario sea el dueño)
         if (existingSnippet.ownerId != userId) {
@@ -88,20 +89,22 @@ class SnippetService(/* private val snippetRepository: SnippetRepository */) {
                 version = existingSnippet.version,
                 content = existingSnippet.code,
                 isValid = false,
-                validationErrors = listOf(
-                    "Error en línea ${validationResult.line}, columna ${validationResult.column}: ${validationResult.rule}"
-                )
+                validationErrors =
+                    listOf(
+                        "Error en línea ${validationResult.line}, columna ${validationResult.column}: ${validationResult.rule}",
+                    ),
             )
         }
 
         // 4. Actualizar el snippet
-        val updatedSnippet = existingSnippet.copy(
-            name = updateRequest.name ?: existingSnippet.name,
-            description = updateRequest.description ?: existingSnippet.description,
-            language = newLanguage,
-            version = updateRequest.version ?: existingSnippet.version,
-            code = newContent
-        )
+        val updatedSnippet =
+            existingSnippet.copy(
+                name = updateRequest.name ?: existingSnippet.name,
+                description = updateRequest.description ?: existingSnippet.description,
+                language = newLanguage,
+                version = updateRequest.version ?: existingSnippet.version,
+                code = newContent,
+            )
         snippetsDB[snippetId] = updatedSnippet
 
         // 5. Respuesta exitosa
@@ -113,15 +116,19 @@ class SnippetService(/* private val snippetRepository: SnippetRepository */) {
             version = updatedSnippet.version,
             content = updatedSnippet.code,
             isValid = true,
-            validationErrors = null
+            validationErrors = null,
         )
     }
 
     // ========== OBTENER SNIPPET POR ID ==========
-    fun getSnippetById(snippetId: Long, userId: String): Snippet {
+    fun getSnippetById(
+        snippetId: Long,
+        userId: String,
+    ): Snippet {
         // 1. Verificar que el snippet existe
-        val snippet = snippetsDB[snippetId]
-            ?: throw IllegalArgumentException("Snippet con ID $snippetId no encontrado")
+        val snippet =
+            snippetsDB[snippetId]
+                ?: throw IllegalArgumentException("Snippet con ID $snippetId no encontrado")
 
         // 2. Verificar permisos (que el usuario sea el dueño o tenga acceso)
         // TODO: Implementar lógica de permisos más compleja si es necesario

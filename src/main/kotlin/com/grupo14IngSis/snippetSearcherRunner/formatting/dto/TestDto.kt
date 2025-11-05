@@ -5,19 +5,19 @@ data class TestCaseDto(
     val snippetId: Long,
     val name: String,
     val inputs: List<String>,
-    val expectedOutputs: List<String>
+    val expectedOutputs: List<String>,
 )
 
 data class CreateTestRequest(
     val name: String,
     val inputs: List<String>,
-    val expectedOutputs: List<String>
+    val expectedOutputs: List<String>,
 )
 
 data class UpdateTestRequest(
     val name: String?,
     val inputs: List<String>?,
-    val expectedOutputs: List<String>?
+    val expectedOutputs: List<String>?,
 )
 
 data class TestResultDto(
@@ -25,18 +25,18 @@ data class TestResultDto(
     val testName: String,
     val passed: Boolean,
     val executionSteps: List<ExecutionStep>,
-    val error: String?
+    val error: String?,
 )
 
 data class ExecutionStep(
     val stepNumber: Int,
     val type: StepType,
     val content: String,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
 )
 
 enum class StepType {
     INPUT,
     OUTPUT,
-    ERROR
+    ERROR,
 }
