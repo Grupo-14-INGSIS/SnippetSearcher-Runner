@@ -24,7 +24,7 @@ Thumbs.db
 *.iml
 
 # --- Documentación o archivos locales ---
-README.md
+ReadMe.md
 docs/
 notes/
 tests/
