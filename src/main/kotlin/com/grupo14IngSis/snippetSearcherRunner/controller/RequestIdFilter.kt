@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Component
 import java.util.UUID
+import org.slf4j.MDC
 
 @Component
 class RequestIdFilter : Filter {
@@ -14,18 +15,20 @@ class RequestIdFilter : Filter {
         val httpRequest = request as HttpServletRequest
         val httpResponse = response as HttpServletResponse
 
-        // Obtener o generar request-id
         val requestId = httpRequest.getHeader("X-Request-Id") ?: UUID.randomUUID().toString()
 
-        // Agregar a New Relic como custom attribute
+        // Agregar a MDC para logs
+        MDC.put("request_id", requestId)
+
+        // Agregar a New Relic
         NewRelic.addCustomParameter("request_id", requestId)
 
-        // Propagar en response
         httpResponse.setHeader("X-Request-Id", requestId)
 
-        // Log
-        println("[$requestId] ${httpRequest.method} ${httpRequest.requestURI}")
-
-        chain.doFilter(request, response)
+        try {
+            chain.doFilter(request, response)
+        } finally {
+            MDC.clear()
+        }
     }
 }
