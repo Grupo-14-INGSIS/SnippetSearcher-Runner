@@ -1,10 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import kotlin.collections.*
-import kotlinx.coroutines.*
 
 
 /**
@@ -36,17 +35,13 @@ data class ExecutionResponse(
     val errors: List<String>?,
 )
 
-/**
- * Cliente HTTP para comunicarse con el Snippet Service
- * Este servicio maneja todos los snippets del sistema
- */
+
 @Service
 class SnippetServiceClient(
     private val webClient: WebClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    // URL del servicio de snippets (configurable via variable de entorno)
     private val snippetServiceUrl =
         System.getenv("SNIPPET_SERVICE_URL")
             ?: "http://localhost:8081"
@@ -55,19 +50,15 @@ class SnippetServiceClient(
         logger.info("SnippetServiceClient initialized with URL: $snippetServiceUrl")
     }
 
-    /**
-     * Obtiene todos los snippets de un usuario
-     *
-     * @param userId ID del usuario
-     * @return Lista de snippets o lista vacía si hay error
-     */
     fun getSnippetsByUserId(userId: String): List<SnippetDto> {
         logger.info("Fetching all snippets for user: $userId")
+        val requestId = MDC.get("request_id")
 
         return try {
             val snippets =
                 webClient.get()
                     .uri("$snippetServiceUrl/api/snippets/user/$userId")
+                    .header("X-Request-ID", requestId)
                     .retrieve()
                     .bodyToMono<List<SnippetDto>>()
                     .block() ?: emptyList()
@@ -80,19 +71,15 @@ class SnippetServiceClient(
         }
     }
 
-    /**
-     * Cuenta el número total de snippets de un usuario
-     *
-     * @param userId ID del usuario
-     * @return Número de snippets o 0 si hay error
-     */
     fun countSnippetsByUserId(userId: Int): Int {
         logger.debug("Counting snippets for user: $userId")
+        val requestId = MDC.get("request_id")
 
         return try {
             val count =
                 webClient.get()
                     .uri("$snippetServiceUrl/api/snippets/user/$userId/count")
+                    .header("X-Request-ID", requestId)
                     .retrieve()
                     .bodyToMono<Int>()
                     .block() ?: 0
@@ -105,24 +92,18 @@ class SnippetServiceClient(
         }
     }
 
-    /**
-     * Obtiene snippets después de un ID específico (para reanudar procesamiento)
-     * Útil cuando un job falla y necesita continuar desde donde se quedó
-     *
-     * @param userId ID del usuario
-     * @param afterSnippetId ID del último snippet procesado
-     * @return Lista de snippets restantes
-     */
     fun getSnippetsAfter(
         userId: String,
         afterSnippetId: String,
     ): List<SnippetDto> {
         logger.info("Fetching snippets for user $userId after snippet $afterSnippetId")
+        val requestId = MDC.get("request_id")
 
         return try {
             val snippets =
                 webClient.get()
                     .uri("$snippetServiceUrl/api/snippets/user/$userId/after/$afterSnippetId")
+                    .header("X-Request-ID", requestId)
                     .retrieve()
                     .bodyToMono<List<SnippetDto>>()
                     .block() ?: emptyList()
@@ -135,22 +116,17 @@ class SnippetServiceClient(
         }
     }
 
-    /**
-     * Actualiza el contenido de un snippet (después de formatearlo)
-     *
-     * @param snippetId ID del snippet a actualizar
-     * @param content Nuevo contenido formateado
-     * @return true si se actualizó correctamente, false si hubo error
-     */
     fun updateSnippetContent(
         snippetId: String,
         content: String,
     ): Boolean {
         logger.debug("Updating content for snippet: $snippetId")
+        val requestId = MDC.get("request_id")
 
         return try {
             webClient.put()
                 .uri("$snippetServiceUrl/api/snippets/$snippetId/content")
+                .header("X-Request-ID", requestId)
                 .bodyValue(mapOf("content" to content))
                 .retrieve()
                 .toBodilessEntity()
@@ -164,16 +140,13 @@ class SnippetServiceClient(
         }
     }
 
-    /**
-     * Verifica si el Snippet Service está disponible
-     * Útil para health checks
-     *
-     * @return true si el servicio responde, false si no
-     */
     fun isServiceAvailable(): Boolean {
+        val requestId = MDC.get("request_id")
+
         return try {
             webClient.get()
                 .uri("$snippetServiceUrl/actuator/health")
+                .header("X-Request-ID", requestId)
                 .retrieve()
                 .toBodilessEntity()
                 .block()
@@ -184,19 +157,15 @@ class SnippetServiceClient(
         }
     }
 
-    /**
-     * Obtiene los test cases de un snippet
-     *
-     * @param snippetId ID del snippet
-     * @return Lista de test cases o lista vacía si hay error
-     */
     fun getTestCases(snippetId: String): List<TestCaseDto> {
         logger.debug("Fetching test cases for snippet: $snippetId")
+        val requestId = MDC.get("request_id")
 
         return try {
             val testCases =
                 webClient.get()
                     .uri("$snippetServiceUrl/api/snippets/$snippetId/test-cases")
+                    .header("X-Request-ID", requestId)
                     .retrieve()
                     .bodyToMono<List<TestCaseDto>>()
                     .block() ?: emptyList()
@@ -209,15 +178,6 @@ class SnippetServiceClient(
         }
     }
 
-    /**
-     * Ejecuta un snippet con PrintScript
-     *
-     * @param content Código del snippet
-     * @param language Lenguaje (printscript)
-     * @param version Versión (1.0, 1.1)
-     * @param inputs Entradas del usuario
-     * @return Lista con las salidas de la ejecución
-     */
     fun executeSnippet(
         content: String,
         language: String,
@@ -225,6 +185,7 @@ class SnippetServiceClient(
         inputs: List<String>,
     ): List<String> {
         logger.debug("Executing snippet via PrintScript")
+        val requestId = MDC.get("request_id")
 
         return try {
             val request =
@@ -238,6 +199,7 @@ class SnippetServiceClient(
             val response =
                 webClient.post()
                     .uri("$snippetServiceUrl/api/snippets/execute")
+                    .header("X-Request-ID", requestId)
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono<ExecutionResponse>()
