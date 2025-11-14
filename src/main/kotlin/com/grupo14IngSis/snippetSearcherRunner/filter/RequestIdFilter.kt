@@ -1,4 +1,4 @@
-package com.grupo14IngSis.runner.filter
+package com.grupo14IngSis.snippetSearcherRunner.filter
 
 import com.newrelic.api.agent.NewRelic
 import jakarta.servlet.FilterChain
