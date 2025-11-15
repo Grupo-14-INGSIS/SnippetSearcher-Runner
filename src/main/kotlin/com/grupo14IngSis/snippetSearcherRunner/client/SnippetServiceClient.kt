@@ -4,8 +4,7 @@ import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-
-
+import org.springframework.web.reactive.function.client.bodyToMono
 /**
  * DTO que representa un snippet del servicio externo
  */
