@@ -1,22 +1,6 @@
 spring:
   application:
     name: snippet-searcher-runner
-  kafka:
-    consumer:
-      topics:
-        - snippet.updated
-        - snippet.created
-    producer:
-      topics:
-        - testing.completed
-  #datasource:
-  #  url: jdbc:postgresql://postgres:5432/userdb
-  #  username: postgres
-  #  password: password
-  #jpa:
-  #  hibernate:
-  #    ddl-auto: update
-  #  show-sql: true
 
 server:
   port: 8082

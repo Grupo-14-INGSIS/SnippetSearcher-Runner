@@ -1,0 +1,20 @@
+#################################
+#                               #
+#   R E D I S - S T R E A M S   #
+#                               #
+#################################
+
+Channels:
+    * a-channel
+Services:
+    * App
+    * Runner
+Connections:
+    * App <-> a-channel <-> Runner
+Events:
+    * From App:
+        + FORMAT_SNIPPET
+        + LINT_SNIPPET
+        + RUN_TEST
+    * From Runner:
+        + OUTPUT_TEST
