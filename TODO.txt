@@ -1,0 +1,40 @@
+Casos de uso:
+10. Ejecutar tests para snippets
+12. Formatear snippets
+15. Verificar linting de snippets
+16. Ejecutar tests automáticos
+
+TESTING:
+* Runner recibe el snippet y el test
+* Runner ejecuta el snippet con el input del test
+* Runner evalúa el output (expected, actual)
+* Runner retorna el resultado:
+    {
+        snippet_id,
+        input,
+        output: {
+            expected,
+            actual
+        }
+    }
+
+Forma del test: (snippet, input, expected)
+
+FORMATTING:
+* Runner recibe el snippet y las reglas de formateo
+* Runner formatea el snippet
+* Runner devuelve el snippet formateado:
+    {
+        snippet_id
+        snippet
+    }
+
+LINTING:
+* Runner recibe el snippet y las reglas de linting
+* Runner evalúa el formato del snippet
+* Runner devuelve una respuesta:
+    {
+        snippet_id
+        status (OK, ERR)
+        errors [...]
+    }

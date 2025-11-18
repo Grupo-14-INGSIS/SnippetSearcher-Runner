@@ -1,0 +1,263 @@
+#########################
+#                       #
+#   E N D P O I N T S   #
+#                       #
+#########################
+
+===== NEW =====
+
+----- Summary -----
+
+SnippetRunnerController
+    POST   /api/v1/execution/run
+    GET    /api/v1/execution/{executionId}/status
+    POST   /api/v1/execution/{executionId}/input
+    DELETE /api/v1/execution/{executionId}
+FormatterJobController
+    GET    /api/v1/formatting/rules
+    GET    /api/v1/formatting/rules/configurable
+    GET    /api/v1/formatting/rules/mandatory
+    POST   /api/v1/formatting
+    GET    /api/v1/formatting/{jobId}
+    DELETE /api/v1/formatting/{jobId}
+LintingJobController
+    GET    /api/v1/linting/rules
+    GET    /api/v1/linting/rules/configurable
+    GET    /api/v1/linting/rules/mandatory
+    POST   /api/v1/linting
+    GET    /api/v1/linting/{jobId}/status
+    DELETE /api/v1/linting/{jobId}
+TestingJobController
+    POST   /api/v1/testing
+    GET    /api/v1/testing/{jobId}
+    DELETE /api/v1/testing/{jobId}
+
+----- Detailed -----
+
+SnippetRunnerController
+    POST   /api/v1/execution/run
+        Start execution of a snippet
+        body:
+            {
+                snippetId{snippetId},
+                snippet:{snippet}
+            }
+        response:
+            {
+                executionId:{executionId},
+                snippetId:{snippetId},
+                status:RUNNING/WAITING/PENDING/CANCELLED/FINISHED/ERROR
+            }
+    GET    /api/v1/execution/{executionId}/status
+        Get snippet execution status:
+        response:
+            {
+                executionId:{executionId}
+                snippetId: {snippetId},
+                status:RUNNING/WAITING/PENDING/CANCELLED/FINISHED/ERROR
+            }
+    POST   /api/v1/execution/{executionId}/input
+        Give input for the execution
+        body:
+            {
+                executionId:{executionId}
+                snippetId:{snippetId},
+                input:{input}
+            }
+    DELETE /api/v1/execution/{executionId}
+        Cancel execution of a snippet
+
+FormatterJobController
+    GET    /api/v1/formatting/rules
+    GET    /api/v1/formatting/rules/configurable
+    GET    /api/v1/formatting/rules/mandatory
+        Get formatting rules. Configurable rules come with their default values
+    POST   /api/v1/formatting
+        Start a formatting job
+        body:
+            {
+                snippetId:{snippetId},
+                snippet:{snippet}
+                rules: {
+                    rule1:{value1},
+                    rule2:{value2},
+                    ...
+                }
+            }
+        response:
+            {
+                jobId:{jobId},
+                snippetId:{snippetId},
+            }
+    GET    /api/v1/formatting/{jobId}
+        Get the formatting job status:
+        {
+            jobId:{jobId}
+            snippetId:{snippetId},
+            status:DONE/ERROR/PENDING/FORMATTING/CANCELED
+        }
+    DELETE /api/v1/formatting/{jobId}
+        Cancel a formatting job
+
+LintingJobController
+    GET    /api/v1/linting/rules
+    GET    /api/v1/linting/rules/configurable
+    GET    /api/v1/linting/rules/mandatory
+        Get linting rules. Configurable rules come with default values
+    POST   /api/v1/linting
+        Start a linting job
+        body:
+            {
+                snippetId:{snippetId},
+                snippet:{snippet},
+                rules: {
+                    rule1:{value1},
+                    rule2:{value2},
+                    ...
+                }
+            }
+        response:
+            {
+                jobId:{jobId},
+                snippetId:{snippetId}
+            }
+    GET    /api/v1/linting/{jobId}/status
+        Get the status of a linting job:
+        {
+            jobId:{jobId}
+            snippetId:{snippetId}
+            status:DONE/ERROR/PENDING/LINTING/CANCELED
+        }
+    DELETE /api/v1/linting/{jobId}
+        Cancel a linting job
+
+TestingJobController
+    POST   /api/v1/testing
+        Start a testing job
+        body:
+            {
+                snippetId:{snippetId}
+                snippet:{snippet}
+                input:{input}
+                expected:{expected}
+            }
+        response:
+            {
+                jobId:{jobId},
+                snippetId:{snippetId}
+                input:{input}
+                expected:{expected}
+            }
+    GET    /api/v1/testing/{jobId}
+        Get testing job status:
+        {
+            jobId:{jobId},
+            snippetId:{snippetId}
+            input:{input}
+            expected:{expected}
+            actual:{actual_or_empty}
+            status:OK/FAILED/TESTING/CANCELED/ERROR/PENDING
+        }
+    DELETE /api/v1/testing/{jobId}
+        Cancel the execution of a testing job
+
+===== OLD =====
+
+RunnerController
+    POST   /internal/snippets/
+    PUT    /internal/snippets/{snippetId}
+    GET    /internal/snippets/{snippetId}
+    GET    /internal/snippets
+FormattingController
+    GET    /api/v1/formatting/rules
+    GET    /api/v1/formatting/config?userId={userId}
+    PUT    /api/v1/formatting/config/rule?userId={userId}
+    PUT    /api/v1/formatting/config/bulk?userId={userId}
+    POST   /api/v1/formatting/config/reset?userId={userId}
+    GET    /api/v1/formatting/config/enabled?userId={userId}
+    GET    /api/v1/formatting/config/enabled/{ruleId}?userId={userId}
+TestController.kt
+    POST   /api/v1/snippets/{snippetId}/tests?userId={userId}
+    GET    /api/v1/snippets/{snippetId}/tests?userId={userId}
+    GET    /api/v1/tests/{testId}?userId={userId}
+    PUT    /api/v1/tests/{testId}?userId={userId}
+    DELETE /api/v1/tests/{testId}?userId={userId}
+    POST   /api/v1/snippets/{snippetId}/tests/{testId}/run?userId={userId}
+    POST   /api/v1/snippets/{snippetId}/tests/run-all?userId={userId}
+LintingJobController.kt
+    GET     /api/linting-jobs/{jobId}
+SnippetExecutionController.kt
+    POST    /api/execution/start
+    GET     /api/execution/events/{executionId}
+    POST    /api/execution/input
+    DELETE  /api/execution/{executionId}
+TestingController.kt
+    POST    /api/testing/submit
+    POST    /api/testing/execute
+    GET     /api/testing/{snippetId}/results
+
+Detailed:
+
+RunnerController
+* Create snippet
+    POST   /internal/snippets/
+* Update snippet
+    PUT    /internal/snippets/{snippetId}
+* Get snippet
+    GET    /internal/snippets/{snippetId}
+* Get snippet for user
+    GET    /internal/snippets
+
+FormattingController
+* Get all formatting rules
+    GET    /api/v1/formatting/rules
+* Get formatting configuration for a user
+    GET    /api/v1/formatting/config?userId={userId}
+* Set a formatting rule
+    PUT    /api/v1/formatting/config/rule?userId={userId}
+* Set many formatting rules at the same time
+    PUT    /api/v1/formatting/config/bulk?userId={userId}
+* Reset formatting rules
+    POST   /api/v1/formatting/config/reset?userId={userId}
+* Get enabled rules for a user
+    GET    /api/v1/formatting/config/enabled?userId={userId}
+* Check if a rule is enabled or not
+    GET    /api/v1/formatting/config/enabled/{ruleId}?userId={userId}
+
+TestController.kt
+* Create a test for a snippet
+    POST   /api/v1/snippets/{snippetId}/tests?userId={userId}
+* Get all tests for a snippet
+    GET    /api/v1/snippets/{snippetId}/tests?userId={userId}
+* Get specific test
+    GET    /api/v1/tests/{testId}?userId={userId}
+* Update test
+    PUT    /api/v1/tests/{testId}?userId={userId}
+* Delete test
+    DELETE /api/v1/tests/{testId}?userId={userId}
+* Run one test
+    POST   /api/v1/snippets/{snippetId}/tests/{testId}/run?userId={userId}
+* Run all tests for a snippet
+    POST   /api/v1/snippets/{snippetId}/tests/run-all?userId={userId}
+
+LintingJobController.kt
+* Get status and results of a linting job
+    GET     /api/linting-jobs/{jobId}
+
+SnippetExecutionController.kt
+* Execute a snippet
+    POST    /api/execution/start
+*
+    GET     /api/execution/events/{executionId}
+* Provide input for an execution
+    POST    /api/execution/input
+* Cancel execution
+    DELETE  /api/execution/{executionId}
+
+TestingController.kt
+* Add test
+    POST    /api/testing/submit
+* Run test
+    POST    /api/testing/execute
+* Get results of an execution
+    GET     /api/testing/{snippetId}/results
