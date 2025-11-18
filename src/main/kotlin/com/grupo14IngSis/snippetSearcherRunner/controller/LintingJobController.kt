@@ -1,6 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
+import com.grupo14IngSis.snippetSearcherRunner.linting.dto.GetLintingRulesResponse
 import com.grupo14IngSis.snippetSearcherRunner.linting.dto.LintingJobRequest
+import com.grupo14IngSis.snippetSearcherRunner.linting.dto.LintingJobResponse
+import com.grupo14IngSis.snippetSearcherRunner.linting.dto.LintingJobStatus
 import com.grupo14IngSis.snippetSearcherRunner.linting.dto.LintingJobStatusResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -17,15 +20,18 @@ class LintingJobController(
     */
 
     @GetMapping("/rules")
-    fun getAllLintingRules(): ResponseEntity<Map<String, Any>> {
+    fun getAllLintingRules(): ResponseEntity<GetLintingRulesResponse> {
+        return ResponseEntity.ok(GetLintingRulesResponse(listOf()))
     }
 
     @GetMapping("/rules/optional")
-    fun getConfigurableLintingRules(): ResponseEntity<Map<String, Any>> {
+    fun getConfigurableLintingRules(): ResponseEntity<GetLintingRulesResponse> {
+        return ResponseEntity.ok(GetLintingRulesResponse(listOf()))
     }
 
     @GetMapping("/rules/mandatory")
-    fun getMandatoryLintingRules(): ResponseEntity<Map<String, Any>> {
+    fun getMandatoryLintingRules(): ResponseEntity<GetLintingRulesResponse> {
+        return ResponseEntity.ok(GetLintingRulesResponse(listOf()))
     }
 
     /*
@@ -51,7 +57,8 @@ class LintingJobController(
     @PostMapping("")
     fun createLintingJob(
         @RequestBody request: LintingJobRequest,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<LintingJobResponse> {
+        return ResponseEntity.ok(LintingJobResponse("Job", "Snippet"))
     }
 
     /*
@@ -68,6 +75,9 @@ class LintingJobController(
     fun getJobStatus(
         @PathVariable jobId: String,
     ): ResponseEntity<LintingJobStatusResponse> {
+        return ResponseEntity.ok(LintingJobStatusResponse(
+            "Job", "Snippet", LintingJobStatus.DONE
+        ))
     }
 
     /*
@@ -78,5 +88,6 @@ class LintingJobController(
     fun cancelLinting(
         @PathVariable jobId: String,
     ): ResponseEntity<*> {
+        return ResponseEntity.noContent() as ResponseEntity<*>
     }
 }

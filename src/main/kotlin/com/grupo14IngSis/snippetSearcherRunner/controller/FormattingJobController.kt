@@ -1,6 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.*
+import com.grupo14IngSis.snippetSearcherRunner.formatting.dto.*
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingConfigService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -53,7 +54,9 @@ class FormattingJobController(
             }
     */
     @PostMapping("/")
-    fun startJob() {
+    fun startJob(
+        @RequestBody request: FormattingConfigDto
+    ) {
     }
 
     /*
@@ -68,7 +71,7 @@ class FormattingJobController(
     @GetMapping("/{jobId}")
     fun getJobStatus(
         @PathVariable jobId: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<FormattingJobStatusResponse> {
     }
 
     /*
@@ -78,7 +81,7 @@ class FormattingJobController(
     @DeleteMapping("/{jobId}")
     fun cancelJob(
         @PathVariable jobId: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<*> {
     }
 
 }
