@@ -15,33 +15,16 @@ data class ValidationResult(
 @Service
 class SnippetService(/* private val snippetRepository: SnippetRepository */) {
 
-    fun validateAndSave(request: SnippetCreationRequest): SnippetCreationResponse {
-
-        // 1. **Validación del Snippet** (Lógica del parser)
+    fun validate(request: SnippetCreationRequest) {
         val validationResult = validateCode(request.code, request.language)
 
         if (!validationResult.isValid) {
-            // Si es inválido, lanzamos la excepción con los detalles
-            throw SnippetValidationException(
-                message = "El código no es válido según el parser.",
-                rule = validationResult.rule,
-                line = validationResult.line,
-                column = validationResult.column
-            )
+            throw SnippetValidationException("Snippet not validated", "To be implemented", 0, 0)
         }
-
-        // 2. **Persistencia** (Simulación)
-        // snippetRepository.save(...)
-        val snippetId = "RUNNER-${System.currentTimeMillis()}"
-
-        // 3. **Respuesta Exitosa**
-        return SnippetCreationResponse(
-            success = true,
-            message = "Snippet '${request.name}' creado y guardado con ID: $snippetId"
-        )
+        // No hay código de persistencia
     }
 
-    // Simulación del parser según las "Notas" del caso de uso
+    // Reemplazar por lógica del Parser
     private fun validateCode(code: String, language: String): ValidationResult {
         // Simulación: Falla si el código contiene una palabra prohibida
         if (code.contains("prohibited_call", ignoreCase = true)) {
