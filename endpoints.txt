@@ -1,12 +1,4 @@
-#########################
-#                       #
-#   E N D P O I N T S   #
-#                       #
-#########################
-
-===== NEW =====
-
------ Summary -----
+===== ENDPOINTS =====
 
 SnippetRunnerController
     POST   /api/v1/execution/run
@@ -15,24 +7,19 @@ SnippetRunnerController
     DELETE /api/v1/execution/{executionId}
 FormatterJobController
     GET    /api/v1/formatting/rules
-    GET    /api/v1/formatting/rules/configurable
-    GET    /api/v1/formatting/rules/mandatory
-    POST   /api/v1/formatting
-    GET    /api/v1/formatting/{jobId}
-    DELETE /api/v1/formatting/{jobId}
 LintingJobController
     GET    /api/v1/linting/rules
-    GET    /api/v1/linting/rules/configurable
-    GET    /api/v1/linting/rules/mandatory
-    POST   /api/v1/linting
-    GET    /api/v1/linting/{jobId}/status
-    DELETE /api/v1/linting/{jobId}
 TestingJobController
     POST   /api/v1/testing
-    GET    /api/v1/testing/{jobId}
-    DELETE /api/v1/testing/{jobId}
+
+===== REDIS-STREAMS =====
+
+FormattingJonConsumer
+LintingJobConsumer
 
 ----- Detailed -----
+
+*NEEDS FIX*
 
 SnippetRunnerController
     POST   /api/v1/execution/run
@@ -147,6 +134,7 @@ TestingJobController
                 snippetId:{snippetId}
                 input:{input}
                 expected:{expected}
+                agregar respuesta
             }
     GET    /api/v1/testing/{jobId}
         Get testing job status:

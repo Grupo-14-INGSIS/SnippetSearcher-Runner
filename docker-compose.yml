@@ -5,10 +5,14 @@ services:
       context: .
       dockerfile: Dockerfile.multi
     environment:
-      - SNIPPET_SERVICE_URL=http://app:8080
       - FORMATTER_URL=http://formatter:8080
     networks:
       - reverse-proxy-network
+
+spring:
+  redis:
+    host: redis
+    port: 6379
 
 networks:
   reverse-proxy-network:
