@@ -5,7 +5,7 @@ SnippetRunnerController
     GET    /api/v1/execution/{executionId}/status
     POST   /api/v1/execution/{executionId}/input
     DELETE /api/v1/execution/{executionId}
-FormatterJobController
+FormattingJobController
     GET    /api/v1/formatting/rules
 LintingJobController
     GET    /api/v1/linting/rules
