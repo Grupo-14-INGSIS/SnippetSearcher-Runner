@@ -5,6 +5,16 @@ spring:
     redis:
       host: redis
       port: 6379
+redis:
+  stream:
+    key: "jobs"
+
+app:
+  bucket:
+    url: http://${BUCKET_SERVICE}:${BUCKET_PORT}
+  app:
+    url: http://${APP_HOST}:${APP_PORT}
+
 
 server:
   port: 8082
