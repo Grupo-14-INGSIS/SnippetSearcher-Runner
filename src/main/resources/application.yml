@@ -1,6 +1,10 @@
 spring:
   application:
     name: snippet-searcher-runner
+  data:
+    redis:
+      host: redis
+      port: 6379
 
 server:
   port: 8082
