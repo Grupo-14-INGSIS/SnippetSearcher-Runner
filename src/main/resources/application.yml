@@ -1,9 +1,10 @@
 spring:
   application:
     name: snippet-searcher-runner
-  redis:
-    host: redis
-    port: 6379
+  data:
+    redis:
+      host: redis
+      port: 6379
 redis:
   stream:
     key: "jobs"
@@ -28,3 +29,5 @@ logging:
 #jwt:
 #  secret: tu-super-secreto-jwt-key-minimo-256-bits
 #  expiration: 86400000 # 24 horas en ms
+
+
