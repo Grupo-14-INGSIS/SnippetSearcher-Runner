@@ -1,87 +1,81 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherRunner.dto.*
-import com.grupo14IngSis.snippetSearcherRunner.formatting.dto.*
-import com.grupo14IngSis.snippetSearcherRunner.service.FormattingConfigService
+import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/formatting")
+@RequestMapping("/api/v1/users/{userId}/formatting/rules")
 class FormattingJobController(
-    private val formattingConfigService: FormattingConfigService,
+    private val formattingService: FormattingService,
 ) {
     /**
-     * Obtiene todas las reglas de formateo disponibles
+     * GET    /api/v1/users/{userId}/formatting/rules/{language}
      *
-     * GET /api/v1/formatting/rules
+     * Get rule configuration for a user
+     *
+     * Response:
+     *
+     *    {
+     *        rule1: conf1,
+     *        rule2: conf2,
+     *        ...
+     *    }
+     *
+     * Error Responses:
+     *
+     *    {
+     *        status: 404,
+     *        message: "User not found"
+     *    }
      */
-    @GetMapping("/rules")
-    fun getAllRules(): ResponseEntity<List<FormattingRuleDto>> {
-        val rules = formattingConfigService.getAvailableRules()
-        return ResponseEntity.ok(rules)
-    }
-
-    @GetMapping("/rules/configurable")
-    fun getConfigRules(): ResponseEntity<List<FormattingRuleDto>> {
-        val rules = formattingConfigService.getAvailableRules()
-        return ResponseEntity.ok(rules)
-    }
-
-    @GetMapping("/rules/mandatory")
-    fun getMandatoryRules(): ResponseEntity<List<FormattingRuleDto>> {
-        val rules = formattingConfigService.getAvailableRules()
-        return ResponseEntity.ok(rules)
-    }
-
-    /*
-    POST   /api/v1/formatting
-        Start a formatting job
-        body:
-            {
-                snippetId:{snippetId},
-                snippet:{snippet}
-                rules: {
-                    rule1:{value1},
-                    rule2:{value2},
-                    ...
-                }
-            }
-        response:
-            {
-                jobId:{jobId},
-                snippetId:{snippetId},
-            }
-    */
-    @PostMapping("/")
-    fun startJob(
-        @RequestBody request: FormattingConfigDto
-    ) {
-    }
-
-    /*
-    GET    /api/v1/formatting/{jobId}
-        Get the formatting job status:
-        {
-            jobId:{jobId}
-            snippetId:{snippetId},
-            status:DONE/ERROR/PENDING/FORMATTING/CANCELED
+    @GetMapping("/{language}")
+    fun getRules(
+        @PathVariable userId: String,
+        @PathVariable language: String,
+    ): ResponseEntity<Map<String, Any>> {
+        val rules: Map<String, Any> = formattingService.getRules(userId, language)
+        if (rules.isEmpty()) {
+            return ResponseEntity.status(404).body(mapOf("message" to "User or language not found"))
         }
-    */
-    @GetMapping("/{jobId}")
-    fun getJobStatus(
-        @PathVariable jobId: String
-    ): ResponseEntity<FormattingJobStatusResponse> {
+        return ResponseEntity.ok().body(rules)
     }
 
-    /*
-        DELETE /api/v1/formatting/{jobId}
-        Cancel a formatting job
-    */
-    @DeleteMapping("/{jobId}")
-    fun cancelJob(
-        @PathVariable jobId: String
+    /**
+     * PATCH   /api/v1/users/{userId}/formatting/rules/{language}
+     *
+     * Add or modify a configuration rule for a user
+     *
+     * Request:
+     *
+     *    {
+     *        rule1: newVal,
+     *        rule2: newVal,
+     *        rule4: newVal
+     *    }
+     *
+     * Successful Response:
+     *
+     *    (empty body)
+     *
+     * Error Responses:
+     *
+     *    {
+     *        status: 400,
+     *        message: "User not found" / "Language not found"
+     *    }
+     */
+    @PatchMapping("/{language}")
+    fun editRules(
+        @PathVariable userId: String,
+        @PathVariable language: String,
+        @RequestBody request: Map<String, Any>,
     ): ResponseEntity<*> {
+        try {
+            formattingService.updateRules(userId, language, request)
+            return ResponseEntity.noContent().build<String>()
+        } catch (e: IllegalArgumentException) {
+            return ResponseEntity.status(404).body(mapOf("message" to e.message))
+        }
     }
-
 }
