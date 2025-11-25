@@ -1,7 +1,8 @@
 package com.grupo14IngSis.snippetSearcherRunner.consumer
 
 import com.grupo14IngSis.snippetSearcherApp.client.AssetServiceClient
-import com.grupo14IngSis.snippetSearcherRunner.service.RunnerService
+import com.grupo14IngSis.snippetSearcherRunner.plugins.RunnerPlugin
+import com.grupo14IngSis.snippetSearcherRunner.plugins.TestPlugin
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -19,11 +20,14 @@ class SnippetTaskConsumer(
   private val redisTemplate: RedisTemplate<String, String>,
   @Value("\${redis.stream.key}") private val streamKey: String,
   private val assetServiceClient: AssetServiceClient,
-  private val services: Map<String, RunnerService>
 ) {
   private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
   private val group = "runner-group"
   private val consumer = Consumer.from(group, "runner-1")
+
+  private val plugins: Map<String, RunnerPlugin> = mapOf(
+    "test" to TestPlugin(),
+  )
 
   @PostConstruct
   fun init() {
@@ -69,12 +73,12 @@ class SnippetTaskConsumer(
     val snippetId = record.value["snippetId"]
 
     if (!(task == null || snippetId == null)) {
-      if (task in services) {
+      if (task in plugins) {
         logger.info("Received task '$task' for snippet '$snippetId' - messageId ${record.id}")
         // Get snippet from asset-service
         val snippet: String? = assetServiceClient.getAsset("snippet", snippetId)
         // Perform task
-        services[task]!!.run(snippet)
+        plugins[task]!!.run(snippet)
       }
     }
 
