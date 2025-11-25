@@ -26,10 +26,4 @@ class FormattingService(
     existing.configRules.putAll(newRules)
     repository.save(existing)
   }
-
-  @Transactional
-  fun deleteRules(userId: String) {
-    repository.deleteByUserId(userId)
-  }
-
 }
