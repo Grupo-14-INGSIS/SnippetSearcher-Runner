@@ -3,8 +3,14 @@ spring:
     name: snippet-searcher-runner
   data:
     redis:
-      host: redis
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 2000
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
 redis:
   stream:
     key: "jobs"
@@ -15,19 +21,12 @@ app:
   app:
     url: http://${APP_HOST}:${APP_PORT}
 
-
 server:
   port: 8080
 
-# Configuración de logs con request-id
 logging:
   pattern:
     console: "[%X{request_id}] %d{yyyy-MM-dd HH:mm:ss} - %msg%n"
   level:
     root: INFO
     com.grupo14IngSis.snippetSearcher: DEBUG
-#jwt:
-#  secret: tu-super-secreto-jwt-key-minimo-256-bits
-#  expiration: 86400000 # 24 horas en ms
-
-
