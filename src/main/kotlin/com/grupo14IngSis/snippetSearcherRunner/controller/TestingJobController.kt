@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/testing")
 class TestingJobController(
     private val assetServiceClient: AssetServiceClient,
+    private val testingService: TestingService,
 ) {
-    private val testingService = TestingService()
-
     /**
      * POST   /api/v1/testing
      *

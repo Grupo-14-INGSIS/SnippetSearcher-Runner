@@ -1,8 +1,12 @@
 package com.grupo14IngSis.snippetSearcherRunner.converter
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class MapJsonConverterTest {
     private lateinit var converter: MapJsonConverter

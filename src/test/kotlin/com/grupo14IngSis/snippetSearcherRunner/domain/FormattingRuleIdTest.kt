@@ -1,11 +1,15 @@
 package com.grupo14IngSis.snippetSearcherRunner.domain
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class FormattingRuleIdTest {
     @Test

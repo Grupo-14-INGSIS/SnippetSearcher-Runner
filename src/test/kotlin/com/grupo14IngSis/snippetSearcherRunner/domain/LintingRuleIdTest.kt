@@ -1,13 +1,17 @@
 package com.grupo14IngSis.snippetSearcherRunner.domain
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotSame
 
-class LintingRuleIdOnlyTest {
+class LintingRuleIdTest {
     @Test
     fun `should create LintingRuleId with all parameters`() {
         val id =
@@ -376,5 +380,120 @@ class LintingRuleIdOnlyTest {
         assertEquals("user1", sortedByUser[0].userId)
         assertEquals("user2", sortedByUser[1].userId)
         assertEquals("user3", sortedByUser[2].userId)
+    }
+}
+
+class LintingRuleAndIdIntegrationTest {
+    @Test
+    fun `LintingRule should use LintingRuleId correctly`() {
+        val userId = "user123"
+        val language = "kotlin"
+        val configRules = mutableMapOf<String, Any>("maxLineLength" to 120)
+
+        val lintingRule =
+            LintingRule(
+                userId = userId,
+                setLanguage = language,
+                configRules = configRules,
+            )
+
+        val lintingRuleId = LintingRuleId(userId, language)
+
+        assertEquals(lintingRule.userId, lintingRuleId.userId)
+        assertEquals(lintingRule.setLanguage, lintingRuleId.setLanguage)
+    }
+
+    @Test
+    fun `should create LintingRuleId from LintingRule`() {
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
+
+        val id = LintingRuleId(lintingRule.userId, lintingRule.setLanguage)
+
+        assertEquals("user123", id.userId)
+        assertEquals("kotlin", id.setLanguage)
+    }
+
+    @Test
+    fun `should use LintingRuleId as composite key in map`() {
+        val map = mutableMapOf<LintingRuleId, LintingRule>()
+
+        val id = LintingRuleId("user123", "kotlin")
+        val rule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
+
+        map[id] = rule
+
+        assertEquals(rule, map[id])
+        assertEquals(1, map.size)
+    }
+
+    @Test
+    fun `should handle multiple rules for same user with different languages`() {
+        val map = mutableMapOf<LintingRuleId, LintingRule>()
+        val userId = "user123"
+
+        val kotlinRule =
+            LintingRule(
+                userId = userId,
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
+
+        val javaRule =
+            LintingRule(
+                userId = userId,
+                setLanguage = "java",
+                configRules = mutableMapOf("maxLineLength" to 100),
+            )
+
+        map[LintingRuleId(userId, "kotlin")] = kotlinRule
+        map[LintingRuleId(userId, "java")] = javaRule
+
+        assertEquals(2, map.size)
+        assertEquals(120, map[LintingRuleId(userId, "kotlin")]?.configRules?.get("maxLineLength"))
+        assertEquals(100, map[LintingRuleId(userId, "java")]?.configRules?.get("maxLineLength"))
+    }
+
+    @Test
+    fun `should retrieve LintingRule using LintingRuleId`() {
+        val storage = mutableMapOf<LintingRuleId, LintingRule>()
+
+        val id = LintingRuleId("user123", "kotlin")
+        val rule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120, "enforceNamingConvention" to true),
+            )
+
+        storage[id] = rule
+
+        val retrieved = storage[id]
+        assertNotNull(retrieved)
+        assertEquals(rule.userId, retrieved?.userId)
+        assertEquals(rule.setLanguage, retrieved?.setLanguage)
+        assertEquals(2, retrieved?.configRules?.size)
+    }
+
+    @Test
+    fun `should filter rules by userId using LintingRuleId`() {
+        val storage = mutableMapOf<LintingRuleId, LintingRule>()
+
+        storage[LintingRuleId("user123", "kotlin")] = LintingRule("user123", "kotlin")
+        storage[LintingRuleId("user123", "java")] = LintingRule("user123", "java")
+        storage[LintingRuleId("user456", "kotlin")] = LintingRule("user456", "kotlin")
+
+        val user123Rules = storage.filter { it.key.userId == "user123" }
+
+        assertEquals(2, user123Rules.size)
     }
 }

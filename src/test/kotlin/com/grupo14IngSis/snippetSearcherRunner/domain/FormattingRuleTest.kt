@@ -1,7 +1,10 @@
 package com.grupo14IngSis.snippetSearcherRunner.domain
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import kotlin.test.assertEquals
 
 class FormattingRuleTest {
     @Test
