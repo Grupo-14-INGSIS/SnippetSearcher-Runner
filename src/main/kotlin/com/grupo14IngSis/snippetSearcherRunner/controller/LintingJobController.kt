@@ -2,12 +2,17 @@ package com.grupo14IngSis.snippetSearcherRunner.controller
 
 import com.grupo14IngSis.snippetSearcherRunner.service.LintingService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/users/{userId}/linting/rules")
 class LintingJobController(
-    private val lintingService: LintingService
+    private val lintingService: LintingService,
 ) {
     /**
      * GET    /api/v1/users/{userId}/linting/rules/{language}

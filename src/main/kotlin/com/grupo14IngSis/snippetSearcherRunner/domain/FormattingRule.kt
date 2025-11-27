@@ -12,15 +12,13 @@ import org.hibernate.type.SqlTypes
 @Table(name = "formatting_rules")
 @IdClass(FormattingRuleId::class)
 data class FormattingRule(
-  @Id
-  @Column(name = "user_id")
-  val userId: String = "",
-
-  @Id
-  @Column(name = "set_language")
-  val setLanguage: String = "",
-
-  @JdbcTypeCode(SqlTypes.JSON)
-  @Column(name = "config_rules", columnDefinition = "jsonb")
-  var configRules: MutableMap<String, Any>? = null
+    @Id
+    @Column(name = "user_id")
+    val userId: String = "",
+    @Id
+    @Column(name = "set_language")
+    val setLanguage: String = "",
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "config_rules", columnDefinition = "jsonb")
+    var configRules: MutableMap<String, Any>? = null,
 )

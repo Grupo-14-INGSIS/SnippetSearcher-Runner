@@ -1,29 +1,19 @@
 package com.grupo14IngSis.snippetSearcherRunner.consumer
 
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
-import com.grupo14IngSis.snippetSearcherRunner.plugins.RunnerPlugin
-import com.grupo14IngSis.snippetSearcherRunner.plugins.TestPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
 import com.grupo14IngSis.snippetSearcherRunner.service.LintingService
-import jakarta.annotation.PostConstruct
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.data.redis.connection.stream.Consumer
-import org.springframework.data.redis.connection.stream.MapRecord
-import org.springframework.data.redis.connection.stream.ReadOffset
-import org.springframework.data.redis.connection.stream.StreamOffset
-import org.springframework.data.redis.connection.stream.StreamReadOptions
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
-import java.time.Duration
 
 @Component
 class SnippetTaskConsumer(
-  private val redisTemplate: RedisTemplate<String, String>,
-  @Value("\${redis.stream.key}") private val streamKey: String,
-  private val assetServiceClient: AssetServiceClient,
-  private val formattingService: FormattingService,
-  private val lintingService: LintingService
+    private val redisTemplate: RedisTemplate<String, String>,
+    @Value("\${redis.stream.key}") private val streamKey: String,
+    private val assetServiceClient: AssetServiceClient,
+    private val formattingService: FormattingService,
+    private val lintingService: LintingService,
 ) {
   /*
   private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
