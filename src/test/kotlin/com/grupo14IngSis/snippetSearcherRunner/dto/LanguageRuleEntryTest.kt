@@ -6,7 +6,6 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class LanguageRuleEntryTest {
-
     @Test
     fun `create instance and access properties`() {
         val rules = mapOf("indent" to 4, "maxLineLength" to 120)

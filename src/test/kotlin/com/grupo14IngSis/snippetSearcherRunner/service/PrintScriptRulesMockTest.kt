@@ -6,7 +6,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class PrintScriptRulesMockTest {
-
     @Test
     fun `lintingRules returns LanguageRuleEntry with expected values`() {
         val entry: LanguageRuleEntry = PrintScriptRulesMock.lintingRules()

@@ -8,20 +8,21 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 class LintingRuleTest {
-
     @Test
     fun `should create LintingRule with all parameters`() {
-        val configRules = mutableMapOf<String, Any>(
-            "maxLineLength" to 120,
-            "enforceNamingConvention" to true,
-            "noUnusedVariables" to true
-        )
+        val configRules =
+            mutableMapOf<String, Any>(
+                "maxLineLength" to 120,
+                "enforceNamingConvention" to true,
+                "noUnusedVariables" to true,
+            )
 
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = configRules
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = configRules,
+            )
 
         assertEquals("user123", lintingRule.userId)
         assertEquals("kotlin", lintingRule.setLanguage)
@@ -41,11 +42,12 @@ class LintingRuleTest {
 
     @Test
     fun `should create LintingRule with null configRules`() {
-        val lintingRule = LintingRule(
-            userId = "user456",
-            setLanguage = "java",
-            configRules = null
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user456",
+                setLanguage = "java",
+                configRules = null,
+            )
 
         assertEquals("user456", lintingRule.userId)
         assertEquals("java", lintingRule.setLanguage)
@@ -54,11 +56,12 @@ class LintingRuleTest {
 
     @Test
     fun `should create LintingRule with empty configRules`() {
-        val lintingRule = LintingRule(
-            userId = "user789",
-            setLanguage = "python",
-            configRules = mutableMapOf()
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user789",
+                setLanguage = "python",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals("user789", lintingRule.userId)
         assertEquals("python", lintingRule.setLanguage)
@@ -68,11 +71,12 @@ class LintingRuleTest {
 
     @Test
     fun `configRules should be mutable and allow modifications`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 80)
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 80),
+            )
 
         lintingRule.configRules?.put("enforceNamingConvention", true)
         lintingRule.configRules?.put("maxLineLength", 120)
@@ -84,19 +88,21 @@ class LintingRuleTest {
 
     @Test
     fun `should handle different data types in configRules`() {
-        val configRules = mutableMapOf<String, Any>(
-            "maxLineLength" to 120,
-            "enforceNamingConvention" to true,
-            "noUnusedVariables" to true,
-            "warningLevel" to "strict",
-            "allowedComplexity" to 15.5
-        )
+        val configRules =
+            mutableMapOf<String, Any>(
+                "maxLineLength" to 120,
+                "enforceNamingConvention" to true,
+                "noUnusedVariables" to true,
+                "warningLevel" to "strict",
+                "allowedComplexity" to 15.5,
+            )
 
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = configRules
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = configRules,
+            )
 
         assertEquals(120, lintingRule.configRules?.get("maxLineLength"))
         assertEquals(true, lintingRule.configRules?.get("enforceNamingConvention"))
@@ -107,11 +113,12 @@ class LintingRuleTest {
 
     @Test
     fun `should support copy with modifications`() {
-        val original = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 80)
-        )
+        val original =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 80),
+            )
 
         val copy = original.copy(setLanguage = "java")
 
@@ -125,17 +132,19 @@ class LintingRuleTest {
         val rules1 = mutableMapOf<String, Any>("maxLineLength" to 120)
         val rules2 = mutableMapOf<String, Any>("maxLineLength" to 120)
 
-        val lintingRule1 = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = rules1
-        )
+        val lintingRule1 =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = rules1,
+            )
 
-        val lintingRule2 = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = rules2
-        )
+        val lintingRule2 =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = rules2,
+            )
 
         assertEquals(lintingRule1.userId, lintingRule2.userId)
         assertEquals(lintingRule1.setLanguage, lintingRule2.setLanguage)
@@ -146,11 +155,12 @@ class LintingRuleTest {
         val languages = listOf("kotlin", "java", "python", "javascript", "typescript")
 
         languages.forEach { lang ->
-            val lintingRule = LintingRule(
-                userId = "user123",
-                setLanguage = lang,
-                configRules = mutableMapOf("maxLineLength" to 120)
-            )
+            val lintingRule =
+                LintingRule(
+                    userId = "user123",
+                    setLanguage = lang,
+                    configRules = mutableMapOf("maxLineLength" to 120),
+                )
 
             assertEquals(lang, lintingRule.setLanguage)
         }
@@ -158,33 +168,36 @@ class LintingRuleTest {
 
     @Test
     fun `should handle special characters in userId`() {
-        val lintingRule = LintingRule(
-            userId = "user-123_test@example",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf()
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user-123_test@example",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals("user-123_test@example", lintingRule.userId)
     }
 
     @Test
     fun `should handle language with special characters`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "C++",
-            configRules = mutableMapOf()
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "C++",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals("C++", lintingRule.setLanguage)
     }
 
     @Test
     fun `configRules should support adding multiple rules`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf()
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf(),
+            )
 
         lintingRule.configRules?.put("maxLineLength", 120)
         lintingRule.configRules?.put("enforceNamingConvention", true)
@@ -196,14 +209,16 @@ class LintingRuleTest {
 
     @Test
     fun `configRules should support removing rules`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "maxLineLength" to 120,
-                "enforceNamingConvention" to true
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "maxLineLength" to 120,
+                        "enforceNamingConvention" to true,
+                    ),
             )
-        )
 
         lintingRule.configRules?.remove("enforceNamingConvention")
 
@@ -213,14 +228,16 @@ class LintingRuleTest {
 
     @Test
     fun `configRules should support clearing all rules`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "maxLineLength" to 120,
-                "enforceNamingConvention" to true
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "maxLineLength" to 120,
+                        "enforceNamingConvention" to true,
+                    ),
             )
-        )
 
         lintingRule.configRules?.clear()
 
@@ -229,15 +246,17 @@ class LintingRuleTest {
 
     @Test
     fun `should handle numeric rule values`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "maxLineLength" to 120,
-                "maxFunctionLength" to 50,
-                "maxComplexity" to 10
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "maxLineLength" to 120,
+                        "maxFunctionLength" to 50,
+                        "maxComplexity" to 10,
+                    ),
             )
-        )
 
         assertEquals(120, lintingRule.configRules?.get("maxLineLength"))
         assertEquals(50, lintingRule.configRules?.get("maxFunctionLength"))
@@ -246,15 +265,17 @@ class LintingRuleTest {
 
     @Test
     fun `should handle boolean rule values`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "enforceNamingConvention" to true,
-                "noUnusedVariables" to false,
-                "requireDocumentation" to true
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "enforceNamingConvention" to true,
+                        "noUnusedVariables" to false,
+                        "requireDocumentation" to true,
+                    ),
             )
-        )
 
         assertEquals(true, lintingRule.configRules?.get("enforceNamingConvention"))
         assertEquals(false, lintingRule.configRules?.get("noUnusedVariables"))
@@ -263,15 +284,17 @@ class LintingRuleTest {
 
     @Test
     fun `should handle string rule values`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "namingStyle" to "camelCase",
-                "warningLevel" to "error",
-                "severity" to "high"
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "namingStyle" to "camelCase",
+                        "warningLevel" to "error",
+                        "severity" to "high",
+                    ),
             )
-        )
 
         assertEquals("camelCase", lintingRule.configRules?.get("namingStyle"))
         assertEquals("error", lintingRule.configRules?.get("warningLevel"))
@@ -281,11 +304,12 @@ class LintingRuleTest {
     @Test
     fun `should create LintingRule with long userId`() {
         val longUserId = "a".repeat(100)
-        val lintingRule = LintingRule(
-            userId = longUserId,
-            setLanguage = "kotlin",
-            configRules = mutableMapOf()
-        )
+        val lintingRule =
+            LintingRule(
+                userId = longUserId,
+                setLanguage = "kotlin",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals(longUserId, lintingRule.userId)
         assertEquals(100, lintingRule.userId.length)
@@ -293,21 +317,23 @@ class LintingRuleTest {
 
     @Test
     fun `should create LintingRule with complex configRules`() {
-        val complexRules = mutableMapOf<String, Any>(
-            "maxLineLength" to 120,
-            "maxFunctionLength" to 50,
-            "enforceNamingConvention" to true,
-            "noUnusedVariables" to true,
-            "requireDocumentation" to false,
-            "maxComplexity" to 10,
-            "warningLevel" to "error"
-        )
+        val complexRules =
+            mutableMapOf<String, Any>(
+                "maxLineLength" to 120,
+                "maxFunctionLength" to 50,
+                "enforceNamingConvention" to true,
+                "noUnusedVariables" to true,
+                "requireDocumentation" to false,
+                "maxComplexity" to 10,
+                "warningLevel" to "error",
+            )
 
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = complexRules
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = complexRules,
+            )
 
         assertEquals(7, lintingRule.configRules?.size)
         assertNotNull(lintingRule.configRules?.get("maxLineLength"))
@@ -317,11 +343,12 @@ class LintingRuleTest {
 
     @Test
     fun `data class should have proper toString`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 120)
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
 
         val toString = lintingRule.toString()
 
@@ -331,17 +358,19 @@ class LintingRuleTest {
 
     @Test
     fun `data class should have proper hashCode`() {
-        val lintingRule1 = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 120)
-        )
+        val lintingRule1 =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
 
-        val lintingRule2 = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 120)
-        )
+        val lintingRule2 =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
 
         // HashCode should be consistent for same values
         assertEquals(lintingRule1.hashCode(), lintingRule1.hashCode())
@@ -349,17 +378,19 @@ class LintingRuleTest {
 
     @Test
     fun `should handle putAll operation on configRules`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 80)
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 80),
+            )
 
-        val newRules = mapOf(
-            "enforceNamingConvention" to true,
-            "noUnusedVariables" to false,
-            "maxLineLength" to 120
-        )
+        val newRules =
+            mapOf(
+                "enforceNamingConvention" to true,
+                "noUnusedVariables" to false,
+                "maxLineLength" to 120,
+            )
 
         lintingRule.configRules?.putAll(newRules)
 
@@ -370,16 +401,18 @@ class LintingRuleTest {
 
     @Test
     fun `should handle linting-specific rules`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "checkUnusedImports" to true,
-                "enforceConstantNaming" to true,
-                "maxParameterCount" to 5,
-                "checkCyclomaticComplexity" to true
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "checkUnusedImports" to true,
+                        "enforceConstantNaming" to true,
+                        "maxParameterCount" to 5,
+                        "checkCyclomaticComplexity" to true,
+                    ),
             )
-        )
 
         assertEquals(true, lintingRule.configRules?.get("checkUnusedImports"))
         assertEquals(true, lintingRule.configRules?.get("enforceConstantNaming"))
@@ -389,13 +422,13 @@ class LintingRuleTest {
 }
 
 class LintingRuleIdTest {
-
     @Test
     fun `should create LintingRuleId with all parameters`() {
-        val id = LintingRuleId(
-            userId = "user123",
-            setLanguage = "kotlin"
-        )
+        val id =
+            LintingRuleId(
+                userId = "user123",
+                setLanguage = "kotlin",
+            )
 
         assertEquals("user123", id.userId)
         assertEquals("kotlin", id.setLanguage)
@@ -504,18 +537,18 @@ class LintingRuleIdTest {
 }
 
 class LintingRuleAndIdIntegrationTest {
-
     @Test
     fun `LintingRule should use LintingRuleId correctly`() {
         val userId = "user123"
         val language = "kotlin"
         val configRules = mutableMapOf<String, Any>("maxLineLength" to 120)
 
-        val lintingRule = LintingRule(
-            userId = userId,
-            setLanguage = language,
-            configRules = configRules
-        )
+        val lintingRule =
+            LintingRule(
+                userId = userId,
+                setLanguage = language,
+                configRules = configRules,
+            )
 
         val lintingRuleId = LintingRuleId(userId, language)
 
@@ -525,11 +558,12 @@ class LintingRuleAndIdIntegrationTest {
 
     @Test
     fun `should create LintingRuleId from LintingRule`() {
-        val lintingRule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 120)
-        )
+        val lintingRule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
 
         val id = LintingRuleId(lintingRule.userId, lintingRule.setLanguage)
 
@@ -542,11 +576,12 @@ class LintingRuleAndIdIntegrationTest {
         val map = mutableMapOf<LintingRuleId, LintingRule>()
 
         val id = LintingRuleId("user123", "kotlin")
-        val rule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 120)
-        )
+        val rule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
 
         map[id] = rule
 
@@ -559,17 +594,19 @@ class LintingRuleAndIdIntegrationTest {
         val map = mutableMapOf<LintingRuleId, LintingRule>()
         val userId = "user123"
 
-        val kotlinRule = LintingRule(
-            userId = userId,
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 120)
-        )
+        val kotlinRule =
+            LintingRule(
+                userId = userId,
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120),
+            )
 
-        val javaRule = LintingRule(
-            userId = userId,
-            setLanguage = "java",
-            configRules = mutableMapOf("maxLineLength" to 100)
-        )
+        val javaRule =
+            LintingRule(
+                userId = userId,
+                setLanguage = "java",
+                configRules = mutableMapOf("maxLineLength" to 100),
+            )
 
         map[LintingRuleId(userId, "kotlin")] = kotlinRule
         map[LintingRuleId(userId, "java")] = javaRule
@@ -584,11 +621,12 @@ class LintingRuleAndIdIntegrationTest {
         val storage = mutableMapOf<LintingRuleId, LintingRule>()
 
         val id = LintingRuleId("user123", "kotlin")
-        val rule = LintingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("maxLineLength" to 120, "enforceNamingConvention" to true)
-        )
+        val rule =
+            LintingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("maxLineLength" to 120, "enforceNamingConvention" to true),
+            )
 
         storage[id] = rule
 

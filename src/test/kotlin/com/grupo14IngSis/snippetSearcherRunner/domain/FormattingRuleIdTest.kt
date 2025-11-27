@@ -8,13 +8,13 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 class FormattingRuleIdTest {
-
     @Test
     fun `should create FormattingRuleId with all parameters`() {
-        val id = FormattingRuleId(
-            userId = "user123",
-            setLanguage = "kotlin"
-        )
+        val id =
+            FormattingRuleId(
+                userId = "user123",
+                setLanguage = "kotlin",
+            )
 
         assertEquals("user123", id.userId)
         assertEquals("kotlin", id.setLanguage)
@@ -208,18 +208,18 @@ class FormattingRuleIdTest {
 }
 
 class FormattingRuleAndIdIntegrationTest {
-
     @Test
     fun `FormattingRule should use FormattingRuleId correctly`() {
         val userId = "user123"
         val language = "kotlin"
         val configRules = mutableMapOf<String, Any>("indentSize" to 4)
 
-        val formattingRule = FormattingRule(
-            userId = userId,
-            setLanguage = language,
-            configRules = configRules
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = userId,
+                setLanguage = language,
+                configRules = configRules,
+            )
 
         val formattingRuleId = FormattingRuleId(userId, language)
 
@@ -229,11 +229,12 @@ class FormattingRuleAndIdIntegrationTest {
 
     @Test
     fun `should create FormattingRuleId from FormattingRule`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
         val id = FormattingRuleId(formattingRule.userId, formattingRule.setLanguage)
 
@@ -243,17 +244,19 @@ class FormattingRuleAndIdIntegrationTest {
 
     @Test
     fun `multiple FormattingRules with same userId and language should have equal ids`() {
-        val rule1 = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val rule1 =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
-        val rule2 = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("lineLength" to 120)
-        )
+        val rule2 =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("lineLength" to 120),
+            )
 
         val id1 = FormattingRuleId(rule1.userId, rule1.setLanguage)
         val id2 = FormattingRuleId(rule2.userId, rule2.setLanguage)
@@ -266,11 +269,12 @@ class FormattingRuleAndIdIntegrationTest {
         val map = mutableMapOf<FormattingRuleId, FormattingRule>()
 
         val id = FormattingRuleId("user123", "kotlin")
-        val rule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val rule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
         map[id] = rule
 
@@ -283,17 +287,19 @@ class FormattingRuleAndIdIntegrationTest {
         val map = mutableMapOf<FormattingRuleId, FormattingRule>()
         val userId = "user123"
 
-        val kotlinRule = FormattingRule(
-            userId = userId,
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val kotlinRule =
+            FormattingRule(
+                userId = userId,
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
-        val javaRule = FormattingRule(
-            userId = userId,
-            setLanguage = "java",
-            configRules = mutableMapOf("indentSize" to 2)
-        )
+        val javaRule =
+            FormattingRule(
+                userId = userId,
+                setLanguage = "java",
+                configRules = mutableMapOf("indentSize" to 2),
+            )
 
         map[FormattingRuleId(userId, "kotlin")] = kotlinRule
         map[FormattingRuleId(userId, "java")] = javaRule
@@ -308,17 +314,19 @@ class FormattingRuleAndIdIntegrationTest {
         val map = mutableMapOf<FormattingRuleId, FormattingRule>()
         val language = "kotlin"
 
-        val user1Rule = FormattingRule(
-            userId = "user123",
-            setLanguage = language,
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val user1Rule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = language,
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
-        val user2Rule = FormattingRule(
-            userId = "user456",
-            setLanguage = language,
-            configRules = mutableMapOf("indentSize" to 2)
-        )
+        val user2Rule =
+            FormattingRule(
+                userId = "user456",
+                setLanguage = language,
+                configRules = mutableMapOf("indentSize" to 2),
+            )
 
         map[FormattingRuleId("user123", language)] = user1Rule
         map[FormattingRuleId("user456", language)] = user2Rule
@@ -333,11 +341,12 @@ class FormattingRuleAndIdIntegrationTest {
         val storage = mutableMapOf<FormattingRuleId, FormattingRule>()
 
         val id = FormattingRuleId("user123", "kotlin")
-        val rule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4, "lineLength" to 120)
-        )
+        val rule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4, "lineLength" to 120),
+            )
 
         storage[id] = rule
 
@@ -353,19 +362,21 @@ class FormattingRuleAndIdIntegrationTest {
         val storage = mutableMapOf<FormattingRuleId, FormattingRule>()
 
         val id = FormattingRuleId("user123", "kotlin")
-        val originalRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val originalRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
         storage[id] = originalRule
 
-        val updatedRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 2, "lineLength" to 100)
-        )
+        val updatedRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 2, "lineLength" to 100),
+            )
 
         storage[id] = updatedRule
 
@@ -381,11 +392,12 @@ class FormattingRuleAndIdIntegrationTest {
         val id1 = FormattingRuleId("user123", "kotlin")
         val id2 = FormattingRuleId("user456", "java")
 
-        val rule1 = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf()
-        )
+        val rule1 =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf(),
+            )
 
         storage[id1] = rule1
 

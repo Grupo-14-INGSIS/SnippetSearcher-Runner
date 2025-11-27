@@ -6,14 +6,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class TestRequestTest {
-
     @Test
     fun `create instance and access properties`() {
-        val request = TestRequest(
-            snippetId = "123",
-            input = listOf("arg1", "arg2"),
-            expected = "result"
-        )
+        val request =
+            TestRequest(
+                snippetId = "123",
+                input = listOf("arg1", "arg2"),
+                expected = "result",
+            )
 
         assertEquals("123", request.snippetId)
         assertEquals(listOf("arg1", "arg2"), request.input)

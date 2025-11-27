@@ -137,12 +137,13 @@ class RestTemplateConfigTest {
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess("exchange response", org.springframework.http.MediaType.TEXT_PLAIN))
 
-        val response = restTemplate.exchange(
-            url,
-            HttpMethod.GET,
-            null,
-            String::class.java
-        )
+        val response =
+            restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                String::class.java,
+            )
 
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals("exchange response", response.body)

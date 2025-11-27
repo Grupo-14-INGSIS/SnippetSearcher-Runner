@@ -14,11 +14,12 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should convert map to JSON string`() {
-        val map = mapOf(
-            "key1" to "value1",
-            "key2" to 123,
-            "key3" to true
-        )
+        val map =
+            mapOf(
+                "key1" to "value1",
+                "key2" to 123,
+                "key3" to true,
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 
@@ -49,10 +50,11 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should handle map with string values`() {
-        val map = mapOf(
-            "name" to "John",
-            "city" to "New York"
-        )
+        val map =
+            mapOf(
+                "name" to "John",
+                "city" to "New York",
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 
@@ -64,11 +66,12 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should handle map with numeric values`() {
-        val map = mapOf(
-            "age" to 25,
-            "height" to 175.5,
-            "count" to 100L
-        )
+        val map =
+            mapOf(
+                "age" to 25,
+                "height" to 175.5,
+                "count" to 100L,
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 
@@ -80,10 +83,11 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should handle map with boolean values`() {
-        val map = mapOf(
-            "isActive" to true,
-            "isDeleted" to false
-        )
+        val map =
+            mapOf(
+                "isActive" to true,
+                "isDeleted" to false,
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 
@@ -95,12 +99,13 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should handle map with mixed types`() {
-        val map = mapOf(
-            "name" to "Alice",
-            "age" to 30,
-            "active" to true,
-            "score" to 95.5
-        )
+        val map =
+            mapOf(
+                "name" to "Alice",
+                "age" to 30,
+                "active" to true,
+                "score" to 95.5,
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 
@@ -194,12 +199,13 @@ class MapJsonConverterTest {
 
     @Test
     fun `roundtrip conversion should preserve data`() {
-        val originalMap = mapOf(
-            "name" to "Bob",
-            "age" to 40,
-            "active" to true,
-            "balance" to 1000.50
-        )
+        val originalMap =
+            mapOf(
+                "name" to "Bob",
+                "age" to 40,
+                "active" to true,
+                "balance" to 1000.50,
+            )
 
         val json = converter.convertToDatabaseColumn(originalMap)
         val resultMap = converter.convertToEntityAttribute(json)
@@ -223,10 +229,11 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should handle special characters in values`() {
-        val map = mapOf(
-            "message" to "Hello \"World\"",
-            "path" to "/home/user/file.txt"
-        )
+        val map =
+            mapOf(
+                "message" to "Hello \"World\"",
+                "path" to "/home/user/file.txt",
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 
@@ -268,10 +275,11 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should produce valid JSON`() {
-        val map = mapOf(
-            "key1" to "value1",
-            "key2" to 42
-        )
+        val map =
+            mapOf(
+                "key1" to "value1",
+                "key2" to 42,
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 
@@ -283,12 +291,13 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToEntityAttribute should handle whitespace in JSON`() {
-        val json = """
+        val json =
+            """
             {
                 "name": "John",
                 "age": 30
             }
-        """.trimIndent()
+            """.trimIndent()
 
         val result = converter.convertToEntityAttribute(json)
 
@@ -323,10 +332,11 @@ class MapJsonConverterTest {
 
     @Test
     fun `convertToDatabaseColumn should handle nested structures if supported`() {
-        val map = mapOf(
-            "simple" to "value",
-            "number" to 123
-        )
+        val map =
+            mapOf(
+                "simple" to "value",
+                "number" to 123,
+            )
 
         val result = converter.convertToDatabaseColumn(map)
 

@@ -8,13 +8,13 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 class LintingRuleIdOnlyTest {
-
     @Test
     fun `should create LintingRuleId with all parameters`() {
-        val id = LintingRuleId(
-            userId = "user123",
-            setLanguage = "kotlin"
-        )
+        val id =
+            LintingRuleId(
+                userId = "user123",
+                setLanguage = "kotlin",
+            )
 
         assertEquals("user123", id.userId)
         assertEquals("kotlin", id.setLanguage)
@@ -218,11 +218,12 @@ class LintingRuleIdOnlyTest {
 
     @Test
     fun `should support destructuring in loops`() {
-        val ids = listOf(
-            LintingRuleId("user1", "kotlin"),
-            LintingRuleId("user2", "java"),
-            LintingRuleId("user3", "python")
-        )
+        val ids =
+            listOf(
+                LintingRuleId("user1", "kotlin"),
+                LintingRuleId("user2", "java"),
+                LintingRuleId("user3", "python"),
+            )
 
         val userIds = mutableListOf<String>()
         val languages = mutableListOf<String>()
@@ -344,12 +345,13 @@ class LintingRuleIdOnlyTest {
 
     @Test
     fun `should support grouping operations`() {
-        val ids = listOf(
-            LintingRuleId("user1", "kotlin"),
-            LintingRuleId("user1", "java"),
-            LintingRuleId("user2", "kotlin"),
-            LintingRuleId("user2", "python")
-        )
+        val ids =
+            listOf(
+                LintingRuleId("user1", "kotlin"),
+                LintingRuleId("user1", "java"),
+                LintingRuleId("user2", "kotlin"),
+                LintingRuleId("user2", "python"),
+            )
 
         val groupedByUser = ids.groupBy { it.userId }
         val groupedByLanguage = ids.groupBy { it.setLanguage }
@@ -362,11 +364,12 @@ class LintingRuleIdOnlyTest {
 
     @Test
     fun `should maintain order in sorted collections`() {
-        val ids = listOf(
-            LintingRuleId("user3", "kotlin"),
-            LintingRuleId("user1", "java"),
-            LintingRuleId("user2", "python")
-        )
+        val ids =
+            listOf(
+                LintingRuleId("user3", "kotlin"),
+                LintingRuleId("user1", "java"),
+                LintingRuleId("user2", "python"),
+            )
 
         val sortedByUser = ids.sortedBy { it.userId }
 

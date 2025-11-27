@@ -6,11 +6,11 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class UserCreationRequestTest {
-
-    private val sampleEntry = LanguageRuleEntry(
-        language = "Kotlin",
-        rules = mapOf("indent" to 4, "maxLineLength" to 120)
-    )
+    private val sampleEntry =
+        LanguageRuleEntry(
+            language = "Kotlin",
+            rules = mapOf("indent" to 4, "maxLineLength" to 120),
+        )
 
     @Test
     fun `create instance and access properties`() {

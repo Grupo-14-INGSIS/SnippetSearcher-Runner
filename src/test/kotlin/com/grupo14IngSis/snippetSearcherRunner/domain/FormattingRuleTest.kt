@@ -4,20 +4,21 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class FormattingRuleTest {
-
     @Test
     fun `should create FormattingRule with all parameters`() {
-        val configRules = mutableMapOf<String, Any>(
-            "indentSize" to 4,
-            "lineLength" to 120,
-            "spacesAroundOperators" to true
-        )
+        val configRules =
+            mutableMapOf<String, Any>(
+                "indentSize" to 4,
+                "lineLength" to 120,
+                "spacesAroundOperators" to true,
+            )
 
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = configRules
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = configRules,
+            )
 
         assertEquals("user123", formattingRule.userId)
         assertEquals("kotlin", formattingRule.setLanguage)
@@ -37,11 +38,12 @@ class FormattingRuleTest {
 
     @Test
     fun `should create FormattingRule with null configRules`() {
-        val formattingRule = FormattingRule(
-            userId = "user456",
-            setLanguage = "java",
-            configRules = null
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user456",
+                setLanguage = "java",
+                configRules = null,
+            )
 
         assertEquals("user456", formattingRule.userId)
         assertEquals("java", formattingRule.setLanguage)
@@ -50,11 +52,12 @@ class FormattingRuleTest {
 
     @Test
     fun `should create FormattingRule with empty configRules`() {
-        val formattingRule = FormattingRule(
-            userId = "user789",
-            setLanguage = "python",
-            configRules = mutableMapOf()
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user789",
+                setLanguage = "python",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals("user789", formattingRule.userId)
         assertEquals("python", formattingRule.setLanguage)
@@ -64,11 +67,12 @@ class FormattingRuleTest {
 
     @Test
     fun `configRules should be mutable and allow modifications`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 2)
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 2),
+            )
 
         formattingRule.configRules?.put("lineLength", 80)
         formattingRule.configRules?.put("indentSize", 4)
@@ -80,19 +84,21 @@ class FormattingRuleTest {
 
     @Test
     fun `should handle different data types in configRules`() {
-        val configRules = mutableMapOf<String, Any>(
-            "indentSize" to 4,
-            "lineLength" to 120,
-            "spacesAroundOperators" to true,
-            "indentStyle" to "spaces",
-            "maxComplexity" to 15.5
-        )
+        val configRules =
+            mutableMapOf<String, Any>(
+                "indentSize" to 4,
+                "lineLength" to 120,
+                "spacesAroundOperators" to true,
+                "indentStyle" to "spaces",
+                "maxComplexity" to 15.5,
+            )
 
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = configRules
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = configRules,
+            )
 
         assertEquals(4, formattingRule.configRules?.get("indentSize"))
         assertEquals(120, formattingRule.configRules?.get("lineLength"))
@@ -103,11 +109,12 @@ class FormattingRuleTest {
 
     @Test
     fun `should support copy with modifications`() {
-        val original = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 2)
-        )
+        val original =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 2),
+            )
 
         val copy = original.copy(setLanguage = "java")
 
@@ -121,17 +128,19 @@ class FormattingRuleTest {
         val rules1 = mutableMapOf<String, Any>("indentSize" to 4)
         val rules2 = mutableMapOf<String, Any>("indentSize" to 4)
 
-        val formattingRule1 = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = rules1
-        )
+        val formattingRule1 =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = rules1,
+            )
 
-        val formattingRule2 = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = rules2
-        )
+        val formattingRule2 =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = rules2,
+            )
 
         assertEquals(formattingRule1.userId, formattingRule2.userId)
         assertEquals(formattingRule1.setLanguage, formattingRule2.setLanguage)
@@ -142,11 +151,12 @@ class FormattingRuleTest {
         val languages = listOf("kotlin", "java", "python", "javascript", "typescript")
 
         languages.forEach { lang ->
-            val formattingRule = FormattingRule(
-                userId = "user123",
-                setLanguage = lang,
-                configRules = mutableMapOf("indentSize" to 4)
-            )
+            val formattingRule =
+                FormattingRule(
+                    userId = "user123",
+                    setLanguage = lang,
+                    configRules = mutableMapOf("indentSize" to 4),
+                )
 
             assertEquals(lang, formattingRule.setLanguage)
         }
@@ -154,33 +164,36 @@ class FormattingRuleTest {
 
     @Test
     fun `should handle special characters in userId`() {
-        val formattingRule = FormattingRule(
-            userId = "user-123_test@example",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf()
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user-123_test@example",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals("user-123_test@example", formattingRule.userId)
     }
 
     @Test
     fun `should handle language with special characters`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "C++",
-            configRules = mutableMapOf()
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "C++",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals("C++", formattingRule.setLanguage)
     }
 
     @Test
     fun `configRules should support adding multiple rules`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf()
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf(),
+            )
 
         formattingRule.configRules?.put("indentSize", 4)
         formattingRule.configRules?.put("lineLength", 120)
@@ -192,14 +205,16 @@ class FormattingRuleTest {
 
     @Test
     fun `configRules should support removing rules`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "indentSize" to 4,
-                "lineLength" to 120
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "indentSize" to 4,
+                        "lineLength" to 120,
+                    ),
             )
-        )
 
         formattingRule.configRules?.remove("lineLength")
 
@@ -209,14 +224,16 @@ class FormattingRuleTest {
 
     @Test
     fun `configRules should support clearing all rules`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "indentSize" to 4,
-                "lineLength" to 120
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "indentSize" to 4,
+                        "lineLength" to 120,
+                    ),
             )
-        )
 
         formattingRule.configRules?.clear()
 
@@ -225,15 +242,17 @@ class FormattingRuleTest {
 
     @Test
     fun `should handle numeric rule values`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "indentSize" to 4,
-                "lineLength" to 120,
-                "maxNestingLevel" to 5
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "indentSize" to 4,
+                        "lineLength" to 120,
+                        "maxNestingLevel" to 5,
+                    ),
             )
-        )
 
         assertEquals(4, formattingRule.configRules?.get("indentSize"))
         assertEquals(120, formattingRule.configRules?.get("lineLength"))
@@ -242,15 +261,17 @@ class FormattingRuleTest {
 
     @Test
     fun `should handle boolean rule values`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "spacesAroundOperators" to true,
-                "newlineBeforeBrace" to false,
-                "enforceTrailingComma" to true
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "spacesAroundOperators" to true,
+                        "newlineBeforeBrace" to false,
+                        "enforceTrailingComma" to true,
+                    ),
             )
-        )
 
         assertEquals(true, formattingRule.configRules?.get("spacesAroundOperators"))
         assertEquals(false, formattingRule.configRules?.get("newlineBeforeBrace"))
@@ -259,15 +280,17 @@ class FormattingRuleTest {
 
     @Test
     fun `should handle string rule values`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf(
-                "indentStyle" to "spaces",
-                "quoteStyle" to "double",
-                "lineEnding" to "LF"
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules =
+                    mutableMapOf(
+                        "indentStyle" to "spaces",
+                        "quoteStyle" to "double",
+                        "lineEnding" to "LF",
+                    ),
             )
-        )
 
         assertEquals("spaces", formattingRule.configRules?.get("indentStyle"))
         assertEquals("double", formattingRule.configRules?.get("quoteStyle"))
@@ -277,11 +300,12 @@ class FormattingRuleTest {
     @Test
     fun `should create FormattingRule with long userId`() {
         val longUserId = "a".repeat(100)
-        val formattingRule = FormattingRule(
-            userId = longUserId,
-            setLanguage = "kotlin",
-            configRules = mutableMapOf()
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = longUserId,
+                setLanguage = "kotlin",
+                configRules = mutableMapOf(),
+            )
 
         assertEquals(longUserId, formattingRule.userId)
         assertEquals(100, formattingRule.userId.length)
@@ -289,21 +313,23 @@ class FormattingRuleTest {
 
     @Test
     fun `should create FormattingRule with complex configRules`() {
-        val complexRules = mutableMapOf<String, Any>(
-            "indentSize" to 4,
-            "lineLength" to 120,
-            "spacesAroundOperators" to true,
-            "indentStyle" to "spaces",
-            "enforceTrailingComma" to false,
-            "maxNestingLevel" to 5,
-            "allowedComplexity" to 10.5
-        )
+        val complexRules =
+            mutableMapOf<String, Any>(
+                "indentSize" to 4,
+                "lineLength" to 120,
+                "spacesAroundOperators" to true,
+                "indentStyle" to "spaces",
+                "enforceTrailingComma" to false,
+                "maxNestingLevel" to 5,
+                "allowedComplexity" to 10.5,
+            )
 
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = complexRules
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = complexRules,
+            )
 
         assertEquals(7, formattingRule.configRules?.size)
         assertNotNull(formattingRule.configRules?.get("indentSize"))
@@ -313,11 +339,12 @@ class FormattingRuleTest {
 
     @Test
     fun `data class should have proper toString`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
         val toString = formattingRule.toString()
 
@@ -327,17 +354,19 @@ class FormattingRuleTest {
 
     @Test
     fun `data class should have proper hashCode`() {
-        val formattingRule1 = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val formattingRule1 =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
-        val formattingRule2 = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 4)
-        )
+        val formattingRule2 =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 4),
+            )
 
         // HashCode should be consistent for same values
         assertEquals(formattingRule1.hashCode(), formattingRule1.hashCode())
@@ -345,17 +374,19 @@ class FormattingRuleTest {
 
     @Test
     fun `should handle putAll operation on configRules`() {
-        val formattingRule = FormattingRule(
-            userId = "user123",
-            setLanguage = "kotlin",
-            configRules = mutableMapOf("indentSize" to 2)
-        )
+        val formattingRule =
+            FormattingRule(
+                userId = "user123",
+                setLanguage = "kotlin",
+                configRules = mutableMapOf("indentSize" to 2),
+            )
 
-        val newRules = mapOf(
-            "lineLength" to 100,
-            "spacesAroundOperators" to false,
-            "indentSize" to 4
-        )
+        val newRules =
+            mapOf(
+                "lineLength" to 100,
+                "spacesAroundOperators" to false,
+                "indentSize" to 4,
+            )
 
         formattingRule.configRules?.putAll(newRules)
 
