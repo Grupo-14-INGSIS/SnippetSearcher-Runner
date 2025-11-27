@@ -1,7 +1,13 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 
 @Component
@@ -10,27 +16,6 @@ class AssetServiceClient(
   @Value("\${app.bucket.url}") private val bucket: String,
 ) {
 
-  /*
-###################
-##### M O C K #####
-######## | ########
-######## V ########
-###################
- */
-
-  fun getAsset(container: String, snippet: String): String {
-    return snippet
-  }
-
-  /*
-###################
-######## ^ ########
-######## | ########
-##### M O C K #####
-###################
-*/
-
-  /*
     private val logger = LoggerFactory.getLogger(AssetServiceClient::class.java)
     private val baseURL = "$bucket/v1/asset"
 
@@ -59,23 +44,23 @@ class AssetServiceClient(
     }
   }
 
-  fun postAsset(container: String, key: String, content: String): Boolean? {
+  fun postAsset(container: String, key: String, content: String): Int {
     return try {
       val entity = HttpEntity<String>(content, defaultHeaders())
       val response = restTemplate.exchange(
         url(container, key),
-        HttpMethod.POST,
+        HttpMethod.PUT,
         entity,
         String::class.java
       )
-      response.statusCode.is2xxSuccessful
+      response.statusCode.value()
     } catch (e: Exception) {
       logger.error("Error uploading asset $container/$key", e)
-      false
+      500
     }
   }
 
-  fun deleteAsset(container: String, key: String): Boolean {
+  fun deleteAsset(container: String, key: String): Int {
     return try {
       val response = restTemplate.exchange(
         url(container, key),
@@ -83,14 +68,13 @@ class AssetServiceClient(
         HttpEntity<Void>(defaultHeaders()),
         String::class.java
       )
-      response.statusCode.is2xxSuccessful
+      response.statusCode.value()
     } catch (e: HttpClientErrorException.NotFound) {
       logger.warn("Asset does not exist $container/$key")
-      false
+      404
     } catch (e: Exception) {
       logger.error("Error deleting asset $container/$key", e)
-      false
+      500
     }
   }
-   */
 }
