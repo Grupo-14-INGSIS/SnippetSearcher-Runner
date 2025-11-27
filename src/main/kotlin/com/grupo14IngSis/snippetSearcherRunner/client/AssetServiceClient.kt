@@ -1,13 +1,7 @@
-package com.grupo14IngSis.snippetSearcherApp.client
+package com.grupo14IngSis.snippetSearcherRunner.client
 
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 
 @Component
@@ -15,6 +9,28 @@ class AssetServiceClient(
   private val restTemplate: RestTemplate,
   @Value("\${app.bucket.url}") private val bucket: String,
 ) {
+
+  /*
+###################
+##### M O C K #####
+######## | ########
+######## V ########
+###################
+ */
+
+  fun getAsset(container: String, snippet: String): String {
+    return snippet
+  }
+
+  /*
+###################
+######## ^ ########
+######## | ########
+##### M O C K #####
+###################
+*/
+
+  /*
     private val logger = LoggerFactory.getLogger(AssetServiceClient::class.java)
     private val baseURL = "$bucket/v1/asset"
 
@@ -76,4 +92,5 @@ class AssetServiceClient(
       false
     }
   }
+   */
 }

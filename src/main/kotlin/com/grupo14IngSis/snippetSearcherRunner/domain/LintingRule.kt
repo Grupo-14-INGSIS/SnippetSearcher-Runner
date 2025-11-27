@@ -5,8 +5,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.IdClass
 import jakarta.persistence.Table
-import com.vladmihalcea.hibernate.type.json.JsonType
-import org.hibernate.annotations.Type
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(name = "linting_rules")
@@ -20,8 +20,7 @@ data class LintingRule(
   @Column(name = "set_language")
   val setLanguage: String = "",
 
-  @Type(JsonType::class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "config_rules", columnDefinition = "jsonb")
-  var configRules: MutableMap<String, Any> = mutableMapOf()
-
+  var configRules: MutableMap<String, Any>? = null
 )

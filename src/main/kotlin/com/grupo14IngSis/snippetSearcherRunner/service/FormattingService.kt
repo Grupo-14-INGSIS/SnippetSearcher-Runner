@@ -8,13 +8,13 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class FormattingService(
-  private val repository: FormattingRulesRepository
+  private val repository: FormattingRulesRepository,
 ) {
 
   fun getRules(userId: String, language: String): Map<String, Any> {
     val id = FormattingRuleId(userId, language)
     val rules: FormattingRule = repository.findById(id).orElse(null) ?: return mapOf()
-    return rules.configRules
+    return rules.configRules!!
   }
 
   @Transactional
@@ -23,7 +23,7 @@ class FormattingService(
     val existing: FormattingRule = repository.findById(id).orElseThrow {
       IllegalArgumentException("User not found or language not found")
     }
-    existing.configRules.putAll(newRules)
+    existing.configRules?.putAll(newRules)
     repository.save(existing)
   }
 }

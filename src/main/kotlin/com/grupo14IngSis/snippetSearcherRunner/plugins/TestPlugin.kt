@@ -15,7 +15,7 @@ class TestPlugin: RunnerPlugin {
     if (params == null) {
       safeParams = listOf("params")
     } else {
-      safeParams = params.entries.toList() as List<String>
+      safeParams = params.entries.toList() as List<*> as List<String>
     }
     return "$safeSnippet $safeParams"
   }

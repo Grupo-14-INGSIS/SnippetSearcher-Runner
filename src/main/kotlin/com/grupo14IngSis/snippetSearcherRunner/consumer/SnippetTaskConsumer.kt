@@ -1,6 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.consumer
 
-import com.grupo14IngSis.snippetSearcherApp.client.AssetServiceClient
+import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.plugins.RunnerPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.TestPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
@@ -25,6 +25,7 @@ class SnippetTaskConsumer(
   private val formattingService: FormattingService,
   private val lintingService: LintingService
 ) {
+  /*
   private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
   private val group = "runner-group"
   private val consumer = Consumer.from(group, "runner-1")
@@ -80,7 +81,7 @@ class SnippetTaskConsumer(
       if (task in plugins) {
         logger.info("Received task '$task' for snippet '$snippetId' - messageId ${record.id}")
         // Get snippet from asset-service
-        val snippet: String? = assetServiceClient.getAsset("snippet", snippetId)
+        val snippet: String = assetServiceClient.getAsset("snippet", snippetId)
         // Get rules
         val rules = formattingService.getRules(userId, language)
         // Perform task
@@ -93,4 +94,6 @@ class SnippetTaskConsumer(
     logger.info("ACK sent for message ${record.id}")
     // Send notification to App
   }
+
+   */
 }

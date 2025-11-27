@@ -1,5 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.grupo14IngSis.snippetSearcherRunner.domain.LintingRuleId
 import com.grupo14IngSis.snippetSearcherRunner.domain.LintingRule
 import com.grupo14IngSis.snippetSearcherRunner.repository.LintingRulesRepository
@@ -8,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class LintingService(
-  private val repository: LintingRulesRepository
+  private val repository: LintingRulesRepository,
 ) {
 
   fun getRules(userId: String, language: String): Map<String, Any> {
     val id = LintingRuleId(userId, language)
     val rules: LintingRule = repository.findById(id).orElse(null) ?: return mapOf()
-    return rules.configRules
+    return rules.configRules!!
   }
 
   @Transactional
@@ -23,7 +27,7 @@ class LintingService(
     val existing: LintingRule = repository.findById(id).orElseThrow {
       IllegalArgumentException("User not found or language not found")
     }
-    existing.configRules.putAll(newRules)
+    existing.configRules?.putAll(newRules)
     repository.save(existing)
   }
 }

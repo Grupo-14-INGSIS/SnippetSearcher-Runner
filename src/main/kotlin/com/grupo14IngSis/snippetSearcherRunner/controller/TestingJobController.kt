@@ -1,6 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherApp.client.AssetServiceClient
+import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
