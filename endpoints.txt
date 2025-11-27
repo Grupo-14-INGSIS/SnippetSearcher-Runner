@@ -1,5 +1,7 @@
 ===== ENDPOINTS =====
 
+* -> DONE
+
 SnippetRunnerController
     POST   /api/v1/execution/run
     GET    /api/v1/execution/{executionId}/status
@@ -8,14 +10,18 @@ SnippetRunnerController
 TestingJobController
     POST   /api/v1/testing
 FormattingJobController
-    GET    /api/v1/users/{userId}/formatting/rules/{language}
-    PATCH  /api/v1/users/{userId}/formatting/rules/{language}
+*   GET    /api/v1/users/{userId}/formatting/rules/{language}
+*   PATCH  /api/v1/users/{userId}/formatting/rules/{language}
 LintingJobController
-    GET    /api/v1/users/{userId}/linting/rules/{language}
-    PATCH  /api/v1/users/{userId}/linting/rules/{language}
+*   GET    /api/v1/users/{userId}/linting/rules/{language}
+*   PATCH  /api/v1/users/{userId}/linting/rules/{language}
 UserController
-    PUT    /api/v1/users/{userId}
-    DELETE /api/v1/users/{userId}
+*   PUT    /api/v1/users/{userId}
+*   DELETE /api/v1/users/{userId}
+SnippetController
+    GET    /api/v1/snippet/{container}/{snippetId}
+    PUT    /api/v1/snippet/{container}/{snippetId}
+    DELETE /api/v1/snippet/{container}/{snippetId}
 
 ===== REDIS-STREAMS =====
 
@@ -103,3 +109,11 @@ PUT    /api/v1/users/{userId}
 DELETE /api/v1/users/{userId}
     Delete all rules linked to the user
     Meant for db cleaning when deleting a user
+
+SnippetController
+GET    /api/v1/snippet/{container}/{snippetId}
+    Fetch the content of a snippet as a String
+PUT    /api/v1/snippet/{container}/{snippetId}
+    Create or update the content of a snippet. The body is a String
+DELETE /api/v1/snippet/{container}/{snippetId}
+    Delete a snippet from the service
