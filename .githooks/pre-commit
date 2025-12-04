@@ -2,7 +2,7 @@
 
 set -e # hace que, si algún método/verificación devuelve 1, corta automáticamente la ejecución
 
-echo "Ejecutando ktlintFormat..."
+echo "Ejecutando ktlintFormat..." #corrige
 CHANGES_BEFORE=$(git diff --name-only) # almacenamiento del estado del repo antes de aplicar format
 ./gradlew ktlintFormat --quiet
 CHANGES_AFTER=$(git diff --name-only)
@@ -12,7 +12,7 @@ if [ "$CHANGES_BEFORE" != "$CHANGES_AFTER" ]; then
         exit 1 # código de error
 fi
 
-echo "Ejecutando ktlintCheck..."
+echo "Ejecutando ktlintCheck..." #valida que todo esté bien
 ./gradlew ktlintCheck --quiet # así solo muestra la información relevante
 STATUS=$?
 

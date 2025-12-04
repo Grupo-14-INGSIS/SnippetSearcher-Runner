@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
 @Repository
-interface FormattingRulesRepository : JpaRepository<FormattingRule, FormattingRuleId>  {
-  fun findByUserId(userId: String): List<LintingRule>
+interface FormattingRulesRepository : JpaRepository<FormattingRule, FormattingRuleId> {
+    fun findByUserId(userId: String): List<LintingRule>
 
-  @Transactional
-  fun deleteByUserId(userId: String)
+    @Transactional
+    fun deleteByUserId(userId: String)
 }

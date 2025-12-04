@@ -119,7 +119,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/snippetsearcher-runner:latest
+          tags: ghcr.io/grupo-14-ingsis/snippetsearcher-runner:latest
 
       - name: Dispatch to infrastructure repository
         run: |
