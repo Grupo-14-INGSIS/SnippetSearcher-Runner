@@ -1,15 +1,57 @@
 services:
-  api:
-    container_name: "runner"
+  runner:
+    container_name: "app-runner"
     build:
       context: .
-      dockerfile: Dockerfile.multi
+      dockerfile: Dockerfile
+    ports:
+      - "19083:8080"
     environment:
-      - SNIPPET_SERVICE_URL=http://app:8080
-      - FORMATTER_URL=http://formatter:8080
-    networks:
-      - reverse-proxy-network
+      DB_USER: app
+      DB_PASSWORD: app
+      DB_NAME: snippet-db
+      DB_HOST: runner-db
+      DB_PORT: 5432
+      BUCKET_SERVICE: asset-service
+      BUCKET_PORT: 8080
+      REDIS_HOST: host.docker.internal
+      REDIS_PORT: 6379
+      APP_HOST: host.docker.internal
+      APP_PORT: 19081
+    depends_on:
+      - runner-db
+      - asset-service
 
-networks:
-  reverse-proxy-network:
-    external: true
+  asset-service:
+    container_name: "asset-service"
+    image: ghcr.io/austral-ingsis/snippet-asset-service:main.14
+    ports:
+      - "19080:8080"
+    environment:
+      AZURE_HOST: http://azurite
+    depends_on:
+      - azurite
+
+  azurite:
+    container_name: "azurite"
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+
+  runner-db:
+    container_name: "runner-db"
+    image: postgres:16
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: snippet-db
+    volumes:
+      - runner-pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+
+volumes:
+  runner-pgdata:
