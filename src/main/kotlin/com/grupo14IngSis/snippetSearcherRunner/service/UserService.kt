@@ -8,7 +8,7 @@ import com.grupo14IngSis.snippetSearcherRunner.repository.LintingRulesRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-@Service
+@Service // para este servicio no hay plugin porque no es nada que venga de nuestro tools
 class UserService(
     private val formattingRepository: FormattingRulesRepository,
     private val lintingRepository: LintingRulesRepository,
