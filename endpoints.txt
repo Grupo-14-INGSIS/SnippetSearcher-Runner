@@ -61,7 +61,6 @@ GET    /api/v1/users/{userId}/formatting/rules/{language}
     Get rule configuration for a user
     Response:
     {
-
         rule1: conf1,
         rule2: conf2,
         ...

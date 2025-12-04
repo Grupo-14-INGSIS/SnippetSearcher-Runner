@@ -25,7 +25,6 @@ class SnippetTaskConsumer(
   private val formattingService: FormattingService,
   private val lintingService: LintingService
 ) {
-  /*
   private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
   private val group = "runner-group"
   private val consumer = Consumer.from(group, "runner-1")
@@ -81,7 +80,7 @@ class SnippetTaskConsumer(
       if (task in plugins) {
         logger.info("Received task '$task' for snippet '$snippetId' - messageId ${record.id}")
         // Get snippet from asset-service
-        val snippet: String = assetServiceClient.getAsset("snippet", snippetId)
+        val snippet: String? = assetServiceClient.getAsset("snippet", snippetId)
         // Get rules
         val rules = formattingService.getRules(userId, language)
         // Perform task
@@ -94,6 +93,4 @@ class SnippetTaskConsumer(
     logger.info("ACK sent for message ${record.id}")
     // Send notification to App
   }
-
-   */
 }
