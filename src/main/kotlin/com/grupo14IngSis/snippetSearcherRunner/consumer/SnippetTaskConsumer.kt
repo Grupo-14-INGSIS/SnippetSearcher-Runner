@@ -78,7 +78,9 @@ class SnippetTaskConsumer(
         val language = record.value["language"]
 
         if (!(task == null || snippetId == null || userId == null || language == null)) {
-            if (task in plugins) {
+            if (task == "test") {
+              plugins["test"]!!.run(snippetId, null)
+            } else if (task in plugins) {
                 logger.info("Received task '$task' for snippet '$snippetId' - messageId ${record.id}")
                 // Get snippet from asset-service
                 val snippet: String? = assetServiceClient.getAsset("snippet", snippetId)

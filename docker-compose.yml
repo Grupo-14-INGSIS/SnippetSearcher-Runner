@@ -3,7 +3,7 @@ services:
     container_name: "runner"
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: Dockerfile
       args:
         GITHUB_USERNAME: ${GITHUB_USERNAME}
         GITHUB_TOKEN: ${GITHUB_TOKEN}

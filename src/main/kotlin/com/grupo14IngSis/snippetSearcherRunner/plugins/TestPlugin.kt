@@ -10,14 +10,14 @@ class TestPlugin : RunnerPlugin {
     ): Any {
         val safeSnippet = "received: \"$snippet\""
         println(
-            "###########################################################\n" +
-                "# TESTING TESTING TESTING TESTING TESTING TESTING TESTING #" +
+            "###############################################################\n" +
+                "# TESTING TESTING TESTING TESTING TESTING TESTING TESTING #\n" +
                 "###########################################################\n" +
                 "#\n" +
                 "# $safeSnippet\n" +
                 "#\n" +
                 "###########################################################\n" +
-                "# TESTING TESTING TESTING TESTING TESTING TESTING TESTING #" +
+                "# TESTING TESTING TESTING TESTING TESTING TESTING TESTING #\n" +
                 "###########################################################",
         )
         return safeSnippet
