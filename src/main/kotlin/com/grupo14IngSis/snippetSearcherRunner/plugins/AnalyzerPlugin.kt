@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 @Service("analyzer")
-class AnalyzerPlugin : RunnerPlugin {
+class AnalyzerPlugin(private val runner: Runner) : RunnerPlugin {
     override fun run(
         snippet: String?,
         params: Map<String, Any>?,
@@ -33,7 +33,6 @@ class AnalyzerPlugin : RunnerPlugin {
         System.setOut(printStream)
 
         try {
-            val runner = Runner()
             val args = mutableListOf(tempSnippetFile.absolutePath, tempConfigFile.absolutePath)
             if (version != null) {
                 args.add(version)

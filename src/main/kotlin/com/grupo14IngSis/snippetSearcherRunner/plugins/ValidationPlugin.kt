@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 @Service("validation")
-class ValidationPlugin : RunnerPlugin {
+class ValidationPlugin(private val runner: Runner) : RunnerPlugin {
     override fun run(
         snippet: String?,
         params: Map<String, Any>?,
@@ -32,7 +32,6 @@ class ValidationPlugin : RunnerPlugin {
                 args.add(version)
             }
 
-            val runner = Runner()
             runner.validationCommand(args)
 
             System.out.flush()

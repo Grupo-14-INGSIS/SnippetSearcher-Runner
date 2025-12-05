@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import java.io.File
 
 @Service("formatter")
-class FormattingPlugin : RunnerPlugin {
+class FormattingPlugin(private val runner: Runner) : RunnerPlugin {
     override fun run(
         snippet: String?,
         params: Map<String, Any>?,
@@ -37,7 +37,6 @@ class FormattingPlugin : RunnerPlugin {
             }
 
             // 3. Instantiate and run the command
-            val runner = Runner()
             runner.formatterCommand(args) // This modifies tempFile in-place
 
             // 4. Read the formatted content back from the temp file

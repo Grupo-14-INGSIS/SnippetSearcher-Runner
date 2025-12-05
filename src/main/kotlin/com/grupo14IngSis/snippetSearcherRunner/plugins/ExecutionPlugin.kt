@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 @Service("executor")
-class ExecutionPlugin : RunnerPlugin {
+class ExecutionPlugin(private val runner: Runner) : RunnerPlugin {
     override fun run(
         snippet: String?,
         params: Map<String, Any>?,
@@ -26,7 +26,6 @@ class ExecutionPlugin : RunnerPlugin {
         System.setOut(printStream)
 
         try {
-            val runner = Runner()
             runner.executionCommand(listOf(tempFile.absolutePath, version))
         } finally {
             System.setOut(originalOut)
