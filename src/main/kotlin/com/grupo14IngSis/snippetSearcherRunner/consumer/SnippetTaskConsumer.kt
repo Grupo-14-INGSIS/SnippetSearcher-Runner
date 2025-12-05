@@ -71,7 +71,7 @@ class SnippetTaskConsumer(
         }.start()
     }
 
-    private fun processMessage(record: MapRecord<String, String, String>) {
+    internal fun processMessage(record: MapRecord<String, String, String>) {
         val task = record.value["task"]
         val userId = record.value["userId"]
         val snippetId = record.value["snippetId"]

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ExecutionPluginTest {
-
     private lateinit var runner: Runner
     private lateinit var executionPlugin: ExecutionPlugin
 
@@ -48,11 +47,11 @@ class ExecutionPluginTest {
 
         verify { runner.executionCommand(match { it.contains(version) }) }
     }
-    
+
     @Test
     fun `run with no version should call executionCommand with default version`() {
         val snippet = "println(\"hello\");"
-        
+
         executionPlugin.run(snippet, emptyMap())
 
         verify { runner.executionCommand(match { it.contains("1.0") }) }

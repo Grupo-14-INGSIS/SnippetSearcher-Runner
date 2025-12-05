@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class AnalyzerPluginTest {
-
     private lateinit var runner: Runner
     private lateinit var analyzerPlugin: AnalyzerPlugin
 
@@ -33,9 +32,10 @@ class AnalyzerPluginTest {
 
     @Test
     fun `run without configFileContent should throw IllegalArgumentException`() {
-        val exception = assertThrows<IllegalArgumentException> {
-            analyzerPlugin.run("some snippet", emptyMap())
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                analyzerPlugin.run("some snippet", emptyMap())
+            }
         assertEquals("Configuration file content 'configFileContent' is required for analysis.", exception.message)
     }
 
@@ -49,7 +49,7 @@ class AnalyzerPluginTest {
 
         verify { runner.analyzerCommand(any()) }
     }
-    
+
     @Test
     fun `run with valid snippet and config should call analyzerCommand with specific version`() {
         val snippet = "println(\"hello\");"
@@ -61,7 +61,7 @@ class AnalyzerPluginTest {
 
         verify { runner.analyzerCommand(match { it.contains(version) }) }
     }
-    
+
     @Test
     fun `run with valid snippet and config but no version should call analyzerCommand without version`() {
         val snippet = "println(\"hello\");"

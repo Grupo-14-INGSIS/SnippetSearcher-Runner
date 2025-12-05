@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 class ValidationPluginTest {
-
     private lateinit var runner: Runner
     private lateinit var validationPlugin: ValidationPlugin
 
@@ -40,7 +39,7 @@ class ValidationPluginTest {
 
         verify { runner.validationCommand(any()) }
     }
-    
+
     @Test
     fun `run with version should call validationCommand with version`() {
         val snippet = "println(\"hello\");"
@@ -55,27 +54,27 @@ class ValidationPluginTest {
     @Test
     fun `run with no validation output should return no errors found`() {
         val snippet = "println(\"perfect code\");"
-    
+
         val result = validationPlugin.run(snippet, emptyMap())
-    
+
         assertEquals("No errors found.", result)
     }
-    
+
     @Test
     fun `run with validation output should return the output`() {
         val snippet = "println(\"buggy code\");"
         val validationOutput = "Error on line 1"
-    
+
         val originalOut = System.out
         val outputStream = ByteArrayOutputStream()
         System.setOut(PrintStream(outputStream))
-    
+
         every { runner.validationCommand(any()) } answers {
             print(validationOutput)
         }
-    
+
         val result = validationPlugin.run(snippet, emptyMap())
-    
+
         System.setOut(originalOut)
         assertEquals(validationOutput, result)
     }

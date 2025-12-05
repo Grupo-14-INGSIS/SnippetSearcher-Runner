@@ -11,7 +11,6 @@ import org.junit.jupiter.api.assertThrows
 import java.io.File
 
 class FormattingPluginTest {
-
     private lateinit var runner: Runner
     private lateinit var formattingPlugin: FormattingPlugin
     private lateinit var tempConfigFile: File
@@ -38,9 +37,10 @@ class FormattingPluginTest {
 
     @Test
     fun `run without configFile should throw IllegalArgumentException`() {
-        val exception = assertThrows<IllegalArgumentException> {
-            formattingPlugin.run("some snippet", emptyMap())
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                formattingPlugin.run("some snippet", emptyMap())
+            }
         assertEquals("Configuration file path 'configFile' is required for formatting.", exception.message)
     }
 
@@ -48,9 +48,10 @@ class FormattingPluginTest {
     fun `run with non-existent configFile should throw IllegalArgumentException`() {
         val nonExistentFilePath = "non/existent/file.config"
         val params = mapOf("configFile" to nonExistentFilePath)
-        val exception = assertThrows<IllegalArgumentException> {
-            formattingPlugin.run("some snippet", params)
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                formattingPlugin.run("some snippet", params)
+            }
         assertEquals("Configuration file does not exist at path: $nonExistentFilePath", exception.message)
     }
 
@@ -63,7 +64,7 @@ class FormattingPluginTest {
 
         verify { runner.formatterCommand(any()) }
     }
-    
+
     @Test
     fun `run with version should call formatterCommand with version`() {
         val snippet = "println(\"hello\");"
@@ -74,20 +75,20 @@ class FormattingPluginTest {
 
         verify { runner.formatterCommand(match { it.contains(version) }) }
     }
-    
+
     @Test
     fun `formatterCommand should modify the snippet and return it`() {
         val snippet = "let a: number = 1"
         val formattedSnippet = "let a: number = 1;"
         val params = mapOf("configFile" to tempConfigFile.absolutePath)
-    
+
         every { runner.formatterCommand(any()) } answers {
             val tempFile = File(firstArg<List<String>>()[0])
             tempFile.writeText(formattedSnippet)
         }
-    
+
         val result = formattingPlugin.run(snippet, params)
-    
+
         assertEquals(formattedSnippet, result)
     }
 }
