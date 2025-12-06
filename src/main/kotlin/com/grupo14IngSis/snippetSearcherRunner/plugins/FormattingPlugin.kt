@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service
 import java.io.File
 
 @Service("formatter")
-class FormattingPlugin(private val runner: Runner) : RunnerPlugin {
+class FormattingPlugin() : RunnerPlugin {
+    private val runner = Runner()
+
     override fun run(
         snippet: String?,
         params: Map<String, Any>?,

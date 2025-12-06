@@ -6,7 +6,9 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 @Service("executor")
-class ExecutionPlugin(private val runner: Runner) : RunnerPlugin {
+class ExecutionPlugin() : RunnerPlugin {
+    private val runner = Runner()
+
     override fun run(
         snippet: String?,
         params: Map<String, Any>?,

@@ -3,10 +3,9 @@
 * -> DONE
 
 SnippetRunnerController
-    POST   /api/v1/execution/run
-    GET    /api/v1/execution/{executionId}/status
-    POST   /api/v1/execution/{executionId}/input
-    DELETE /api/v1/execution/{executionId}
+    POST   /api/v1/snippets/{snippetId}/execution
+    POST   /api/v1/snippets/{snippetId}/execution/input
+    DELETE /api/v1/snippets/{snippetId}/execution
 TestingJobController
     POST   /api/v1/testing
 FormattingJobController
@@ -36,10 +35,21 @@ SnippetTaskConsumer:
 ----- Detailed -----
 
 SnippetRunnerController
-POST   /api/v1/execution/run
-GET    /api/v1/execution/{executionId}/status
-POST   /api/v1/execution/{executionId}/input
-DELETE /api/v1/execution/{executionId}
+    POST   /api/v1/snippets/{snippetId}/execution
+        Start the execution of a snippet
+        Response:
+            {
+                status: FINISHED/WAITING/ERROR
+            }
+    POST   /api/v1/snippets/{snippetId}/execution/input
+        Give input for an execution
+        The request is a plain String
+        Response:
+            {
+                status: FINISHED/WAITING/ERROR
+            }
+    DELETE /api/v1/snippets/{snippetId}/execution
+        Cancel the execution of a snippet
 
 TestingJobController
 POST   /api/v1/testing
