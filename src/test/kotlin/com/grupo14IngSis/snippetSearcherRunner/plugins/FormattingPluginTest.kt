@@ -18,7 +18,7 @@ class FormattingPluginTest {
     @BeforeEach
     fun setUp() {
         runner = mockk(relaxed = true)
-        formattingPlugin = FormattingPlugin(runner)
+        formattingPlugin = FormattingPlugin()
         tempConfigFile = createTempFile("config", ".ps")
         tempConfigFile.writeText("some config")
     }

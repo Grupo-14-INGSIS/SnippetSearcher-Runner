@@ -1,6 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionResponse
+import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEvent
 import com.grupo14IngSis.snippetSearcherRunner.service.ExecutionService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
@@ -28,7 +28,7 @@ class ExecutionController(
     fun startSnippetExecution(
         @PathVariable snippetId: String,
         @PathVariable(required = false) version: String,
-    ): ResponseEntity<ExecutionResponse> {
+    ): ResponseEntity<ExecutionEvent> {
         val execution = executionService.executeSnippet(snippetId, version)
 
         return ResponseEntity.ok().body(execution)
@@ -47,10 +47,22 @@ class ExecutionController(
      * status: FINISHED/WAITING/ERROR
      * }
      */
+    @PostMapping("/snippets/{snippetId}/execution/input")
+    fun receiveInput(
+        @PathVariable snippetId: String,
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok().body("Not implemented yet")
+    }
 
     /**
      * DELETE /api/v1/snippets/{snippetId}/execution
      *
      * Cancel the execution of a snippet
      */
+    @PostMapping("/snippets/{snippetId}/execution")
+    fun cancelExecution(
+        @PathVariable snippetId: String,
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok().body("Not implemented yet")
+    }
 }

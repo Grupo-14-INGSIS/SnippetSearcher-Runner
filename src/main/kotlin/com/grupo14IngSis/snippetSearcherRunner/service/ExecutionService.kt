@@ -1,40 +1,39 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
-import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionResponse
-import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionStatus
-import org.example.Runner
+import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEvent
+import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
+import com.grupo14IngSis.snippetSearcherRunner.plugins.ExecutionPlugin
 import org.springframework.stereotype.Service
 
 @Service
 class ExecutionService(
     private val assetService: AssetServiceClient,
 ) {
-    private val runner = Runner()
+    private val runner = ExecutionPlugin()
 
     fun executeSnippet(
         snippetId: String,
         version: String?,
-    ): ExecutionResponse {
+    ): ExecutionEvent {
         val snippet =
             assetService.getAsset("snippets", snippetId)
-                ?: return ExecutionResponse(
-                    ExecutionStatus.ERROR,
+                ?: return ExecutionEvent(
+                    ExecutionEventType.ERROR,
                     "Snippet not found",
                 )
-        // SourceFile version
-        val args: MutableList<String?> = mutableListOf(snippet, version)
-        val argsSafe = args.filterNotNull()
+        val args: MutableMap<String, Any> = mutableMapOf()
+        if (version != null) {
+            args["version"] = version
+        }
 
-        // Must give input and catch prints
+        // Must receive input
 
-        runner.executionCommand(argsSafe)
+        val result = runner.run(snippet, args)
 
-        // Must check if the execution succeeded
-
-        return ExecutionResponse(
-            ExecutionStatus.FINISHED,
-            "Execution finished",
+        return ExecutionEvent(
+            ExecutionEventType.COMPLETED,
+            result as String,
         )
     }
 }

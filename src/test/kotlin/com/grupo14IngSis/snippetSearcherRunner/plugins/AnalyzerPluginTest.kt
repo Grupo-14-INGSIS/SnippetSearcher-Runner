@@ -15,7 +15,7 @@ class AnalyzerPluginTest {
     @BeforeEach
     fun setUp() {
         runner = mockk(relaxed = true)
-        analyzerPlugin = AnalyzerPlugin(runner)
+        analyzerPlugin = AnalyzerPlugin()
     }
 
     @Test

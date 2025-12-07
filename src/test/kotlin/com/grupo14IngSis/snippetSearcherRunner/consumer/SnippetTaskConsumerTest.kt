@@ -1,5 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.consumer
 
+import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.plugins.TestPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
@@ -17,6 +18,7 @@ import org.springframework.data.redis.core.StreamOperations
 class SnippetTaskConsumerTest {
     private lateinit var redisTemplate: RedisTemplate<String, String>
     private lateinit var assetServiceClient: AssetServiceClient
+    private lateinit var appClient: AppClient
     private lateinit var formattingService: FormattingService
     private lateinit var lintingService: LintingService
     private lateinit var snippetTaskConsumer: SnippetTaskConsumer
@@ -28,6 +30,7 @@ class SnippetTaskConsumerTest {
     fun setUp() {
         redisTemplate = mockk()
         assetServiceClient = mockk()
+        appClient = mockk()
         formattingService = mockk()
         lintingService = mockk()
         streamOperations = mockk(relaxed = true)
@@ -40,7 +43,7 @@ class SnippetTaskConsumerTest {
                 streamKey,
                 assetServiceClient,
                 formattingService,
-                lintingService,
+                appClient,
             )
     }
 
@@ -72,7 +75,7 @@ class SnippetTaskConsumerTest {
                 streamKey,
                 assetServiceClient,
                 formattingService,
-                lintingService,
+                appClient,
             )
         val pluginsField = consumerWithSpy::class.java.getDeclaredField("plugins")
         pluginsField.isAccessible = true

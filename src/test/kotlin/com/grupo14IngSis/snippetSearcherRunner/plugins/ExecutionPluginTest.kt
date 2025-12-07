@@ -14,7 +14,7 @@ class ExecutionPluginTest {
     @BeforeEach
     fun setUp() {
         runner = mockk(relaxed = true)
-        executionPlugin = ExecutionPlugin(runner)
+        executionPlugin = ExecutionPlugin()
     }
 
     @Test

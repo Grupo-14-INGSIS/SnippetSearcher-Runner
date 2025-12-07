@@ -2,12 +2,11 @@ package com.grupo14IngSis.snippetSearcherRunner.consumer
 
 import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
-import com.grupo14IngSis.snippetSearcherRunner.plugins.ExecutionPlugin
+import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.RunnerPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.TestPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.ValidationPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
-import com.grupo14IngSis.snippetSearcherRunner.service.LintingService
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -26,7 +25,6 @@ class SnippetTaskConsumer(
     @Value("\${redis.stream.key}") private val streamKey: String,
     private val assetServiceClient: AssetServiceClient,
     private val formattingService: FormattingService,
-    private val lintingService: LintingService,
     private val appClient: AppClient,
 ) {
     private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
@@ -35,7 +33,7 @@ class SnippetTaskConsumer(
 
     private val plugins: Map<String, RunnerPlugin> =
         mapOf(
-            "format" to ExecutionPlugin(),
+            "format" to FormattingPlugin(),
             "lint" to ValidationPlugin(),
         )
 

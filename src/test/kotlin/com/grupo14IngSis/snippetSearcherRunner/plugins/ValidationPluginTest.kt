@@ -17,7 +17,7 @@ class ValidationPluginTest {
     @BeforeEach
     fun setUp() {
         runner = mockk(relaxed = true)
-        validationPlugin = ValidationPlugin(runner)
+        validationPlugin = ValidationPlugin()
     }
 
     @Test

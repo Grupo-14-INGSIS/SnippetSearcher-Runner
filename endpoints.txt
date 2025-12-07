@@ -2,7 +2,7 @@
 
 * -> DONE
 
-SnippetRunnerController
+ExecutionController
     POST   /api/v1/snippets/{snippetId}/execution
     POST   /api/v1/snippets/{snippetId}/execution/input
     DELETE /api/v1/snippets/{snippetId}/execution
@@ -34,7 +34,7 @@ SnippetTaskConsumer:
 
 ----- Detailed -----
 
-SnippetRunnerController
+ExecutionController
     POST   /api/v1/snippets/{snippetId}/execution
         Start the execution of a snippet
         Response:
