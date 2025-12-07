@@ -41,7 +41,7 @@ repositories {
         name = 'GitHubPackages'
         url = uri("https://maven.pkg.github.com/Grupo-14-INGSIS/PrintScript-Tools")
         credentials {
-            username = System.getenv("GITHUB_USER") ?: dotenvProps.getProperty("GITHUB_USER") ?: ""
+            username = System.getenv("GITHUB_USERNAME") ?: dotenvProps.getProperty("GITHUB_USERNAME") ?: ""
             password = System.getenv("GITHUB_TOKEN") ?: dotenvProps.getProperty("GITHUB_TOKEN") ?: ""
         }
     }
