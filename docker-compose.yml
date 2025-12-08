@@ -1,9 +1,12 @@
 services:
   runner:
-    container_name: "app-runner"
+    container_name: "runner"
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     ports:
       - "19083:8080"
     environment:
@@ -14,13 +17,15 @@ services:
       DB_PORT: 5432
       BUCKET_SERVICE: asset-service
       BUCKET_PORT: 8080
-      REDIS_HOST: host.docker.internal
+      REDIS_HOST: redis
       REDIS_PORT: 6379
-      APP_HOST: host.docker.internal
-      APP_PORT: 19081
+      APP_HOST: app
+      APP_PORT: 8080
     depends_on:
       - runner-db
       - asset-service
+    networks:
+      - snippet-searcher-develop
 
   asset-service:
     container_name: "asset-service"
@@ -31,6 +36,8 @@ services:
       AZURE_HOST: http://azurite
     depends_on:
       - azurite
+    networks:
+      - snippet-searcher-develop
 
   azurite:
     container_name: "azurite"
@@ -39,6 +46,8 @@ services:
       - "10000:10000"
       - "10001:10001"
       - "10002:10002"
+    networks:
+      - snippet-searcher-develop
 
   runner-db:
     container_name: "runner-db"
@@ -52,6 +61,12 @@ services:
     volumes:
       - runner-pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
+    networks:
+      - snippet-searcher-develop
 
 volumes:
   runner-pgdata:
+
+networks:
+  snippet-searcher-develop:
+    external: true

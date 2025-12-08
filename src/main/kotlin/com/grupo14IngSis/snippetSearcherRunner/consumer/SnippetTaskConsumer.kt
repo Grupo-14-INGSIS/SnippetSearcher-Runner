@@ -1,10 +1,12 @@
 package com.grupo14IngSis.snippetSearcherRunner.consumer
 
+import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
+import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.RunnerPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.TestPlugin
+import com.grupo14IngSis.snippetSearcherRunner.plugins.ValidationPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
-import com.grupo14IngSis.snippetSearcherRunner.service.LintingService
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -23,13 +25,17 @@ class SnippetTaskConsumer(
     @Value("\${redis.stream.key}") private val streamKey: String,
     private val assetServiceClient: AssetServiceClient,
     private val formattingService: FormattingService,
-    private val lintingService: LintingService,
+    private val appClient: AppClient,
 ) {
     private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
     private val group = "runner-group"
     private val consumer = Consumer.from(group, "runner-1")
 
-    private val plugins: Map<String, RunnerPlugin> = mapOf("test" to TestPlugin())
+    private val plugins: Map<String, RunnerPlugin> =
+        mapOf(
+            "format" to FormattingPlugin(),
+            "lint" to ValidationPlugin(),
+        )
 
     @PostConstruct
     fun init() {
@@ -71,13 +77,18 @@ class SnippetTaskConsumer(
         }.start()
     }
 
-    private fun processMessage(record: MapRecord<String, String, String>) {
+    internal fun processMessage(record: MapRecord<String, String, String>) {
         val task = record.value["task"]
         val userId = record.value["userId"]
         val snippetId = record.value["snippetId"]
         val language = record.value["language"]
 
         if (!(task == null || snippetId == null || userId == null || language == null)) {
+            appClient.updateSnippetTaskStatus(snippetId, task, true)
+
+            if (task == "test") {
+                TestPlugin().run(snippetId, null)
+            }
             if (task in plugins) {
                 logger.info("Received task '$task' for snippet '$snippetId' - messageId ${record.id}")
                 // Get snippet from asset-service
@@ -92,6 +103,5 @@ class SnippetTaskConsumer(
         // ACK del mensaje
         redisTemplate.opsForStream<String, String>().acknowledge(streamKey, group, record.id)
         logger.info("ACK sent for message ${record.id}")
-        // Send notification to App
     }
 }
