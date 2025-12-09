@@ -15,7 +15,7 @@ object RunnerProcessExecutor {
                 javaBin,
                 "-cp",
                 classpath,
-                "com.grupo14.snippet.RunnerWrapper",
+                "com.grupo14IngSis.snippetSearcherRunner.RunnerWrapper",
                 path,
                 version,
             )

@@ -1,7 +1,8 @@
 package com.grupo14IngSis.snippetSearcherRunner;
 
 import org.example.Runner;
-import java.util.List;
+
+import java.util.Arrays;
 
 public class RunnerWrapper {
 
@@ -14,7 +15,7 @@ public class RunnerWrapper {
         }
 
         try {
-            runner.executionCommand(List.of(args));
+            runner.executionCommand(Arrays.asList(args));
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

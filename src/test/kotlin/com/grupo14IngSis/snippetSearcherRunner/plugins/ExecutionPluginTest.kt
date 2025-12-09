@@ -6,6 +6,7 @@ import org.example.Runner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.test.assertContains
 
 class ExecutionPluginTest {
     private lateinit var runner: Runner
@@ -30,30 +31,25 @@ class ExecutionPluginTest {
     }
 
     @Test
-    fun `run with valid snippet should call executionCommand`() {
+    fun `run with valid snippet should return print`() {
         val snippet = "println(\"hello\");"
-        executionPlugin.run(snippet, emptyMap())
-
-        verify { runner.executionCommand(any()) }
+        val output = executionPlugin.run(snippet, emptyMap()) as String
+        assertContains(output, "hello")
     }
 
     @Test
-    fun `run with specific version should call executionCommand with that version`() {
-        val snippet = "println(\"hello\");"
-        val version = "1.1"
-        val params = mapOf("version" to version)
-
-        executionPlugin.run(snippet, params)
-
-        verify { runner.executionCommand(match { it.contains(version) }) }
-    }
-
-    @Test
-    fun `run with no version should call executionCommand with default version`() {
-        val snippet = "println(\"hello\");"
-
-        executionPlugin.run(snippet, emptyMap())
-
-        verify { runner.executionCommand(match { it.contains("1.0") }) }
+    fun `run with complex snippet should return print`() {
+        val snippet = "println(\"Hello, World!\");\n" +
+            "println(\"This is a long snippet.\");\n" +
+            "println(\"One with many lines!\");\n" +
+            "println(\"Goodbye, World!\");"
+        val output = executionPlugin.run(snippet, emptyMap()) as String
+        val expected = "Hello, World!\r\n" +
+            "This is a long snippet.\r\n" +
+            "One with many lines!\r\n" +
+            "Goodbye, World!"
+        println(output)
+        println(expected)
+        assertContains(output, expected)
     }
 }

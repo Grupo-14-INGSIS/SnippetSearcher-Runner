@@ -2,8 +2,6 @@ package com.grupo14IngSis.snippetSearcherRunner.plugins
 
 import org.example.Runner
 import org.springframework.stereotype.Service
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 
 @Service("analyzer")
 class AnalyzerPlugin() : RunnerPlugin {
@@ -21,7 +19,7 @@ class AnalyzerPlugin() : RunnerPlugin {
             params?.get("configFileContent") as? String
                 ?: throw IllegalArgumentException("Configuration file content 'configFileContent' is required for analysis.")
 
-        val version = params?.get("version") as? String
+        val version = params["version"] as? String
 
         val tempSnippetFile = createTempFile(suffix = ".ps")
         tempSnippetFile.writeText(snippet)
@@ -29,23 +27,16 @@ class AnalyzerPlugin() : RunnerPlugin {
         val tempConfigFile = createTempFile(suffix = ".yaml")
         tempConfigFile.writeText(configFileContent)
 
-        val originalOut = System.out
-        val outputStream = ByteArrayOutputStream()
-        val printStream = PrintStream(outputStream)
-        System.setOut(printStream)
-
         try {
             val args = mutableListOf(tempSnippetFile.absolutePath, tempConfigFile.absolutePath)
             if (version != null) {
                 args.add(version)
             }
             runner.analyzerCommand(args)
+            return tempSnippetFile.readText()
         } finally {
-            System.setOut(originalOut)
             tempSnippetFile.delete()
             tempConfigFile.delete()
         }
-
-        return outputStream.toString()
     }
 }
