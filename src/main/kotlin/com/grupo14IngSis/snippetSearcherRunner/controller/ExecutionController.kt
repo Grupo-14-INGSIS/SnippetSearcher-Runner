@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -24,10 +25,10 @@ class ExecutionController(
      * status: FINISHED/WAITING/ERROR
      * }
      */
-    @PostMapping("/snippets/{snippetId}/execution?version={version}")
+    @PostMapping("/snippets/{snippetId}/execution")
     fun startSnippetExecution(
         @PathVariable snippetId: String,
-        @PathVariable(required = false) version: String,
+        @RequestParam(required = false) version: String,
     ): ResponseEntity<ExecutionEvent> {
         val execution = executionService.executeSnippet(snippetId, version)
 

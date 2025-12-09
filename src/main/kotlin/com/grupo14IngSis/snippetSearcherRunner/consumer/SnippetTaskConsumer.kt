@@ -35,6 +35,7 @@ class SnippetTaskConsumer(
         mapOf(
             "format" to FormattingPlugin(),
             "lint" to ValidationPlugin(),
+            "test" to TestPlugin()
         )
 
     @PostConstruct
@@ -84,7 +85,7 @@ class SnippetTaskConsumer(
         val language = record.value["language"]
 
         if (!(task == null || snippetId == null || userId == null || language == null)) {
-            appClient.updateSnippetTaskStatus(snippetId, task, true)
+            appClient.updateSnippetTaskStatus(snippetId, userId, task, true)
 
             if (task == "test") {
                 TestPlugin().run(snippetId, null)

@@ -25,13 +25,14 @@ class AppClient(
 
     fun updateSnippetTaskStatus(
         snippetId: String,
+        userId: String,
         task: String,
         status: Boolean,
     ) {
         restTemplate.exchange(
             "$app/api/v1/snippets/$snippetId/status",
             HttpMethod.PATCH,
-            HttpEntity(SnippetStatusUpdateRequest(task, status), defaultHeaders()),
+            HttpEntity(SnippetStatusUpdateRequest(userId, task, status), defaultHeaders()),
             String::class.java,
         )
     }

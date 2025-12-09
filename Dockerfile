@@ -1,7 +1,17 @@
 # Stage 1: build
 FROM gradle:8.8-jdk21 AS build
 WORKDIR /app
+
+ARG GITHUB_USERNAME
+ARG GITHUB_TOKEN
+
+ENV GITHUB_USERNAME=${GITHUB_USERNAME}
+ENV GITHUB_TOKEN=${GITHUB_TOKEN}
+
 COPY . .
+
+RUN echo "Username = $GITHUB_USERNAME" && echo "Token = $GITHUB_TOKEN"
+
 RUN gradle bootJar -x test
 
 # Stage 2: runtime
