@@ -35,7 +35,7 @@ class SnippetTaskConsumer(
         mapOf(
             "format" to FormattingPlugin(),
             "lint" to ValidationPlugin(),
-            "test" to TestPlugin()
+            "test" to TestPlugin(),
         )
 
     @PostConstruct
