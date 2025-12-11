@@ -1,19 +1,15 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import io.mockk.mockk
-import org.example.Runner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class AnalyzerPluginTest {
-    private lateinit var runner: Runner
     private lateinit var analyzerPlugin: AnalyzerPlugin
 
     @BeforeEach
     fun setUp() {
-        runner = mockk(relaxed = true)
         analyzerPlugin = AnalyzerPlugin()
     }
 

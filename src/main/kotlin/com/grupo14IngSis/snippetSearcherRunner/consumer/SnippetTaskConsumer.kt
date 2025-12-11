@@ -92,11 +92,8 @@ class SnippetTaskConsumer(
             }
             if (task in plugins) {
                 logger.info("Received task '$task' for snippet '$snippetId' - messageId ${record.id}")
-                // Get snippet from asset-service
                 val snippet: String? = assetServiceClient.getAsset("snippet", snippetId)
-                // Get rules
                 val rules = formattingService.getRules(userId, language)
-                // Perform task
                 plugins[task]!!.run(snippet, rules)
             }
         }

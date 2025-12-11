@@ -1,7 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
 import io.mockk.mockk
-import io.mockk.verify
 import org.example.Runner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -39,15 +38,17 @@ class ExecutionPluginTest {
 
     @Test
     fun `run with complex snippet should return print`() {
-        val snippet = "println(\"Hello, World!\");\n" +
-            "println(\"This is a long snippet.\");\n" +
-            "println(\"One with many lines!\");\n" +
-            "println(\"Goodbye, World!\");"
+        val snippet =
+            "println(\"Hello, World!\");\n" +
+                "println(\"This is a long snippet.\");\n" +
+                "println(\"One with many lines!\");\n" +
+                "println(\"Goodbye, World!\");"
         val output = executionPlugin.run(snippet, emptyMap()) as String
-        val expected = "Hello, World!\r\n" +
-            "This is a long snippet.\r\n" +
-            "One with many lines!\r\n" +
-            "Goodbye, World!"
+        val expected =
+            "Hello, World!\r\n" +
+                "This is a long snippet.\r\n" +
+                "One with many lines!\r\n" +
+                "Goodbye, World!"
         println(output)
         println(expected)
         assertContains(output, expected)

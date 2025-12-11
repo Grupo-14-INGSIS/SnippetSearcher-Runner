@@ -20,7 +20,7 @@ class FormattingPlugin() : RunnerPlugin {
             params?.get("configFile") as? String
                 ?: throw IllegalArgumentException("Configuration file path 'configFile' is required for formatting.")
 
-        val version = params?.get("version") as? String
+        val version = params["version"] as? String
 
         val configFile = File(configPath)
         if (!configFile.exists()) {
