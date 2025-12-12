@@ -19,6 +19,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -28,7 +29,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Cache Gradle packages  # Acelera builds
+      - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
           path: |
@@ -37,9 +38,6 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
 
       - name: Run ktlintFormat
         run: |
@@ -54,45 +52,27 @@ jobs:
       - name: Run ktlintCheck
         run: ./gradlew ktlintCheck --quiet
 
-#      - name: Run tests
-#        run: |
-#          ./gradlew test --continue > .git/test-output.log
-#          if grep -q "FAILED" .git/test-output.log; then
-#            echo "Build bloqueado: fallaron tests."
-#            cat .git/test-output.log | grep FAILED
-#            exit 1
-#          fi
+      - name: Build with test and coverage
+        env:
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew build jacocoTestReport jacocoTestCoverageVerification
 
-#      - name: Verify coverage
-#        run: |
-#          ./gradlew jacocoTestCoverageVerification --quiet
-#          if [ $? -ne 0 ]; then
-#            echo "Build bloqueado: cobertura de código inferior al 80%."
-#            ./gradlew jacocoTestReport
-#            exit 1
-#          fi
+      - name: Upload JaCoCo coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html/
 
-#      - name: Upload JaCoCo coverage report  # Guardar reportes
-#        if: always()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: jacoco-report
-#          path: build/reports/jacoco/test/html/
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/reports/tests/test/
 
-      - name: Check
-        run: ./gradlew check
-
-      - name: Build
-        run: ./gradlew build
-
-#      - name: Upload test results  # Guardar resultados de tests
-#        if: always()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: test-results
-#          path: build/reports/tests/test/
-
-      - name: Upload build artifacts  # Guardar JAR generado
+      - name: Upload build artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
