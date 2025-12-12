@@ -1,7 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.UserCreationRequest
-import com.grupo14IngSis.snippetSearcherRunner.service.PrintScriptRulesMock
+import com.grupo14IngSis.snippetSearcherRunner.service.PrintScriptRulesProvider
 import com.grupo14IngSis.snippetSearcherRunner.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -25,22 +25,9 @@ class UserController(
         @PathVariable userId: String,
     ): ResponseEntity<*> {
         try {
-      /*
-      ###################
-      ##### M O C K #####
-      ######## | ########
-      ######## V ########
-      ###################
-       */
-            val formattingRules = UserCreationRequest(listOf(PrintScriptRulesMock.formattingRules()))
-            val lintingRules = UserCreationRequest(listOf(PrintScriptRulesMock.lintingRules()))
-      /*
-      ###################
-      ######## ^ ########
-      ######## | ########
-      ##### M O C K #####
-      ###################
-       */
+            val rulesProvider = PrintScriptRulesProvider()
+            val formattingRules = UserCreationRequest(listOf(rulesProvider.getFormattingRules(null)))
+            val lintingRules = UserCreationRequest(listOf(rulesProvider.getLintingRules(null)))
             val userExists = userService.check(userId)
             if (userExists) {
                 return ResponseEntity.status(409).body("User already exists")
