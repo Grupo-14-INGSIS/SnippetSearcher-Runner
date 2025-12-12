@@ -59,22 +59,7 @@ jobs:
         env:
           GITHUB_USERNAME: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew build --stacktrace --info
-
-      - name: Verify coverage
-        run: |
-          ./gradlew jacocoTestCoverageVerification --quiet
-          if [ $? -ne 0 ]; then
-            echo "Build bloqueado: cobertura de código inferior al 80%."
-            ./gradlew jacocoTestReport
-            exit 1
-          fi
-      - name: Upload JaCoCo coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-report
-          path: build/reports/jacoco/test/html/
+        run: ./gradlew build jacocoTestReport jacocoTestCoverageVerification
 
       - name: Upload JaCoCo coverage report
         if: always()
