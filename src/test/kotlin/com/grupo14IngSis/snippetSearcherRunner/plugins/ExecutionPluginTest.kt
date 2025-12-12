@@ -49,8 +49,6 @@ class ExecutionPluginTest {
                 "This is a long snippet.\r\n" +
                 "One with many lines!\r\n" +
                 "Goodbye, World!"
-        println(output)
-        println(expected)
         assertContains(output, expected)
     }
 }
