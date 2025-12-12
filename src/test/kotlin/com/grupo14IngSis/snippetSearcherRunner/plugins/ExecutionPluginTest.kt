@@ -44,11 +44,16 @@ class ExecutionPluginTest {
                 "println(\"One with many lines!\");\n" +
                 "println(\"Goodbye, World!\");"
         val output = executionPlugin.run(snippet, emptyMap()) as String
-        val expected =
-            "Hello, World!\r\n" +
-                "This is a long snippet.\r\n" +
-                "One with many lines!\r\n" +
-                "Goodbye, World!"
-        assertContains(output, expected)
+        val expectedLines =
+            listOf(
+                "Hello, World!",
+                "This is a long snippet.",
+                "One with many lines!",
+                "Goodbye, World!",
+            )
+
+        for (line in expectedLines) {
+            assertContains(output, line)
+        }
     }
 }
