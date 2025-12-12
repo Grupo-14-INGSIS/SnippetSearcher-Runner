@@ -98,14 +98,14 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
-        env:
-          GITHUB_USERNAME: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: ghcr.io/grupo-14-ingsis/snippetsearcher-runner:develop
+          build-args: |
+            GITHUB_USERNAME=${{ github.repository_owner }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Dispatch to infrastructure repository
         run: |
