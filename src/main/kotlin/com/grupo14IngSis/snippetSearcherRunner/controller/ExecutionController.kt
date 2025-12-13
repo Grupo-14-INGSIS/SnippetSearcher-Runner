@@ -23,11 +23,20 @@ class ExecutionController(
      *
      * Start the execution of a snippet
      *
+     * Request:
+     *
+     *     {
+     *       userId: String,
+     *       version: String,
+     *       environment: Map<String, String>
+     *     }
+     *
      * Response:
      *
-     * {
-     * status: FINISHED/WAITING/ERROR
-     * }
+     *     {
+     *        status: FINISHED/WAITING/ERROR
+     *        message: String
+     *     }
      */
     @PostMapping("/snippets/{snippetId}/run")
     fun startSnippetExecution(
@@ -45,7 +54,7 @@ class ExecutionController(
     }
 
     /**
-     * POST    /api/v1/snippets/{snippetId}/run
+     * POST    /api/v1/snippets/{snippetId}/run/input
      *
      * Give input to an execution
      *
@@ -69,6 +78,12 @@ class ExecutionController(
      * DELETE /api/v1/snippets/{snippetId}/run/input
      *
      * Cancel the execution of a snippet
+     *
+     * Request:
+     *
+     *     {
+     *       userID: String
+     *     }
      */
     @DeleteMapping("/snippets/{snippetId}/run")
     fun cancelExecution(

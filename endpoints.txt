@@ -34,107 +34,150 @@ SnippetTaskConsumer:
 
 ----- Detailed -----
 
+===================
 ExecutionController
-    POST   /api/v1/snippets/{snippetId}/run
-        Start the execution of a snippet
-        Request:
-            {
-                val userId: String,
-                val environment: Map<String, String>,
-                val version: String = "1.0",
-            }
-        Response:
-            {
-                status: STARTED/ERROR
-                message: {message}
-            }
-    PUT    /api/v1/snippets/{snippetId}/run/input
-        Give input to an execution
-        Request:
-            {
-                val userId: String,
-                val input: String?
-            }
-    DELETE /api/v1/snippets/{snippetId}/run
-        Cancel the execution of a snippet
-        Request is a simple string containing the user ID
+===================
 
+POST   /api/v1/snippets/{snippetId}/run
+    Start the execution of a snippet
+    Request:
+        {
+            val userId: String,
+            val environment: Map<String, String>,
+            val version: String = "1.0",
+        }
+    Response:
+        {
+            status: STARTED/ERROR
+            message: {message}
+        }
+
+POST   /api/v1/snippets/{snippetId}/run/input
+    Give input to an execution
+    Request:
+        {
+            val userId: String,
+            val input: String?
+        }
+
+DELETE /api/v1/snippets/{snippetId}/run
+    Cancel the execution of a snippet
+    Request:
+        {
+            userId: String
+        }
+
+
+
+====================
 TestingJobController
+====================
+
 POST   /api/v1/testing
     Start a test
     Request:
-    {
-        snippetId: String,
-        userId: String,
-        version: String,
-        environment: Map<String, String>,
-        input: List<String>,
-        expected: List<String>,
-    }
+        {
+            snippetId: String,
+            userId: String,
+            version: String,
+            environment: Map<String, String>,
+            input: List<String>,
+            expected: List<String>,
+        }
     Response:
-    {
-        actual: String,
-        status: SUCCESS/FAILED/ERROR
-        message: String
-    }
+        {
+            actual: String,
+            status: SUCCESS/FAILED/ERROR
+            message: String
+        }
 
+
+
+=======================
 FormattingJobController
+=======================
+
 GET    /api/v1/users/{userId}/formatting/rules/{language}
     Get rule configuration for a user
     Response:
-    {
-        rule1: conf1,
-        rule2: conf2,
-        ...
-    }
+        {
+            rule1: conf1,
+            rule2: conf2,
+            ...
+        }
+
 PATCH   /api/v1/users/{userId}/formatting/rules/{language}
     Add or modify a configuration rule
     Request:
-    {
-        rule1: newVal,
-        rule2: newVal,
-        rule4: newVal
-    }
+        {
+            rule1: newVal,
+            rule2: newVal,
+            rule4: newVal
+        }
     Response empty or:
-    {
-        status: 400
-        message: "User not found"/"Language not found"
-    }
+        {
+            status: 400
+            message: "User not found"/"Language not found"
+        }
 
+
+
+====================
 LintingJobController
+====================
+
 GET    /api/v1/users/{userId}/linting/rules/{language}
     Get rule configuration for a user
     Response:
-    {
-        rule1: conf1,
-        rule2: conf2,
-        ...
-    }
+        {
+            rule1: conf1,
+            rule2: conf2,
+            ...
+        }
+
 PATCH   /api/v1/users/{userId}/linting/rules
     Add or modify a configuration rule
     Request:
-    {
-        rule1: newVal,
-        rule2: newVal,
-        rule4: newVal
-    }
+        {
+            rule1: newVal,
+            rule2: newVal,
+            rule4: newVal
+        }
     Response empty or:
-    {
-        status: 400
-        message: "User not found"/"Language not found"
-    }
+        {
+            status: 400
+            message: "User not found"/"Language not found"
+        }
 
+
+
+==============
 UserController
+==============
+
 PUT    /api/v1/users/{userId}
-    Create an entry for the user. This adds all rules with default values
+    Create an entry for the user. This adds all rules with default values.
+    Does not require a Request body
+
 DELETE /api/v1/users/{userId}
     Delete all rules linked to the user
     Meant for db cleaning when deleting a user
 
+
+
+=================
 SnippetController
+=================
+
 GET    /api/v1/snippet/{container}/{snippetId}
     Fetch the content of a snippet as a String
+    Default container for snippets is "snippets"
+    Response is a plain string
+
 PUT    /api/v1/snippet/{container}/{snippetId}
-    Create or update the content of a snippet. The body is a String
+    Create or update the content of a snippet
+    Request body is a plain string
+    This endpoint overrides the snippet's content with the request data
+
 DELETE /api/v1/snippet/{container}/{snippetId}
     Delete a snippet from the service
