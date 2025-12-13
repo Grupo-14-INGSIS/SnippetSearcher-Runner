@@ -75,7 +75,7 @@ class ExecutionController(
     }
 
     /**
-     * DELETE /api/v1/snippets/{snippetId}/run/input
+     * DELETE /api/v1/snippets/{snippetId}/run
      *
      * Cancel the execution of a snippet
      *
