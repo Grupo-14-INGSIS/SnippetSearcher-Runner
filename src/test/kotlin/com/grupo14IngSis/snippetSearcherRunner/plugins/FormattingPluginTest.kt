@@ -1,14 +1,12 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import org.example.Runner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import runner.src.main.kotlin.Runner
 import java.io.File
+import kotlin.test.assertContains
 
 class FormattingPluginTest {
     private lateinit var runner: Runner
@@ -17,9 +15,8 @@ class FormattingPluginTest {
 
     @BeforeEach
     fun setUp() {
-        runner = mockk(relaxed = true)
         formattingPlugin = FormattingPlugin()
-        tempConfigFile = createTempFile("config", ".ps")
+        tempConfigFile = createTempFile("config", ".yml")
         tempConfigFile.writeText("some config")
     }
 
@@ -56,39 +53,29 @@ class FormattingPluginTest {
     }
 
     @Test
-    fun `run with valid snippet and config should call formatterCommand`() {
-        val snippet = "println(\"hello\");"
+    fun `run with valid snippet and empty config should return same snippet`() {
+        val snippet = "let a:number = 14;"
+        tempConfigFile.writeText(
+            "",
+        )
         val params = mapOf("configFile" to tempConfigFile.absolutePath)
+        val output = formattingPlugin.run(snippet, params) as String
+        val expected = "let a:number = 14;"
 
-        formattingPlugin.run(snippet, params)
-
-        verify { runner.formatterCommand(any()) }
+        assertContains(output, expected)
     }
 
     @Test
-    fun `run with version should call formatterCommand with version`() {
-        val snippet = "println(\"hello\");"
-        val version = "1.1"
-        val params = mapOf("configFile" to tempConfigFile.absolutePath, "version" to version)
-
-        formattingPlugin.run(snippet, params)
-
-        verify { runner.formatterCommand(match { it.contains(version) }) }
-    }
-
-    @Test
-    fun `formatterCommand should modify the snippet and return it`() {
-        val snippet = "let a: number = 1"
-        val formattedSnippet = "let a: number = 1;"
+    fun `run with valid snippet and config should return formatted snippet`() {
+        val snippet = "let a:number = 14;"
+        tempConfigFile.writeText(
+            "enforce-spacing-after-colon-in-declaration: true\n" +
+                "enforce-no-spacing-around-equals: true",
+        )
         val params = mapOf("configFile" to tempConfigFile.absolutePath)
+        val output = formattingPlugin.run(snippet, params) as String
+        val expected = "let a: number=14;"
 
-        every { runner.formatterCommand(any()) } answers {
-            val tempFile = File(firstArg<List<String>>()[0])
-            tempFile.writeText(formattedSnippet)
-        }
-
-        val result = formattingPlugin.run(snippet, params)
-
-        assertEquals(formattedSnippet, result)
+        assertContains(output, expected)
     }
 }

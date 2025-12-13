@@ -35,6 +35,7 @@ class SnippetTaskConsumer(
         mapOf(
             "format" to FormattingPlugin(),
             "lint" to ValidationPlugin(),
+            "test" to TestPlugin(),
         )
 
     @PostConstruct
@@ -84,18 +85,15 @@ class SnippetTaskConsumer(
         val language = record.value["language"]
 
         if (!(task == null || snippetId == null || userId == null || language == null)) {
-            appClient.updateSnippetTaskStatus(snippetId, task, true)
+            appClient.updateSnippetTaskStatus(snippetId, userId, task, true)
 
             if (task == "test") {
                 TestPlugin().run(snippetId, null)
             }
             if (task in plugins) {
                 logger.info("Received task '$task' for snippet '$snippetId' - messageId ${record.id}")
-                // Get snippet from asset-service
                 val snippet: String? = assetServiceClient.getAsset("snippet", snippetId)
-                // Get rules
                 val rules = formattingService.getRules(userId, language)
-                // Perform task
                 plugins[task]!!.run(snippet, rules)
             }
         }

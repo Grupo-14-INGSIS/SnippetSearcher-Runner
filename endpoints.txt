@@ -35,21 +35,29 @@ SnippetTaskConsumer:
 ----- Detailed -----
 
 ExecutionController
-    POST   /api/v1/snippets/{snippetId}/execution
+    POST   /api/v1/snippets/{snippetId}/run
         Start the execution of a snippet
+        Request:
+            {
+                val userId: String,
+                val environment: Map<String, String>,
+                val version: String = "1.0",
+            }
         Response:
             {
-                status: FINISHED/WAITING/ERROR
+                status: STARTED/ERROR
+                message: {message}
             }
-    POST   /api/v1/snippets/{snippetId}/execution/input
-        Give input for an execution
-        The request is a plain String
-        Response:
+    PUT    /api/v1/snippets/{snippetId}/run/input
+        Give input to an execution
+        Request:
             {
-                status: FINISHED/WAITING/ERROR
+                val userId: String,
+                val input: String?
             }
-    DELETE /api/v1/snippets/{snippetId}/execution
+    DELETE /api/v1/snippets/{snippetId}/run
         Cancel the execution of a snippet
+        Request is a simple string containing the user ID
 
 TestingJobController
 POST   /api/v1/testing
@@ -57,13 +65,17 @@ POST   /api/v1/testing
     Request:
     {
         snippetId: String,
-        input: [String],
-        expected: String,
+        userId: String,
+        version: String,
+        environment: Map<String, String>,
+        input: List<String>,
+        expected: List<String>,
     }
     Response:
     {
         actual: String,
-        Status: PASSED/FAILED/ERR
+        status: SUCCESS/FAILED/ERROR
+        message: String
     }
 
 FormattingJobController
