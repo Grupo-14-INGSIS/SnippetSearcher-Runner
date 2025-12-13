@@ -44,7 +44,7 @@ class SnippetTaskConsumer(
         startConsuming()
     }
 
-    private fun createConsumerGroupIfNeeded() {
+    fun createConsumerGroupIfNeeded() {
         try {
             redisTemplate.opsForValue().setIfAbsent(streamKey, "")
             redisTemplate.opsForStream<String, String>()

@@ -1,6 +1,5 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
-import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEvent
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
@@ -62,8 +61,8 @@ class AppClient(
         line: String,
         status: ExecutionEventType,
     ) {
-        val message = ExecutionEvent(status, line)
         /*
+        val message = ExecutionEvent(status, line)
         restTemplate.exchange(
             "$app/v1/snippets/$snippetId/run",
             HttpMethod.POST,

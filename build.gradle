@@ -64,8 +64,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
     implementation "org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0"
     implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions'
-
-    implementation 'org.postgresql:postgresql:42.7.1'
+    runtimeOnly 'org.postgresql:postgresql'
 
     testImplementation "org.jetbrains.kotlin:kotlin-test"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit5"
