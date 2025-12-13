@@ -46,7 +46,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'IngsisTP:runner:1.0.86'
+    implementation 'IngsisTP:runner:1.0.89'
+    implementation 'IngsisTP:inputprovider:1.0.89'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
