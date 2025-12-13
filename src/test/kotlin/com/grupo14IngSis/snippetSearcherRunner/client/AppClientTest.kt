@@ -1,7 +1,5 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
-import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEvent
-import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
 import io.mockk.every
 import io.mockk.mockk
@@ -91,6 +89,9 @@ class AppClientTest {
             )
         }
     }
+
+    /*
+    AppClient.sendLine is temporally disabled
 
     @Test
     fun `sendLine should call correct endpoint with output event`() {
@@ -228,19 +229,6 @@ class AppClientTest {
     }
 
     @Test
-    fun `updateSnippetTaskStatus should not throw exception when RestTemplate succeeds`() {
-        // Arrange
-        every {
-            restTemplate.exchange(any<String>(), any(), any<HttpEntity<Any>>(), String::class.java)
-        } returns ResponseEntity.ok("Success")
-
-        // Act & Assert - no exception should be thrown
-        assertDoesNotThrow {
-            appClient.updateSnippetTaskStatus("snippet1", "user1", "format", true)
-        }
-    }
-
-    @Test
     fun `sendLine should propagate RestClientException`() {
         // Arrange
         every {
@@ -250,6 +238,20 @@ class AppClientTest {
         // Act & Assert
         assertThrows(RestClientException::class.java) {
             appClient.sendLine("snippet1", "exec1", "Test", ExecutionEventType.OUTPUT)
+        }
+    }
+     */
+
+    @Test
+    fun `updateSnippetTaskStatus should not throw exception when RestTemplate succeeds`() {
+        // Arrange
+        every {
+            restTemplate.exchange(any<String>(), any(), any<HttpEntity<Any>>(), String::class.java)
+        } returns ResponseEntity.ok("Success")
+
+        // Act & Assert - no exception should be thrown
+        assertDoesNotThrow {
+            appClient.updateSnippetTaskStatus("snippet1", "user1", "format", true)
         }
     }
 

@@ -196,8 +196,13 @@ GET    /api/v1/snippet/{container}/{snippetId}
 
 PUT    /api/v1/snippet/{container}/{snippetId}
     Create or update the content of a snippet
-    Request body is a plain string
     This endpoint overrides the snippet's content with the request data
+    Request:
+        {
+            userId: String,
+            language: String,
+            snippet: String
+        }
 
 DELETE /api/v1/snippet/{container}/{snippetId}
     Delete a snippet from the service
