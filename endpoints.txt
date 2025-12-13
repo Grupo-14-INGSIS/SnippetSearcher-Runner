@@ -22,6 +22,26 @@ SnippetController
     PUT    /api/v1/snippet/{container}/{snippetId}
     DELETE /api/v1/snippet/{container}/{snippetId}
 
+
+ExecutionController
+    POST   /api/v1/snippets/{snippetId}/run
+    POST   /api/v1/snippets/{snippetId}/run/input
+    DELETE /api/v1/snippets/{snippetId}/run
+TestingJobController
+    POST   /api/v1/testing
+FormattingJobController
+    GET    /api/v1/users/{userId}/formatting/rules/{language}
+    PATCH  /api/v1/users/{userId}/formatting/rules/{language}
+LintingJobController
+    GET    /api/v1/users/{userId}/linting/rules/{language}
+    PATCH  /api/v1/users/{userId}/linting/rules
+UserController
+    PUT    /api/v1/users/{userId}
+    DELETE /api/v1/users/{userId}SnippetController
+    GET    /api/v1/snippet/{container}/{snippetId}
+    PUT    /api/v1/snippet/{container}/{snippetId}
+    DELETE /api/v1/snippet/{container}/{snippetId}
+
 ===== REDIS-STREAMS =====
 
 SnippetTaskConsumer:
