@@ -1,6 +1,8 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
+import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
+import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,6 +17,7 @@ import java.net.URI
 @RequestMapping("/api/v1/snippet")
 class SnippetController(
     private val assetServiceClient: AssetServiceClient,
+    private val appClient: AppClient,
 ) {
     /**
      * GET    /api/v1/snippet/{container}/{snippetId}
@@ -35,14 +38,25 @@ class SnippetController(
      * PUT    /api/v1/snippet/{container}/{snippetId}
      *
      * Create or update the content of a snippet. The body is a String
+     *
+     * Request:
+     *
+     *     {
+     *       userId: String,
+     *       language: String,
+     *       Snippet: String
+     *     }
      */
     @PutMapping("/{container}/{snippetId}")
     fun putSnippet(
         @PathVariable container: String,
         @PathVariable snippetId: String,
-        @RequestBody snippet: String,
+        @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
-        val statusCode = assetServiceClient.postAsset(container, snippetId, snippet)
+        val statusCode = assetServiceClient.postAsset(container, snippetId, request.snippet)
+        if (statusCode == 201) {
+            appClient.registerSnippet(snippetId, request.userId, request.language)
+        }
         return when (statusCode) {
             200 -> ResponseEntity.ok().body("Snippet updated.")
             201 -> ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId")).body("Snippet created.")

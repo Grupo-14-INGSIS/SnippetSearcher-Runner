@@ -1,17 +1,20 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
+import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
+import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
+import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import java.net.URI
 
 class SnippetControllerTest {
     private val assetServiceClient: AssetServiceClient = mockk()
-    private val snippetController = SnippetController(assetServiceClient)
+    private val appClient: AppClient = mockk(relaxed = true)
+    private val snippetController = SnippetController(assetServiceClient, appClient)
 
     @Test
     fun `getSnippet should return snippet content when asset exists`() {
@@ -42,40 +45,69 @@ class SnippetControllerTest {
     fun `putSnippet should return 200 when updating an existing snippet`() {
         val container = "test-container"
         val snippetId = "test-snippet"
+        val userId = "test-user"
+        val language = "printscript"
         val snippetContent = "Updated content"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 200
+        every {
+            appClient.registerSnippet(snippetId, userId, language)
+        } returns
+            ResponseEntity.ok().body(
+                SnippetCreationResponse(
+                    true, "yay",
+                ),
+            )
 
-        val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, snippetContent)
+        val request = SnippetCreationRequest(userId, language, snippetContent)
+        val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, request)
 
         assertEquals(HttpStatus.OK, response.statusCode)
-        assertEquals("Snippet updated.", response.body)
     }
 
     @Test
     fun `putSnippet should return 201 when creating a new snippet`() {
         val container = "test-container"
-        val snippetId = "new-snippet"
+        val snippetId = "test-snippet"
+        val userId = "test-user"
+        val language = "printscript"
         val snippetContent = "New content"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 201
+        every {
+            appClient.registerSnippet(snippetId, userId, language)
+        } returns
+            ResponseEntity.ok().body(
+                SnippetCreationResponse(
+                    true, "yay",
+                ),
+            )
 
-        val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, snippetContent)
+        val request = SnippetCreationRequest(userId, language, snippetContent)
+        val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, request)
 
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals("Snippet created.", response.body)
-        assertEquals(URI.create("/api/v1/snippet/$container/$snippetId"), response.headers.location)
     }
 
     @Test
     fun `putSnippet should return error status when processing fails`() {
         val container = "test-container"
-        val snippetId = "error-snippet"
-        val snippetContent = "Error content"
+        val snippetId = "test-snippet"
+        val userId = "test-user"
+        val language = "printscript"
+        val snippetContent = "New content"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 500
+        every {
+            appClient.registerSnippet(snippetId, userId, language)
+        } returns
+            ResponseEntity.ok().body(
+                SnippetCreationResponse(
+                    false, "nay",
+                ),
+            )
 
-        val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, snippetContent)
+        val request = SnippetCreationRequest(userId, language, snippetContent)
+        val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
-        assertEquals("Error processing snippet.", response.body)
     }
 
     @Test

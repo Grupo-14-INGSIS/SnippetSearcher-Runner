@@ -46,7 +46,6 @@ class SnippetTaskConsumer(
 
     private fun createConsumerGroupIfNeeded() {
         try {
-            redisTemplate.opsForValue().setIfAbsent(streamKey, "")
             redisTemplate.opsForStream<String, String>()
                 .createGroup(streamKey, ReadOffset.latest(), group)
             logger.info("Consumer group '$group' created")

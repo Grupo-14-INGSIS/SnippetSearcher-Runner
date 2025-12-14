@@ -1,9 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import org.example.Runner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import runner.src.main.kotlin.Runner
 import kotlin.test.assertContains
 
 class ValidationPluginTest {

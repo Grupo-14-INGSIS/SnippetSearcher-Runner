@@ -5,4 +5,6 @@ enum class ExecutionEventType {
     OUTPUT,
     WAITING,
     ERROR,
+    STARTED,
+    CANCELLED,
 }

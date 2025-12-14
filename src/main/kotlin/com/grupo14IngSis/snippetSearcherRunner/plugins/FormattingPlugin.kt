@@ -1,7 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import org.example.Runner // Assuming this is the package from the imported runner
 import org.springframework.stereotype.Service
+import runner.src.main.kotlin.Runner // Assuming this is the package from the imported runner
 import java.io.File
 
 @Service("formatter")

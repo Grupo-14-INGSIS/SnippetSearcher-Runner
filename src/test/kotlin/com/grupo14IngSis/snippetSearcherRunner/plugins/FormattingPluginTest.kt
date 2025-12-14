@@ -1,10 +1,10 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import org.example.Runner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import runner.src.main.kotlin.Runner
 import java.io.File
 import kotlin.test.assertContains
 
