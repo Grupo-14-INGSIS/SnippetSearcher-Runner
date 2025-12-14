@@ -12,7 +12,7 @@ RUN gradle bootJar -x test \
     -PgithubToken=${GITHUB_TOKEN}
 
 # Stage 2: runtime
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 RUN mkdir -p /usr/local/newrelic
