@@ -19,15 +19,24 @@ class ExecutionController(
     private val executionService: ExecutionService,
 ) {
     /**
-     * POST   /api/v1/snippets/{snippetId}/execution
+     * POST   /api/v1/snippets/{snippetId}/run
      *
      * Start the execution of a snippet
      *
+     * Request:
+     *
+     *     {
+     *       userId: String,
+     *       version: String,
+     *       environment: Map<String, String>
+     *     }
+     *
      * Response:
      *
-     * {
-     * status: FINISHED/WAITING/ERROR
-     * }
+     *     {
+     *        status: FINISHED/WAITING/ERROR
+     *        message: String
+     *     }
      */
     @PostMapping("/snippets/{snippetId}/run")
     fun startSnippetExecution(
@@ -45,7 +54,7 @@ class ExecutionController(
     }
 
     /**
-     * PUT    /api/v1/snippets/{snippetId}/execution
+     * POST    /api/v1/snippets/{snippetId}/run/input
      *
      * Give input to an execution
      *
@@ -56,7 +65,7 @@ class ExecutionController(
      *       val input: String?
      *     }
      */
-    @PostMapping("/snippets/{snippetId}/run")
+    @PostMapping("/snippets/{snippetId}/run/input")
     fun sendInput(
         @PathVariable snippetId: String,
         @RequestBody request: InputRequest,
@@ -66,11 +75,17 @@ class ExecutionController(
     }
 
     /**
-     * DELETE /api/v1/snippets/{snippetId}/run/input
+     * DELETE /api/v1/snippets/{snippetId}/run
      *
      * Cancel the execution of a snippet
+     *
+     * Request:
+     *
+     *     {
+     *       userID: String
+     *     }
      */
-    @DeleteMapping("/snippets/{snippetId}/run/input")
+    @DeleteMapping("/snippets/{snippetId}/run")
     fun cancelExecution(
         @PathVariable snippetId: String,
         @RequestBody request: CancelExecutionRequest,

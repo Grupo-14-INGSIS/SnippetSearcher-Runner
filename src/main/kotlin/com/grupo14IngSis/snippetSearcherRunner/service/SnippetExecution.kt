@@ -1,6 +1,5 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
-import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.service.inputprovider.ExecutionInputProvider
@@ -14,28 +13,18 @@ import kotlin.concurrent.thread
  */
 class SnippetExecution(
     private val snippetId: String,
-    private val userId: String,
     private val version: String,
     private val environment: Map<String, String>,
-    private val appClient: AppClient?,
     private val assetServiceClient: AssetServiceClient,
 ) {
     private val inputProvider = ExecutionInputProvider(environment)
     private lateinit var executionThread: Thread
-    private val executionId = userId + snippetId
 
     private val outputList = mutableListOf<String>()
     private var status: ExecutionEventType? = null
 
-    fun onOutput(
-        line: String,
-        status: ExecutionEventType,
-    ) {
-        try {
-            appClient?.sendLine(snippetId, executionId, line, status)
-        } catch (e: Exception) {
-            println("Failed to send output: ${e.message}")
-        }
+    fun onOutput(line: String) {
+        outputList.add(line)
     }
 
     /**
@@ -59,20 +48,19 @@ class SnippetExecution(
                         listOf(snippetPath, version),
                         this.inputProvider,
                         printer = { output ->
-                            outputList.add(output.toString())
-                            onOutput(output.toString(), ExecutionEventType.OUTPUT)
+                            onOutput(output.toString())
                         },
                     )
-                    onOutput("Execution finished.", ExecutionEventType.COMPLETED)
+                    onOutput("Execution finished")
                     status = ExecutionEventType.COMPLETED
                 } catch (e: CancellationException) {
-                    onOutput("Execution canceled", ExecutionEventType.CANCELLED)
+                    onOutput("Execution canceled")
                     status = ExecutionEventType.CANCELLED
                 } catch (e: IllegalArgumentException) {
-                    onOutput("Error: ${e.message}", ExecutionEventType.ERROR)
+                    onOutput("Error: ${e.message}")
                     status = ExecutionEventType.ERROR
                 } catch (e: Exception) {
-                    onOutput("Unexpected error: ${e.message}", ExecutionEventType.ERROR)
+                    onOutput("Unexpected error: ${e.message}")
                     status = ExecutionEventType.ERROR
                 } finally {
                     tempFile.delete()
@@ -121,9 +109,9 @@ class SnippetExecution(
                     attempts--
                 }
                 if (!executionThread.isAlive) {
-                    onOutput("Execution forcefully terminated", ExecutionEventType.CANCELLED)
+                    onOutput("Execution forcefully terminated")
                 } else {
-                    onOutput("Could not terminate execution", ExecutionEventType.ERROR)
+                    onOutput("Could not terminate execution")
                 }
             }.apply { isDaemon = true }.start()
         }

@@ -49,16 +49,12 @@ class TestingJobController(
         val execution =
             SnippetExecution(
                 request.snippetId,
-                request.userId,
                 request.version,
                 request.environment,
-                null,
                 assetService,
             )
 
-        for (input in request.input) {
-            execution.sendInput(input)
-        }
+        execution.sendMultipleInputs(request.input)
 
         var completed = false
         execution.start()
@@ -67,7 +63,8 @@ class TestingJobController(
         }
         val status = execution.getStatus()
         if (status == ExecutionEventType.COMPLETED) {
-            val actual = execution.getOutput()
+            val actual = execution.getOutput().toMutableList()
+            actual.removeLast()
             result =
                 if (actual == request.expected) {
                     TestResponse(

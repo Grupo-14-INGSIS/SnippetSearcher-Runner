@@ -5,6 +5,7 @@ import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,14 +19,14 @@ class ExecutionServiceTest {
     fun setup() {
         assetServiceClient = mockk(relaxed = true)
         appClient = mockk(relaxed = true)
-        executionService = ExecutionService(assetServiceClient, appClient)
+        executionService = ExecutionService(assetServiceClient)
     }
 
     @Test
-    fun `Should return confirmation of start of snippet execution`() {
+    fun `Should return snippet output`() {
         val snippetId = "123"
         val userId = "user"
-        val snippet = "println(\"Hello, World\");"
+        val snippet = "println(\"Hello, World!\");"
         every { assetServiceClient.getAsset("snippets", snippetId) } returns snippet
         val output =
             executionService.executeSnippet(
@@ -34,7 +35,10 @@ class ExecutionServiceTest {
                 "1.0",
                 emptyMap(),
             )
-        assertEquals("Execution started.", output.message)
-        assertEquals(ExecutionEventType.STARTED, output.status)
+        if (output.status != ExecutionEventType.COMPLETED) {
+            assertTrue(false)
+        }
+        assertEquals(listOf("Hello, World!", "Execution finished"), output.message)
+        assertEquals(ExecutionEventType.COMPLETED, output.status)
     }
 }
