@@ -42,7 +42,8 @@ class SnippetController(
      * Request:
      *
      *     {
-     *       userId: String,
+     *       userId: String
+     *       jwt: String,
      *       language: String,
      *       Snippet: String
      *     }
@@ -53,14 +54,36 @@ class SnippetController(
         @PathVariable snippetId: String,
         @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
-        val statusCode = assetServiceClient.postAsset(container, snippetId, request.snippet)
-        if (statusCode == 201) {
-            appClient.registerSnippet(snippetId, request.userId, request.language)
-        }
-        return when (statusCode) {
-            200 -> ResponseEntity.ok().body("Snippet updated.")
-            201 -> ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId")).body("Snippet created.")
-            else -> ResponseEntity.status(statusCode).body("Error processing snippet.")
+        when (val statusCode = assetServiceClient.postAsset(container, snippetId, request.snippet)) {
+            200 -> {
+                // Update
+                if (request.jwt == null) {
+                    return ResponseEntity.ok().body("Snippet updated successfully, but could not run tests.")
+                }
+                val results = appClient.testAll(snippetId, request.jwt)
+                var message: String
+                if (!results.isEmpty()) {
+                    message = " with the following test results:\n"
+                    for (result in results) {
+                        message = "$message\n- $result"
+                    }
+                } else {
+                    message = "."
+                }
+                return ResponseEntity.ok().body("Snippet updated successfully$message")
+            }
+
+            201 -> {
+                // Creation
+                appClient.registerSnippet(snippetId, request.userId, request.language)
+                return ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId"))
+                    .body("Snippet created.")
+            }
+
+            else -> {
+                // Whatever
+                return ResponseEntity.status(statusCode).body("Error processing snippet.")
+            }
         }
     }
 
