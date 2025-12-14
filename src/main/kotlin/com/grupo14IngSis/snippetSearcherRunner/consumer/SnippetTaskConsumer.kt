@@ -8,6 +8,7 @@ import com.grupo14IngSis.snippetSearcherRunner.plugins.TestPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.ValidationPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
 import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.connection.stream.Consumer
@@ -18,6 +19,7 @@ import org.springframework.data.redis.connection.stream.StreamReadOptions
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import java.time.Duration
+import java.util.UUID
 
 @Component
 class SnippetTaskConsumer(
@@ -29,7 +31,12 @@ class SnippetTaskConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
     private val group = "runner-group"
-    private val consumer = Consumer.from(group, "runner-1")
+    private val consumerGroup = "runner_group"
+    private val consumerName = "runner_consumer_${UUID.randomUUID()}"
+
+    @Volatile
+    private var running = false
+    private var consumerThread: Thread? = null
 
     private val plugins: Map<String, RunnerPlugin> =
         mapOf(
@@ -40,41 +47,88 @@ class SnippetTaskConsumer(
 
     @PostConstruct
     fun init() {
-        createConsumerGroupIfNeeded()
+        try {
+            redisTemplate.opsForStream<String, String>()
+                .createGroup(streamKey, consumerGroup)
+            logger.info("Consumer group '$consumerGroup' created")
+        } catch (e: Exception) {
+            logger.info("Consumer group already exists")
+        }
         startConsuming()
     }
 
-    private fun createConsumerGroupIfNeeded() {
-        try {
-            redisTemplate.opsForStream<String, String>()
-                .createGroup(streamKey, ReadOffset.latest(), group)
-            logger.info("Consumer group '$group' created")
-        } catch (ex: Exception) {
-            logger.info("Consumer group '$group' already exists")
-        }
-    }
-
     private fun startConsuming() {
-        Thread {
-            logger.info("Runner listening for tasks on stream '$streamKey'...")
-            while (true) {
-                try {
-                    val messages =
-                        redisTemplate.opsForStream<String, String>().read(
-                            consumer,
-                            StreamReadOptions.empty().count(10).block(Duration.ofMillis(2000)),
-                            StreamOffset.create(streamKey, ReadOffset.lastConsumed()),
-                        )
-                    if (messages != null) {
-                        for (msg in messages) {
-                            processMessage(msg)
+        running = true
+
+        consumerThread =
+            Thread {
+                logger.info("Consumer started: $consumerName")
+                while (running) {
+                    try {
+                        val messages =
+                            redisTemplate.opsForStream<String, String>().read(
+                                Consumer.from(consumerGroup, consumerName),
+                                StreamReadOptions.empty()
+                                    .count(1)
+                                    .block(Duration.ofSeconds(2)),
+                                StreamOffset.create(streamKey, ReadOffset.lastConsumed()),
+                            )
+                        messages?.forEach { message ->
+                            if (!running) return@forEach
+
+                            processMessage(message)
+
+                            // ACK del mensaje
+                            redisTemplate.opsForStream<String, String>()
+                                .acknowledge(streamKey, consumerGroup, message.id)
+                        }
+                    } catch (e: IllegalStateException) {
+                        if (e.message?.contains("was destroyed") == true) {
+                            logger.warn("Redis connection closed, stopping consumer")
+                            break
+                        } else {
+                            throw e
+                        }
+                    } catch (e: InterruptedException) {
+                        logger.info("Consumer interrupted, stopping...")
+                        Thread.currentThread().interrupt()
+                        break
+                    } catch (e: Exception) {
+                        logger.error("Error while reading stream", e)
+                        if (running) {
+                            Thread.sleep(5000)
                         }
                     }
-                } catch (e: Exception) {
-                    logger.error("Error while reading stream", e)
                 }
+
+                logger.info("Consumer stopped: $consumerName")
+            }.apply {
+                name = "Redis-Consumer-Thread"
+                isDaemon = false
+                start()
             }
-        }.start()
+    }
+
+    @PreDestroy
+    fun shutdown() {
+        logger.info("Shutting down consumer...")
+        running = false
+
+        consumerThread?.let { thread ->
+            thread.interrupt()
+
+            try {
+                thread.join(5000)
+                if (thread.isAlive) {
+                    logger.warn("Consumer thread did not stop gracefully")
+                } else {
+                    logger.info("Consumer thread stopped successfully")
+                }
+            } catch (e: InterruptedException) {
+                logger.error("Interrupted while waiting for consumer to stop")
+                Thread.currentThread().interrupt()
+            }
+        }
     }
 
     internal fun processMessage(record: MapRecord<String, String, String>) {
