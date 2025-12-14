@@ -44,7 +44,7 @@ class AppClient(
         snippetId: String,
         userId: String,
         language: String,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<SnippetCreationResponse> {
         val response =
             restTemplate.exchange(
                 "$app/api/v1/snippets/$snippetId?userId=$userId&language=$language",

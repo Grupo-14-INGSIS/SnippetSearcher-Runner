@@ -54,7 +54,7 @@ class SnippetController(
         @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
         val statusCode = assetServiceClient.postAsset(container, snippetId, request.snippet)
-        if (statusCode in 200..201) {
+        if (statusCode == 201) {
             appClient.registerSnippet(snippetId, request.userId, request.language)
         }
         return when (statusCode) {

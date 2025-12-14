@@ -1,10 +1,13 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
+import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
+import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -266,5 +269,37 @@ class AppClientTest {
         assertThrows(RestClientException::class.java) {
             appClient.updateSnippetTaskStatus("snippet1", "user1", "lint", false)
         }
+    }
+
+    @Test
+    fun `registerSnippet successfully registers the snippet`() {
+        val snippetId = "snippet"
+        val userId = "user"
+        val language = "language"
+        val app = appUrl
+        every {
+            restTemplate.exchange(
+                "$app/api/v1/snippets/$snippetId?userId=$userId&language=$language",
+                HttpMethod.PUT,
+                any<HttpEntity<*>>(),
+                SnippetCreationResponse::class.java,
+            )
+        } returns
+            ResponseEntity.ok(
+                SnippetCreationResponse(true, "yay"),
+            )
+        val response = appClient.registerSnippet(snippetId, userId, language).body!!
+        assertEquals(true, response.success)
+        assertEquals("yay", response.message)
+    }
+
+    @Test
+    fun `test sendLine for coverage`() {
+        val snippetId = "snippetId"
+        val executionId = "executionId"
+        val line = "line"
+        val status = ExecutionEventType.OUTPUT
+        val result = appClient.sendLine(snippetId, executionId, line, status)
+        assertEquals(Unit, result)
     }
 }

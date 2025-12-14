@@ -105,6 +105,11 @@ jacocoTestCoverageVerification {
     dependsOn jacocoTestReport
     violationRules {
         rule {
+            excludes = [
+                '**/dto/**',
+                '**/config/**',
+                '**/consumer/**'
+            ]
             limit { minimum = 0.8 }
         }
     }

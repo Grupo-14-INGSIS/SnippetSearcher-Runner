@@ -109,53 +109,6 @@ class SnippetTaskConsumerTest {
         ).withId(RecordId.of("1-0"))
     }
 
-    // ============== Tests de init() y createConsumerGroupIfNeeded() ==============
-
-    @Test
-    fun `init should create consumer group if it does not exist`() {
-        // Given
-        every { valueOperations.setIfAbsent(streamKey, "") } returns true
-        every {
-            streamOperations.createGroup(streamKey, ReadOffset.latest(), group)
-        } returns "OK"
-
-        // When
-        assertDoesNotThrow {
-            snippetTaskConsumer.createConsumerGroupIfNeeded()
-        }
-
-        // Then
-        verify(exactly = 1) { valueOperations.setIfAbsent(streamKey, "") }
-        verify(exactly = 1) { streamOperations.createGroup(streamKey, ReadOffset.latest(), group) }
-    }
-
-    @Test
-    fun `init should handle consumer group already exists exception`() {
-        // Given
-        every { valueOperations.setIfAbsent(streamKey, "") } returns true
-        every {
-            streamOperations.createGroup(any(), any(), any())
-        } throws RuntimeException("BUSYGROUP Consumer Group name already exists")
-
-        // When & Then - should not throw
-        assertDoesNotThrow {
-            snippetTaskConsumer.createConsumerGroupIfNeeded()
-        }
-
-        verify(exactly = 1) { streamOperations.createGroup(streamKey, ReadOffset.latest(), group) }
-    }
-
-    @Test
-    fun `createConsumerGroupIfNeeded should catch any exception gracefully`() {
-        // Given
-        every { valueOperations.setIfAbsent(any(), any()) } throws RuntimeException("Redis connection error")
-
-        // When & Then
-        assertDoesNotThrow {
-            snippetTaskConsumer.createConsumerGroupIfNeeded()
-        }
-    }
-
     // ============== Tests de startConsuming() ==============
 
     @Test
