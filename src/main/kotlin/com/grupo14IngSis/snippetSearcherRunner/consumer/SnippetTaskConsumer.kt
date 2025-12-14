@@ -11,6 +11,8 @@ import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.redis.RedisSystemException
+import org.springframework.data.redis.connection.DataType
 import org.springframework.data.redis.connection.stream.Consumer
 import org.springframework.data.redis.connection.stream.MapRecord
 import org.springframework.data.redis.connection.stream.ReadOffset
@@ -48,12 +50,22 @@ class SnippetTaskConsumer(
     @PostConstruct
     fun init() {
         try {
+            val type = redisTemplate.type(streamKey)
+            if (type != DataType.STREAM) {
+                logger.error("Key '$streamKey' has wrong type: $type. Deleting...")
+                redisTemplate.delete(streamKey)
+            }
             redisTemplate.opsForStream<String, String>()
-                .createGroup(streamKey, consumerGroup)
-            logger.info("Consumer group '$consumerGroup' created")
-        } catch (e: Exception) {
-            logger.info("Consumer group already exists")
+                .createGroup(streamKey, ReadOffset.from("0"), consumerGroup)
+            logger.info("Consumer group '$consumerGroup' created for stream '$streamKey'")
+        } catch (e: RedisSystemException) {
+            if (e.message?.contains("BUSYGROUP") == true) {
+                logger.info("Consumer group '$consumerGroup' already exists")
+            } else {
+                throw e
+            }
         }
+
         startConsuming()
     }
 
