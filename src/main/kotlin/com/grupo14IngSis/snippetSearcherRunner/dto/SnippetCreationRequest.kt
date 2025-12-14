@@ -4,4 +4,5 @@ data class SnippetCreationRequest(
     val userId: String,
     val language: String,
     val snippet: String,
+    val jwt: String? = null,
 )

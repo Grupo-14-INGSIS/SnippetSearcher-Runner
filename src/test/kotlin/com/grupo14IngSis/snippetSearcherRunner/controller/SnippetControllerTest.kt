@@ -42,7 +42,7 @@ class SnippetControllerTest {
     }
 
     @Test
-    fun `putSnippet should return 200 when updating an existing snippet`() {
+    fun `putSnippet should return 200 when updating an existing snippet and no tests`() {
         val container = "test-container"
         val snippetId = "test-snippet"
         val userId = "test-user"
@@ -57,6 +57,10 @@ class SnippetControllerTest {
                     true, "yay",
                 ),
             )
+
+        every {
+            appClient.testAll(snippetId, any())
+        } returns listOf()
 
         val request = SnippetCreationRequest(userId, language, snippetContent)
         val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, request)
