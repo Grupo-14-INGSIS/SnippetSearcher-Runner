@@ -1,6 +1,5 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
-import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionResponse
@@ -9,11 +8,10 @@ import org.springframework.stereotype.Service
 @Service
 class ExecutionService(
     private val assetServiceClient: AssetServiceClient,
-    private val appClient: AppClient,
 ) {
     private val activeExecutions: MutableMap<String, SnippetExecution> = mutableMapOf()
 
-    private val maxConcurrentExecutions = 14
+    private val maxConcurrentExecutions = 1400
 
     fun executeSnippet(
         snippetId: String,
@@ -24,7 +22,7 @@ class ExecutionService(
         if (activeExecutions.size >= maxConcurrentExecutions) {
             return ExecutionResponse(
                 ExecutionEventType.ERROR,
-                "Maximum concurrent executions reached",
+                listOf("Maximum concurrent executions reached"),
             )
         }
 
@@ -33,7 +31,7 @@ class ExecutionService(
         if (activeExecutions.containsKey(executionId)) {
             val existing = activeExecutions[executionId]
             if (existing?.isRunning() == true) {
-                return ExecutionResponse(ExecutionEventType.ERROR, "Execution already running")
+                return ExecutionResponse(ExecutionEventType.ERROR, listOf("Execution already running"))
             }
             activeExecutions.remove(executionId)
         }
@@ -41,10 +39,8 @@ class ExecutionService(
         val execution =
             SnippetExecution(
                 snippetId,
-                userId,
                 version,
                 environment,
-                appClient,
                 assetServiceClient,
             )
 
@@ -52,23 +48,13 @@ class ExecutionService(
 
         try {
             execution.start()
-            Thread {
-                try {
-                    while (execution.isRunning()) {
-                        Thread.sleep(500)
-                    }
-                } finally {
-                    activeExecutions.remove(executionId)
-                }
-            }.apply {
-                isDaemon = true
-                start()
-            }
-
-            return ExecutionResponse(ExecutionEventType.STARTED, "Execution started.")
+            while (execution.isRunning()) continue
+            val output = execution.getOutput()
+            activeExecutions.remove(executionId)
+            return ExecutionResponse(ExecutionEventType.COMPLETED, output)
         } catch (e: Exception) {
             activeExecutions.remove(executionId)
-            return ExecutionResponse(ExecutionEventType.ERROR, "Execution error: ${e.message}")
+            return ExecutionResponse(ExecutionEventType.ERROR, listOf("Execution error: ${e.message}"))
         }
     }
 
@@ -86,20 +72,6 @@ class ExecutionService(
         return false
     }
 
-    fun enqueueInputs(
-        snippetId: String,
-        userId: String,
-        inputs: List<String>,
-    ): Boolean {
-        val executionId = userId + snippetId
-        val execution = activeExecutions[executionId]
-        if (execution != null && execution.isRunning()) {
-            execution.sendMultipleInputs(inputs)
-            return true
-        }
-        return false
-    }
-
     fun cancelExecution(
         snippetId: String,
         userId: String,
@@ -112,19 +84,5 @@ class ExecutionService(
             return true
         }
         return false
-    }
-
-    fun isExecutionRunning(executionId: String): Boolean {
-        val execution = activeExecutions[executionId]
-        return execution?.isRunning() ?: false
-    }
-
-    fun getActiveExecutionIds(): List<String> {
-        return activeExecutions.keys.toList()
-    }
-
-    fun cancelAllExecutions() {
-        activeExecutions.values.forEach { it.cancel() }
-        activeExecutions.clear()
     }
 }

@@ -32,7 +32,7 @@ class SnippetTaskConsumer(
     private val appClient: AppClient,
 ) {
     private val logger = LoggerFactory.getLogger(SnippetTaskConsumer::class.java)
-    private val group = "runner-group"
+    private val group = "runner_group"
     private val consumerGroup = "runner_group"
     private val consumerName = "runner_consumer_${UUID.randomUUID()}"
 
@@ -59,11 +59,7 @@ class SnippetTaskConsumer(
                 .createGroup(streamKey, ReadOffset.from("0"), consumerGroup)
             logger.info("Consumer group '$consumerGroup' created for stream '$streamKey'")
         } catch (e: RedisSystemException) {
-            if (e.message?.contains("BUSYGROUP") == true) {
-                logger.info("Consumer group '$consumerGroup' already exists")
-            } else {
-                throw e
-            }
+            logger.info("Consumer group '$consumerGroup' already exists: ${e.message}")
         }
 
         startConsuming()
