@@ -59,11 +59,12 @@ class AppClient(
         name: String,
         language: String,
     ): ResponseEntity<SnippetCreationResponse> {
-        val request = SnippetRegistrationRequest(
-            userId,
-            name,
-            language,
-        )
+        val request =
+            SnippetRegistrationRequest(
+                userId,
+                name,
+                language,
+            )
         val response =
             restTemplate.exchange(
                 "$app/api/v1/snippets/$snippetId",
