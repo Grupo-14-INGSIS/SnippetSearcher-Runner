@@ -59,6 +59,8 @@ class AppClient(
         name: String,
         language: String,
     ): ResponseEntity<SnippetCreationResponse> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
         val request =
             SnippetRegistrationRequest(
                 userId,
@@ -69,7 +71,7 @@ class AppClient(
             restTemplate.exchange(
                 "$app/api/v1/snippets/$snippetId",
                 HttpMethod.PUT,
-                HttpEntity<SnippetRegistrationRequest>(request, defaultHeaders()),
+                HttpEntity(request, headers),
                 SnippetCreationResponse::class.java,
             )
         return response

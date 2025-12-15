@@ -27,11 +27,10 @@ class SnippetControllerTest {
             assetServiceClient.getAsset(container, snippetId)
         } returns snippetContent
 
-        val response = snippetController.getSnippet(container, snippetId)
+        val response = snippetController.getSnippet(container, snippetId) as ResponseEntity<GetSnippetResponse>
 
         assertEquals(HttpStatus.OK, response.statusCode)
-        val responseBody = response.body as GetSnippetResponse
-        assertEquals(snippetContent, responseBody.content)
+        assertEquals(snippetContent, response.body?.content)
     }
 
     @Test
@@ -50,9 +49,19 @@ class SnippetControllerTest {
     fun `putSnippet should return 200 when updating an existing snippet and no tests`() {
         val container = "test-container"
         val snippetId = "test-snippet"
+        val userId = "test-user"
+        val language = "printscript"
         val snippetContent = "Updated content"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 200
         every { assetServiceClient.getAsset(container, snippetId) } returns "something"
+        every {
+            appClient.registerSnippet(snippetId, userId, "script", language)
+        } returns
+            ResponseEntity.ok().body(
+                SnippetCreationResponse(
+                    true, "yay",
+                ),
+            )
 
         every {
             appClient.testAll(snippetId, any())
@@ -69,13 +78,12 @@ class SnippetControllerTest {
         val container = "test-container"
         val snippetId = "test-snippet"
         val userId = "test-user"
-        val name = "test-snippet"
         val language = "printscript"
         val snippetContent = "New content"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 201
         every { assetServiceClient.getAsset(container, snippetId) } returns null
         every {
-            appClient.registerSnippet(snippetId, userId, name, language)
+            appClient.registerSnippet(snippetId, userId, "script", language)
         } returns
             ResponseEntity.ok().body(
                 SnippetCreationResponse(
@@ -83,7 +91,7 @@ class SnippetControllerTest {
                 ),
             )
 
-        val request = SnippetCreationRequest(userId, name, language, snippetContent)
+        val request = SnippetCreationRequest(userId, "script", language, snippetContent)
         val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, request)
 
         assertEquals(HttpStatus.CREATED, response.statusCode)
@@ -108,7 +116,7 @@ class SnippetControllerTest {
                 ),
             )
 
-        val request = SnippetCreationRequest(userId, name, language, snippetContent)
+        val request = SnippetCreationRequest(userId, "script", language, snippetContent)
         val response: ResponseEntity<Any> = snippetController.putSnippet(container, snippetId, request)
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
