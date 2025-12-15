@@ -69,7 +69,7 @@ POST   /api/v1/snippets/{snippetId}/run
     Response:
         {
             status: STARTED/ERROR
-            message: {message}
+            message: List<String> -> Execution output
         }
 
 POST   /api/v1/snippets/{snippetId}/run/input
@@ -192,17 +192,32 @@ SnippetController
 GET    /api/v1/snippet/{container}/{snippetId}
     Fetch the content of a snippet as a String
     Default container for snippets is "snippets"
-    Response is a plain string
+    Response:
+        {
+            name: String,
+            extension: String,
+            content: String
+        }
 
 PUT    /api/v1/snippet/{container}/{snippetId}
-    Create or update the content of a snippet
-    This endpoint overrides the snippet's content with the request data
+    Create a snippet
     Request:
         {
             userId: String,
             language: String,
-            snippet: String
+            name: String,
+            snippet: String,
         }
+
+PATCH    /api/v1/snippet/{container}/{snippetId}
+    Update the content of a snippet
+    This endpoint overrides the snippet's content with the request data
+    Request:
+        {
+            jwt: String,
+            Snippet: String
+        }
+    jwt is only used when updating a snippet so that Runner can fetch and execute all tests
 
 DELETE /api/v1/snippet/{container}/{snippetId}
     Delete a snippet from the service

@@ -5,6 +5,9 @@ import com.grupo14IngSis.snippetSearcherRunner.dto.LanguageRuleEntry
 class PrintScriptRulesProvider : RulesProvider {
     private val formattingRules =
         mapOf(
+            "SOCOTROCO" to true,
+            "SOCOTROCO_AMOUNT" to 1,
+            "SOCOTROCO_NAME" to "SOCOTROCO",
             "enforce-spacing-around-equals" to true,
             "enforce-no-spacing-around-equals" to false,
             "enforce-spacing-before-colon-in-declaration" to false,
@@ -20,6 +23,9 @@ class PrintScriptRulesProvider : RulesProvider {
 
     private val lintingRules =
         mapOf(
+            "SOCOTROCO" to true,
+            "SOCOTROCO_AMOUNT" to 1,
+            "SOCOTROCO_NAME" to "SOCOTROCO",
             "identifier_format" to true,
             "mandatory-variable-or-literal-in-println" to true,
             "mandatory-variable-or-literal-in-readInput" to true,

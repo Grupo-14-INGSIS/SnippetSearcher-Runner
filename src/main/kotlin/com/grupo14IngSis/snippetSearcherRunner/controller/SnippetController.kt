@@ -2,10 +2,13 @@ package com.grupo14IngSis.snippetSearcherRunner.controller
 
 import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
+import com.grupo14IngSis.snippetSearcherRunner.dto.GetSnippetResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
+import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetUpdateRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -23,26 +26,37 @@ class SnippetController(
      * GET    /api/v1/snippet/{container}/{snippetId}
      *
      * Fetch the content of a snippet as a String
+     *
+     * Response:
+     *     {
+     *         name: String,
+     *         content: String
+     *     }
      */
     @GetMapping("/{container}/{snippetId}")
     fun getSnippet(
         @PathVariable container: String,
         @PathVariable snippetId: String,
-    ): ResponseEntity<String> {
-        return assetServiceClient.getAsset(container, snippetId)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.status(404).body("Snippet with id $snippetId in container $container not found")
+    ): ResponseEntity<*> {
+        val snippet = appClient.getSnippet(snippetId)
+        val content = assetServiceClient.getAsset(container, snippetId)
+        if (snippet == null || content == null) {
+            return ResponseEntity.status(404).body("Snippet with id $snippetId in container $container not found")
+        }
+        val output = GetSnippetResponse(snippet.name, content)
+        return ResponseEntity.ok().body(output)
     }
 
     /**
      * PUT    /api/v1/snippet/{container}/{snippetId}
      *
-     * Create or update the content of a snippet. The body is a String
+     * Create a snippet
      *
      * Request:
      *
      *     {
-     *       userId: String,
+     *       userId: String
+     *       name: String,
      *       language: String,
      *       Snippet: String
      *     }
@@ -53,14 +67,56 @@ class SnippetController(
         @PathVariable snippetId: String,
         @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
-        val statusCode = assetServiceClient.postAsset(container, snippetId, request.snippet)
-        if (statusCode == 201) {
-            appClient.registerSnippet(snippetId, request.userId, request.language)
+        val snippetNotExists = assetServiceClient.getAsset(container, snippetId) == null
+        if (snippetNotExists) {
+            assetServiceClient.postAsset(container, snippetId, request.snippet)
+            appClient.registerSnippet(snippetId, request.userId, request.name, request.language)
+            return ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId"))
+                .body("Snippet created.")
+        } else {
+            return ResponseEntity.badRequest().body("Error processing snippet.")
         }
-        return when (statusCode) {
-            200 -> ResponseEntity.ok().body("Snippet updated.")
-            201 -> ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId")).body("Snippet created.")
-            else -> ResponseEntity.status(statusCode).body("Error processing snippet.")
+    }
+
+    /**
+     * PATCH    /api/v1/snippet/{container}/{snippetId}
+     *
+     * Update the content of a snippet
+     *
+     * This endpoint overrides the snippet's content with the request data
+     *
+     * Request:
+     *
+     *     {
+     *       jwt: String,
+     *       Snippet: String
+     *     }
+     */
+    @PatchMapping("/{container}/{snippetId}")
+    fun patchSnippet(
+        @PathVariable container: String,
+        @PathVariable snippetId: String,
+        @RequestBody request: SnippetUpdateRequest,
+    ): ResponseEntity<Any> {
+        val snippetExists = assetServiceClient.getAsset(container, snippetId) != null
+        if (snippetExists) {
+            assetServiceClient.postAsset(container, snippetId, request.snippet)
+            if (request.jwt == null) {
+                return ResponseEntity.ok().body("Snippet updated successfully, but could not run tests.")
+            }
+            val results = appClient.testAll(snippetId, request.jwt)
+            var message: String
+            if (!results.isEmpty()) {
+                message = " with the following test results:\n"
+                for (result in results) {
+                    message = "$message\n- $result"
+                }
+            } else {
+                message = "."
+            }
+            return ResponseEntity.ok().body("Snippet updated successfully$message")
+        } else {
+            return ResponseEntity.badRequest().body("Error processing snippet.")
         }
     }
 

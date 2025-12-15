@@ -275,11 +275,12 @@ class AppClientTest {
     fun `registerSnippet successfully registers the snippet`() {
         val snippetId = "snippet"
         val userId = "user"
+        val name = "sniooet"
         val language = "language"
         val app = appUrl
         every {
             restTemplate.exchange(
-                "$app/api/v1/snippets/$snippetId?userId=$userId&language=$language",
+                "$app/api/v1/snippets/$snippetId",
                 HttpMethod.PUT,
                 any<HttpEntity<*>>(),
                 SnippetCreationResponse::class.java,
@@ -288,7 +289,7 @@ class AppClientTest {
             ResponseEntity.ok(
                 SnippetCreationResponse(true, "yay"),
             )
-        val response = appClient.registerSnippet(snippetId, userId, language).body!!
+        val response = appClient.registerSnippet(snippetId, userId, name, language).body!!
         assertEquals(true, response.success)
         assertEquals("yay", response.message)
     }
