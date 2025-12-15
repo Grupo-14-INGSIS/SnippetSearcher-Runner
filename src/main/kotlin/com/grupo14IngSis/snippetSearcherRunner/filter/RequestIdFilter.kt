@@ -27,7 +27,7 @@ class RequestIdFilter : OncePerRequestFilter() {
 
         val method = request.method
         val uri = request.requestURI
-        logger.info("[ACCESS-MANAGER] Request $requestId - $method $uri")
+        logger.info("[SNIPPET-RUNNER] Request $requestId - $method $uri")
 
         try {
             filterChain.doFilter(request, response)
