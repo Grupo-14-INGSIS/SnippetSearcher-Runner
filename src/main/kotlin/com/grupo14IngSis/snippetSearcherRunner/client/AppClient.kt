@@ -1,6 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
+import com.grupo14IngSis.snippetSearcherRunner.dto.Snippet
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResponse
@@ -26,6 +27,15 @@ class AppClient(
         val headers = HttpHeaders()
         headers.contentType = MediaType.TEXT_PLAIN
         return headers
+    }
+
+    fun getSnippet(snippetId: String): Snippet? {
+        return restTemplate.exchange(
+            "$app/api/v1/snippets/$snippetId",
+            HttpMethod.GET,
+            HttpEntity<Void>(defaultHeaders()),
+            Snippet::class.java,
+        ).body
     }
 
     fun updateSnippetTaskStatus(

@@ -192,17 +192,30 @@ SnippetController
 GET    /api/v1/snippet/{container}/{snippetId}
     Fetch the content of a snippet as a String
     Default container for snippets is "snippets"
-    Response is a plain string
+    Response:
+        {
+            name: String,
+            extension: String,
+            content: String
+        }
 
 PUT    /api/v1/snippet/{container}/{snippetId}
-    Create or update the content of a snippet
-    This endpoint overrides the snippet's content with the request data
+    Create a snippet
     Request:
         {
             userId: String,
             language: String,
+            name: String,
             snippet: String,
-            jwt: String?
+        }
+
+PATCH    /api/v1/snippet/{container}/{snippetId}
+    Update the content of a snippet
+    This endpoint overrides the snippet's content with the request data
+    Request:
+        {
+            jwt: String,
+            Snippet: String
         }
     jwt is only used when updating a snippet so that Runner can fetch and execute all tests
 
