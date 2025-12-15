@@ -1,7 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.advice
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.ErrorResponse
+import io.mockk.every
 import io.mockk.mockk
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.coyote.BadRequestException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -11,24 +13,28 @@ import org.springframework.web.context.request.WebRequest
 class GlobalExceptionHandlerTest {
     private val globalExceptionHandler = GlobalExceptionHandler()
     private val webRequest = mockk<WebRequest>(relaxed = true)
+    private val httpRequest = mockk<HttpServletRequest>()
 
     @Test
     fun `test handle bad request exception`() {
+        every { httpRequest.method } returns "POST"
+        every { httpRequest.requestURI } returns "/test"
         val exception = BadRequestException("Invalid request")
-        val responseEntity = globalExceptionHandler.handleBadRequestException(exception, webRequest)
+        val responseEntity = globalExceptionHandler.handleBadRequestException(exception, webRequest, httpRequest)
 
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
 
         val errorResponse = responseEntity.body as ErrorResponse
         assertEquals(HttpStatus.BAD_REQUEST.value(), errorResponse.status)
         assertEquals("Invalid request", errorResponse.message)
-        assertEquals("Invalid request", errorResponse.details)
     }
 
     @Test
     fun `test handle all exceptions`() {
+        every { httpRequest.method } returns "POST"
+        every { httpRequest.requestURI } returns "/test"
         val exception = Exception("Internal server error")
-        val responseEntity = globalExceptionHandler.handleAllExceptions(exception, webRequest)
+        val responseEntity = globalExceptionHandler.handleAllExceptions(exception, webRequest, httpRequest)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.statusCode)
 

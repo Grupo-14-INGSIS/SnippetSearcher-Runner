@@ -3,6 +3,7 @@ package com.grupo14IngSis.snippetSearcherRunner.client
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.Snippet
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
+import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetRegistrationRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResult
@@ -52,23 +53,25 @@ class AppClient(
         )
     }
 
-import com.grupo14IngSis.snippetSearcherRunner.client.dto.AppSnippetCreationRequest
-//...
     fun registerSnippet(
         snippetId: String,
         userId: String,
         name: String,
         language: String,
     ): ResponseEntity<SnippetCreationResponse> {
-        val headers = defaultHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON // Important: change content type
-        val requestBody = AppSnippetCreationRequest(name, language, userId)
-        
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        val request =
+            SnippetRegistrationRequest(
+                userId,
+                name,
+                language,
+            )
         val response =
             restTemplate.exchange(
                 "$app/api/v1/snippets/$snippetId",
                 HttpMethod.PUT,
-                HttpEntity(requestBody, headers),
+                HttpEntity(request, headers),
                 SnippetCreationResponse::class.java,
             )
         return response
