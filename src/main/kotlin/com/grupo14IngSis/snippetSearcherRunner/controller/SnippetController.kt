@@ -70,7 +70,7 @@ class SnippetController(
         val snippetNotExists = assetServiceClient.getAsset(container, snippetId) == null
         if (snippetNotExists) {
             assetServiceClient.postAsset(container, snippetId, request.snippet)
-            appClient.registerSnippet(snippetId, request.userId, request.language)
+            appClient.registerSnippet(snippetId, request.userId, request.name, request.language)
             return ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId"))
                 .body("Snippet created.")
         } else {

@@ -52,16 +52,23 @@ class AppClient(
         )
     }
 
+import com.grupo14IngSis.snippetSearcherRunner.client.dto.AppSnippetCreationRequest
+//...
     fun registerSnippet(
         snippetId: String,
         userId: String,
+        name: String,
         language: String,
     ): ResponseEntity<SnippetCreationResponse> {
+        val headers = defaultHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON // Important: change content type
+        val requestBody = AppSnippetCreationRequest(name, language, userId)
+        
         val response =
             restTemplate.exchange(
-                "$app/api/v1/snippets/$snippetId?userId=$userId&language=$language",
+                "$app/api/v1/snippets/$snippetId",
                 HttpMethod.PUT,
-                HttpEntity<Void>(defaultHeaders()),
+                HttpEntity(requestBody, headers),
                 SnippetCreationResponse::class.java,
             )
         return response
