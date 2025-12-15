@@ -1,7 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import org.example.Runner
 import org.springframework.stereotype.Service
+import runner.src.main.kotlin.Runner
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 

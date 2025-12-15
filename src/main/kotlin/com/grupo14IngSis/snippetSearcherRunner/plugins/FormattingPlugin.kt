@@ -1,7 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import org.example.Runner // Assuming this is the package from the imported runner
 import org.springframework.stereotype.Service
+import runner.src.main.kotlin.Runner // Assuming this is the package from the imported runner
 import java.io.File
 
 @Service("formatter")
@@ -20,7 +20,7 @@ class FormattingPlugin() : RunnerPlugin {
             params?.get("configFile") as? String
                 ?: throw IllegalArgumentException("Configuration file path 'configFile' is required for formatting.")
 
-        val version = params?.get("version") as? String
+        val version = params["version"] as? String
 
         val configFile = File(configPath)
         if (!configFile.exists()) {

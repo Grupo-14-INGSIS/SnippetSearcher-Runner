@@ -1,11 +1,18 @@
 # Stage 1: build
 FROM gradle:8.8-jdk21 AS build
 WORKDIR /app
+
+ARG GITHUB_USERNAME
+ARG GITHUB_TOKEN
+
 COPY . .
-RUN gradle bootJar -x test
+
+RUN gradle bootJar -x test \
+    -PgithubUsername=${GITHUB_USERNAME} \
+    -PgithubToken=${GITHUB_TOKEN}
 
 # Stage 2: runtime
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 RUN mkdir -p /usr/local/newrelic
