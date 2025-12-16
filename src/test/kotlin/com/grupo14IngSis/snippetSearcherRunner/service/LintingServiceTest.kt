@@ -2,6 +2,7 @@ package com.grupo14IngSis.snippetSearcherRunner.service
 
 import com.grupo14IngSis.snippetSearcherRunner.domain.LintingRule
 import com.grupo14IngSis.snippetSearcherRunner.domain.LintingRuleId
+import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
 import com.grupo14IngSis.snippetSearcherRunner.repository.LintingRulesRepository
 import io.mockk.every
 import io.mockk.mockk
@@ -14,12 +15,14 @@ import java.util.Optional
 
 class LintingServiceTest {
     private lateinit var repository: LintingRulesRepository
+    private lateinit var lintingPlugin: AnalyzerPlugin
     private lateinit var lintingService: LintingService
 
     @BeforeEach
     fun setup() {
         repository = mockk(relaxed = true)
-        lintingService = LintingService(repository)
+        lintingPlugin = mockk(relaxed = true)
+        lintingService = LintingService(repository, lintingPlugin)
     }
 
     @Test

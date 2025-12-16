@@ -2,11 +2,11 @@ package com.grupo14IngSis.snippetSearcherRunner.service
 
 import com.grupo14IngSis.snippetSearcherRunner.domain.LintingRule
 import com.grupo14IngSis.snippetSearcherRunner.domain.LintingRuleId
-import com.grupo14IngSis.snippetSearcherRunner.repository.LintingRulesRepository
 import com.grupo14IngSis.snippetSearcherRunner.dto.LintingError
-import com.grupo14IngSis.snippetSearcherRunner.plugins.LintingPlugin // Import LintingPlugin
-import com.grupo14IngSis.snippetSearcherRunner.plugins.RunnerPlugin // Import RunnerPlugin for explicit cast
-import org.springframework.beans.factory.annotation.Qualifier // Import Qualifier
+import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
+import com.grupo14IngSis.snippetSearcherRunner.plugins.RunnerPlugin
+import com.grupo14IngSis.snippetSearcherRunner.repository.LintingRulesRepository
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
@@ -15,7 +15,8 @@ import java.nio.file.Files
 @Service
 class LintingService(
     private val repository: LintingRulesRepository,
-    @Qualifier("linter") private val lintingPlugin: LintingPlugin, // Inject LintingPlugin
+    // Inject LintingPlugin
+    @Qualifier("linter") private val lintingPlugin: AnalyzerPlugin,
 ) {
     fun getRules(
         userId: String,
@@ -46,10 +47,12 @@ class LintingService(
         version: String,
     ): List<LintingError> {
         // Use the plugin directly
-        val params = mapOf(
-            "version" to version,
-            "configFile" to createDefaultLintingConfigFile().absolutePath // Create a default config file for the plugin
-        )
+        val params =
+            mapOf(
+                "version" to version,
+                // Create a default config file for the plugin
+                "configFile" to createDefaultLintingConfigFile().absolutePath,
+            )
         // Explicitly cast to RunnerPlugin to resolve ambiguity with Kotlin's run extension function
         val output = (lintingPlugin as RunnerPlugin).run(content, params) as String // Plugin returns String output
 
@@ -73,9 +76,10 @@ class LintingService(
               max_line_length:
                 active: true
                 length: 80
-            """.trimIndent(),
+            """,
         )
-        tempDir.deleteOnExit() // Ensure the temporary directory is deleted on exit
+        // Ensure the temporary directory is deleted on exit
+        tempDir.deleteOnExit()
         return configFile
     }
 
