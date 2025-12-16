@@ -93,4 +93,24 @@ class ExecutionController(
         executionService.cancelExecution(snippetId, request.userId)
         return ResponseEntity.noContent().build()
     }
+
+    /**
+     * GET    /api/v1/snippets/{snippetId}/run/status
+     *
+     * Get the current status of a snippet execution.
+     *
+     * Response:
+     *
+     *     {
+     *       status: ExecutionEventType,
+     *       message: List<String>
+     *     }
+     */
+    @GetMapping("/snippets/{snippetId}/run/status")
+    fun getExecutionStatus(
+        @PathVariable snippetId: String,
+    ): ResponseEntity<ExecutionResponse> {
+        // Placeholder for actual status retrieval logic
+        return ResponseEntity.ok().body(ExecutionResponse(ExecutionEventType.COMPLETED, listOf("Mock execution status")));
+    }
 }
