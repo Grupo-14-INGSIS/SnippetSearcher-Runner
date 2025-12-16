@@ -1,12 +1,14 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.CancelExecutionRequest
+import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.InputRequest
 import com.grupo14IngSis.snippetSearcherRunner.service.ExecutionService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -92,5 +94,25 @@ class ExecutionController(
     ): ResponseEntity<Void> {
         executionService.cancelExecution(snippetId, request.userId)
         return ResponseEntity.noContent().build()
+    }
+
+    /**
+     * GET    /api/v1/snippets/{snippetId}/run/status
+     *
+     * Get the current status of a snippet execution.
+     *
+     * Response:
+     *
+     *     {
+     *       status: ExecutionEventType,
+     *       message: List<String>
+     *     }
+     */
+    @GetMapping("/snippets/{snippetId}/run/status")
+    fun getExecutionStatus(
+        @PathVariable snippetId: String,
+    ): ResponseEntity<ExecutionResponse> {
+        // Placeholder for actual status retrieval logic
+        return ResponseEntity.ok().body(ExecutionResponse(ExecutionEventType.COMPLETED, listOf("Mock execution status")))
     }
 }
