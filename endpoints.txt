@@ -19,6 +19,7 @@ SnippetController
     GET    /api/v1/snippet/{container}/{snippetId}
     PUT    /api/v1/snippet/{container}/{snippetId}
     DELETE /api/v1/snippet/{container}/{snippetId}
+    PUT /api/v1/snippets/{snippetId}/{task}
 
 ===== REDIS-STREAMS =====
 
@@ -199,3 +200,7 @@ PATCH    /api/v1/snippet/{container}/{snippetId}
 
 DELETE /api/v1/snippet/{container}/{snippetId}
     Delete a snippet from the service
+
+PUT /api/v1/snippets/{snippetId}/task/{task}
+    Applies a task to a snippet
+    Returns the raw content of the processed snippet

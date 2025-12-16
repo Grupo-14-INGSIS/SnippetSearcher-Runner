@@ -5,6 +5,8 @@ import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.GetSnippetResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetUpdateRequest
+import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
+import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -136,5 +138,30 @@ class SnippetController(
             statusCode == 404 -> ResponseEntity.status(404).body("Snippet with id $snippetId in container $container not found.")
             else -> ResponseEntity.status(statusCode).body("Error deleting snippet.")
         }
+    }
+
+    val tasks =
+        mapOf(
+            "formatting" to FormattingPlugin(),
+            "linting" to AnalyzerPlugin(),
+        )
+
+    /**
+     * PUT /api/v1/snippets/{snippetId}/task/{task}
+     *
+     * Applies a task to a snippet
+     *
+     * Returns the raw content of the processed snippet
+     */
+    @PutMapping("/{snippetId}/task/{task}")
+    fun applyTask(
+        @PathVariable snippetId: String,
+        @PathVariable task: String,
+    ): ResponseEntity<String> {
+        val snippet = assetServiceClient.getAsset("snippets", snippetId)
+        val plugin = tasks[task] ?: return ResponseEntity.badRequest().build()
+        val output = plugin.run(snippet, null) as String
+        assetServiceClient.postAsset("snippets", snippetId, output)
+        return ResponseEntity.ok(output)
     }
 }
