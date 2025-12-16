@@ -2,6 +2,7 @@ package com.grupo14IngSis.snippetSearcherRunner.service
 
 import com.grupo14IngSis.snippetSearcherRunner.domain.FormattingRule
 import com.grupo14IngSis.snippetSearcherRunner.domain.FormattingRuleId
+import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
 import com.grupo14IngSis.snippetSearcherRunner.repository.FormattingRulesRepository
 import io.mockk.every
 import io.mockk.mockk
@@ -14,11 +15,13 @@ import java.util.Optional
 
 class FormattingServiceTest {
     private lateinit var repository: FormattingRulesRepository
+    private lateinit var formattingPlugin: FormattingPlugin
     private lateinit var formattingService: FormattingService
 
     @BeforeEach
     fun setup() {
         repository = mockk(relaxed = true)
+        formattingPlugin = mockk(relaxed = true)
         formattingService = FormattingService(repository)
     }
 

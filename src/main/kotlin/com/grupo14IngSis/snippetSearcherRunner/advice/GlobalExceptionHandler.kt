@@ -1,8 +1,10 @@
 package com.grupo14IngSis.snippetSearcherRunner.advice
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.ErrorResponse
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.coyote.BadRequestException
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -17,9 +19,13 @@ class GlobalExceptionHandler {
     fun handleBadRequestException(
         ex: BadRequestException,
         request: WebRequest,
+        httpRequest: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> {
-        // Log the warning, as Bad Requests are often client errors, not system errors.
-        logger.warn("Bad request: ${ex.message}")
+        val requestId = MDC.get("requestId") ?: "unknown"
+        val method = httpRequest.method
+        val uri = httpRequest.requestURI
+
+        logger.warn("[SNIPPET-SEARCHER] Request $requestId - $method $uri - Bad request: ${ex.message}")
 
         val errorResponse =
             ErrorResponse(
@@ -35,9 +41,13 @@ class GlobalExceptionHandler {
     fun handleAllExceptions(
         ex: Exception,
         request: WebRequest,
+        httpRequest: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> {
-        // Log the error with the full stack trace, as it's an unexpected system error.
-        logger.error("Unhandled exception occurred", ex)
+        val requestId = MDC.get("requestId") ?: "unknown"
+        val method = httpRequest.method
+        val uri = httpRequest.requestURI
+
+        logger.error("[SNIPPET-RUNNER] Request $requestId - $method $uri - Unhandled exception occurred", ex)
 
         val errorResponse =
             ErrorResponse(

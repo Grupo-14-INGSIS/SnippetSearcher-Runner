@@ -1,32 +1,9 @@
 ===== ENDPOINTS =====
 
-* -> DONE
-
 ExecutionController
-    POST   /api/v1/snippets/{snippetId}/execution
-    POST   /api/v1/snippets/{snippetId}/execution/input
-    DELETE /api/v1/snippets/{snippetId}/execution
-TestingJobController
-    POST   /api/v1/testing
-FormattingJobController
-*   GET    /api/v1/users/{userId}/formatting/rules/{language}
-*   PATCH  /api/v1/users/{userId}/formatting/rules/{language}
-LintingJobController
-*   GET    /api/v1/users/{userId}/linting/rules/{language}
-*   PATCH  /api/v1/users/{userId}/linting/rules/{language}
-UserController
-*   PUT    /api/v1/users/{userId}
-*   DELETE /api/v1/users/{userId}
-SnippetController
-    GET    /api/v1/snippet/{container}/{snippetId}
-    PUT    /api/v1/snippet/{container}/{snippetId}
-    DELETE /api/v1/snippet/{container}/{snippetId}
-
-
-ExecutionController
-    POST   /api/v1/snippets/{snippetId}/run
-    POST   /api/v1/snippets/{snippetId}/run/input
-    DELETE /api/v1/snippets/{snippetId}/run
+    POST   /api/v1/snippet/snippets/{snippetId}/run
+    POST   /api/v1/snippet/snippets/{snippetId}/run/input
+    DELETE /api/v1/snippet/snippets/{snippetId}/run
 TestingJobController
     POST   /api/v1/testing
 FormattingJobController
@@ -38,9 +15,11 @@ LintingJobController
 UserController
     PUT    /api/v1/users/{userId}
     DELETE /api/v1/users/{userId}SnippetController
+SnippetController
     GET    /api/v1/snippet/{container}/{snippetId}
     PUT    /api/v1/snippet/{container}/{snippetId}
     DELETE /api/v1/snippet/{container}/{snippetId}
+    PUT /api/v1/snippets/{snippetId}/{task}
 
 ===== REDIS-STREAMS =====
 
@@ -58,7 +37,7 @@ SnippetTaskConsumer:
 ExecutionController
 ===================
 
-POST   /api/v1/snippets/{snippetId}/run
+POST   /api/v1/snippet/snippets/{snippetId}/run
     Start the execution of a snippet
     Request:
         {
@@ -72,7 +51,7 @@ POST   /api/v1/snippets/{snippetId}/run
             message: List<String> -> Execution output
         }
 
-POST   /api/v1/snippets/{snippetId}/run/input
+POST   /api/v1/snippet/snippets/{snippetId}/run/input
     Give input to an execution
     Request:
         {
@@ -80,7 +59,7 @@ POST   /api/v1/snippets/{snippetId}/run/input
             val input: String?
         }
 
-DELETE /api/v1/snippets/{snippetId}/run
+DELETE /api/v1/snippet/snippets/{snippetId}/run
     Cancel the execution of a snippet
     Request:
         {
@@ -221,3 +200,7 @@ PATCH    /api/v1/snippet/{container}/{snippetId}
 
 DELETE /api/v1/snippet/{container}/{snippetId}
     Delete a snippet from the service
+
+PUT /api/v1/snippets/{snippetId}/task/{task}
+    Applies a task to a snippet
+    Returns the raw content of the processed snippet

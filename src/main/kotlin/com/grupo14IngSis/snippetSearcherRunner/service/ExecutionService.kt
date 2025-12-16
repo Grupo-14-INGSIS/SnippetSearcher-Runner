@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class ExecutionService(
     private val assetServiceClient: AssetServiceClient,
+    private val snippetCacheService: SnippetCacheService,
 ) {
     private val activeExecutions: MutableMap<String, SnippetExecution> = mutableMapOf()
 
@@ -19,6 +20,14 @@ class ExecutionService(
         version: String,
         environment: Map<String, String>,
     ): ExecutionResponse {
+        val cacheKey = "snippet:$snippetId:$version"
+        val cachedResult = snippetCacheService.getFromCache(cacheKey)
+        if (cachedResult != null) {
+            // Assuming the cached result is a JSON representation of ExecutionResponse
+            // You might need a more robust JSON deserialization here
+            return ExecutionResponse(ExecutionEventType.COMPLETED, cachedResult.lines())
+        }
+
         if (activeExecutions.size >= maxConcurrentExecutions) {
             return ExecutionResponse(
                 ExecutionEventType.ERROR,
@@ -51,7 +60,10 @@ class ExecutionService(
             while (execution.isRunning()) continue
             val output = execution.getOutput()
             activeExecutions.remove(executionId)
-            return ExecutionResponse(ExecutionEventType.COMPLETED, output)
+            val response = ExecutionResponse(ExecutionEventType.COMPLETED, output)
+            // Assuming output is a list of strings that can be joined to a single string for caching
+            snippetCacheService.saveToCache(cacheKey, output.joinToString("\n"))
+            return response
         } catch (e: Exception) {
             activeExecutions.remove(executionId)
             return ExecutionResponse(ExecutionEventType.ERROR, listOf("Execution error: ${e.message}"))

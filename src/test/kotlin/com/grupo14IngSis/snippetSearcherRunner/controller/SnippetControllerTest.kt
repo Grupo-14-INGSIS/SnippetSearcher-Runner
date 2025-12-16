@@ -55,7 +55,7 @@ class SnippetControllerTest {
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 200
         every { assetServiceClient.getAsset(container, snippetId) } returns "something"
         every {
-            appClient.registerSnippet(snippetId, userId, language)
+            appClient.registerSnippet(snippetId, userId, "script", language)
         } returns
             ResponseEntity.ok().body(
                 SnippetCreationResponse(
@@ -83,7 +83,7 @@ class SnippetControllerTest {
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 201
         every { assetServiceClient.getAsset(container, snippetId) } returns null
         every {
-            appClient.registerSnippet(snippetId, userId, language)
+            appClient.registerSnippet(snippetId, userId, "script", language)
         } returns
             ResponseEntity.ok().body(
                 SnippetCreationResponse(
@@ -102,12 +102,13 @@ class SnippetControllerTest {
         val container = "test-container"
         val snippetId = "test-snippet"
         val userId = "test-user"
+        val name = "name"
         val language = "printscript"
         val snippetContent = "New content"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 500
         every { assetServiceClient.getAsset(container, snippetId) } returns "null"
         every {
-            appClient.registerSnippet(snippetId, userId, language)
+            appClient.registerSnippet(snippetId, userId, name, language)
         } returns
             ResponseEntity.ok().body(
                 SnippetCreationResponse(
