@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/snippet")
+@RequestMapping("/api/v1")
 class ExecutionController(
     private val executionService: ExecutionService,
 ) {
@@ -36,11 +36,11 @@ class ExecutionController(
      * Response:
      *
      *     {
-     *        status: FINISHED/WAITING/ERROR
-     *        message: String
+     *       status: FINISHED/WAITING/ERROR
+     *       message: String
      *     }
      */
-    @PostMapping("/snippets/{snippetId}/run")
+    @PostMapping("/snippet/snippets/{snippetId}/run") // Added /snippet
     fun startSnippetExecution(
         @PathVariable snippetId: String,
         @RequestBody request: ExecutionRequest,
@@ -67,7 +67,7 @@ class ExecutionController(
      *       val input: String?
      *     }
      */
-    @PostMapping("/snippets/{snippetId}/run/input")
+    @PostMapping("/snippet/snippets/{snippetId}/run/input") // Added /snippet
     fun sendInput(
         @PathVariable snippetId: String,
         @RequestBody request: InputRequest,
@@ -87,7 +87,7 @@ class ExecutionController(
      *       userID: String
      *     }
      */
-    @DeleteMapping("/snippets/{snippetId}/run")
+    @DeleteMapping("/snippet/snippets/{snippetId}/run") // Added /snippet
     fun cancelExecution(
         @PathVariable snippetId: String,
         @RequestBody request: CancelExecutionRequest,
@@ -97,7 +97,7 @@ class ExecutionController(
     }
 
     /**
-     * GET    /api/v1/snippets/{snippetId}/run/status
+     * GET    /api/v1/snippet/snippets/{snippetId}/run/status
      *
      * Get the current status of a snippet execution.
      *
@@ -108,7 +108,7 @@ class ExecutionController(
      *       message: List<String>
      *     }
      */
-    @GetMapping("/snippets/{snippetId}/run/status")
+    @GetMapping("/snippet/snippets/{snippetId}/run/status") // Added /snippet
     fun getExecutionStatus(
         @PathVariable snippetId: String,
     ): ResponseEntity<ExecutionResponse> {
