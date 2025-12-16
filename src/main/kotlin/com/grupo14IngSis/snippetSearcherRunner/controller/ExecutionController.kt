@@ -111,6 +111,6 @@ class ExecutionController(
         @PathVariable snippetId: String,
     ): ResponseEntity<ExecutionResponse> {
         // Placeholder for actual status retrieval logic
-        return ResponseEntity.ok().body(ExecutionResponse(ExecutionEventType.COMPLETED, listOf("Mock execution status")));
+        return ResponseEntity.ok().body(ExecutionResponse(ExecutionEventType.COMPLETED, listOf("Mock execution status")))
     }
 }
