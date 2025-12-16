@@ -22,7 +22,7 @@ class LintingServiceTest {
     fun setup() {
         repository = mockk(relaxed = true)
         lintingPlugin = mockk(relaxed = true)
-        lintingService = LintingService(repository, lintingPlugin)
+        lintingService = LintingService(repository)
     }
 
     @Test

@@ -22,7 +22,7 @@ class FormattingServiceTest {
     fun setup() {
         repository = mockk(relaxed = true)
         formattingPlugin = mockk(relaxed = true)
-        formattingService = FormattingService(repository, formattingPlugin)
+        formattingService = FormattingService(repository)
     }
 
     @Test
