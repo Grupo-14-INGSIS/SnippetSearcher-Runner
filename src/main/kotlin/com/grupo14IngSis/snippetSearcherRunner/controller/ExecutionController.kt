@@ -19,7 +19,7 @@ class ExecutionController(
     private val executionService: ExecutionService,
 ) {
     /**
-     * POST   /api/v1/snippets/{snippetId}/run
+     * POST   /api/v1/snippet/snippets/{snippetId}/run
      *
      * Start the execution of a snippet
      *
@@ -54,7 +54,7 @@ class ExecutionController(
     }
 
     /**
-     * POST    /api/v1/snippets/{snippetId}/run/input
+     * POST    /api/v1/snippet/snippets/{snippetId}/run/input
      *
      * Give input to an execution
      *
@@ -75,7 +75,7 @@ class ExecutionController(
     }
 
     /**
-     * DELETE /api/v1/snippets/{snippetId}/run
+     * DELETE /api/v1/snippet/snippets/{snippetId}/run
      *
      * Cancel the execution of a snippet
      *
