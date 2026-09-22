@@ -166,25 +166,32 @@ class SnippetController(
     val tasks =
         mapOf(
             "formatting" to FormattingPlugin(),
+            "format" to FormattingPlugin(),
             "linting" to AnalyzerPlugin(),
+            "lint" to AnalyzerPlugin(),
         )
 
     /**
-     * PUT /api/v1/snippets/{snippetId}/task/{task}
+     * PUT /api/v1/snippet/{snippetId}/task/{task}
      *
      * Applies a task to a snippet
      *
      * Returns the raw content of the processed snippet
      */
-    @PutMapping("/{snippetId}/task/{task}")
+    @PutMapping(value = ["/{snippetId}/task/{task}", "/snippets/{snippetId}/{task}"])
     fun applyTask(
         @PathVariable snippetId: String,
         @PathVariable task: String,
     ): ResponseEntity<String> {
         val snippet = assetServiceClient.getAsset("snippets", snippetId)
-        val plugin = tasks[task] ?: return ResponseEntity.badRequest().build()
+            ?: assetServiceClient.getAsset("snippet", snippetId)
+            ?: return ResponseEntity.status(404).body("Snippet not found")
+        val plugin = tasks[task.lowercase()] ?: return ResponseEntity.badRequest().body("Unknown task: $task")
         val output = plugin.run(snippet, null) as String
-        assetServiceClient.postAsset("snippets", snippetId, output)
+        if (task.lowercase().contains("format")) {
+            assetServiceClient.postAsset("snippets", snippetId, output)
+            assetServiceClient.postAsset("snippet", snippetId, output)
+        }
         return ResponseEntity.ok(output)
     }
 }

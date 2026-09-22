@@ -44,11 +44,15 @@ class AppClient(
         userId: String,
         task: String,
         status: Boolean,
+        compliance: String? = null,
     ) {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        val request = SnippetStatusUpdateRequest(userId, task, status, compliance)
         restTemplate.exchange(
             "$app/api/v1/snippets/$snippetId/status",
             HttpMethod.PATCH,
-            HttpEntity(SnippetStatusUpdateRequest(userId, task, status), defaultHeaders()),
+            HttpEntity(request, headers),
             String::class.java,
         )
     }
