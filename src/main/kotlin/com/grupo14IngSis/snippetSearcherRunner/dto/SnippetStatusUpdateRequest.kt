@@ -4,4 +4,5 @@ data class SnippetStatusUpdateRequest(
     val userId: String,
     val task: String,
     val status: Boolean,
+    val compliance: String? = null,
 )
