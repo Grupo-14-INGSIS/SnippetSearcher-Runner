@@ -15,11 +15,10 @@ import java.io.File
 import java.io.FileWriter
 
 class Runner {
-
     fun executionCommand(
         args: List<String>,
         inputProvider: InputProvider = ConsoleInputProvider(),
-        printer: (Any?) -> Unit = ::println
+        printer: (Any?) -> Unit = ::println,
     ) {
         if (args.isEmpty()) {
             println("Must specify the source file.")

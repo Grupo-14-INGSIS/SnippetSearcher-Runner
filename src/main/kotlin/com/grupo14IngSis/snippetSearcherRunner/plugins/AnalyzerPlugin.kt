@@ -48,7 +48,14 @@ class AnalyzerPlugin() : RunnerPlugin {
                 val key = k.toString()
                 if (key == "version" || key == "configFile" || key == "configFileContent") continue
                 if (key == "identifier_format") {
-                    val style = if (v is String && v.isNotBlank()) v else if (v == true) "camelCase" else "none"
+                    val style =
+                        if (v is String && v.isNotBlank()) {
+                            v
+                        } else if (v == true) {
+                            "camelCase"
+                        } else {
+                            "none"
+                        }
                     lintRulesMap[key] = mapOf("style" to style)
                 } else if (key.contains("println")) {
                     val enabled = if (v is Boolean) v else true
