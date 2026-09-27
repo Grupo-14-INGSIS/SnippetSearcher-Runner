@@ -176,9 +176,14 @@ class SnippetTaskConsumer(
         }
     }
 
-    private fun processFormattingTask(snippetId: String, userId: String, language: String) {
-        val snippet = assetServiceClient.getAsset("snippets", snippetId)
-            ?: assetServiceClient.getAsset("snippet", snippetId)
+    private fun processFormattingTask(
+        snippetId: String,
+        userId: String,
+        language: String,
+    ) {
+        val snippet =
+            assetServiceClient.getAsset("snippets", snippetId)
+                ?: assetServiceClient.getAsset("snippet", snippetId)
 
         if (snippet == null) {
             logger.warn("Snippet '$snippetId' not found in asset service for formatting")
@@ -202,9 +207,14 @@ class SnippetTaskConsumer(
         }
     }
 
-    private fun processLintingTask(snippetId: String, userId: String, language: String) {
-        val snippet = assetServiceClient.getAsset("snippets", snippetId)
-            ?: assetServiceClient.getAsset("snippet", snippetId)
+    private fun processLintingTask(
+        snippetId: String,
+        userId: String,
+        language: String,
+    ) {
+        val snippet =
+            assetServiceClient.getAsset("snippets", snippetId)
+                ?: assetServiceClient.getAsset("snippet", snippetId)
 
         if (snippet == null) {
             logger.warn("Snippet '$snippetId' not found in asset service for linting")
@@ -216,16 +226,19 @@ class SnippetTaskConsumer(
             val rules = lintingService.getRules(userId, language)
             val output = analyzerPlugin.run(snippet, rules) as String
 
-            val hasSyntaxError = output.contains("SYNTAX ERROR", ignoreCase = true) ||
-                output.contains("Error:", ignoreCase = true)
-            val hasLintIssues = output.contains("ANALYSIS RESULTS", ignoreCase = true) ||
-                output.contains("issue(s) found", ignoreCase = true)
+            val hasSyntaxError =
+                output.contains("SYNTAX ERROR", ignoreCase = true) ||
+                    output.contains("Error:", ignoreCase = true)
+            val hasLintIssues =
+                output.contains("ANALYSIS RESULTS", ignoreCase = true) ||
+                    output.contains("issue(s) found", ignoreCase = true)
 
-            val compliance = when {
-                hasSyntaxError -> "failed"
-                hasLintIssues -> "not-compliant"
-                else -> "compliant"
-            }
+            val compliance =
+                when {
+                    hasSyntaxError -> "failed"
+                    hasLintIssues -> "not-compliant"
+                    else -> "compliant"
+                }
             val isSuccess = compliance == "compliant"
 
             logger.info("Successfully linted snippet '$snippetId' for user '$userId': compliance = $compliance")
@@ -236,4 +249,3 @@ class SnippetTaskConsumer(
         }
     }
 }
-
