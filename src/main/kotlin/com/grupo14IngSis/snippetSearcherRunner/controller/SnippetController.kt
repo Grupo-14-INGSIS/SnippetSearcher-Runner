@@ -70,8 +70,9 @@ class SnippetController(
         @PathVariable snippetId: String,
         @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
+        val version = if (request.version.isNotBlank()) request.version else "1.1"
         val validationPlugin = ValidationPlugin()
-        val validationResult = validationPlugin.run(request.snippet, mapOf("version" to "1.1")) as String
+        val validationResult = validationPlugin.run(request.snippet, mapOf("version" to version)) as String
         val hasError = validationResult.contains("ERROR", ignoreCase = true) ||
             validationResult.contains("Exception", ignoreCase = true) ||
             validationResult.contains("Syntax error", ignoreCase = true) ||
@@ -84,7 +85,7 @@ class SnippetController(
         val snippetNotExists = assetServiceClient.getAsset(container, snippetId) == null
         if (snippetNotExists) {
             assetServiceClient.postAsset(container, snippetId, request.snippet)
-            appClient.registerSnippet(snippetId, request.userId, request.name, request.language)
+            appClient.registerSnippet(snippetId, request.userId, request.name, request.language, version, request.description)
             return ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId"))
                 .body("Snippet created.")
         } else {
@@ -112,8 +113,9 @@ class SnippetController(
         @PathVariable snippetId: String,
         @RequestBody request: SnippetUpdateRequest,
     ): ResponseEntity<Any> {
+        val version = request.version ?: "1.1"
         val validationPlugin = ValidationPlugin()
-        val validationResult = validationPlugin.run(request.snippet, mapOf("version" to "1.1")) as String
+        val validationResult = validationPlugin.run(request.snippet, mapOf("version" to version)) as String
         val hasError = validationResult.contains("ERROR", ignoreCase = true) ||
             validationResult.contains("Exception", ignoreCase = true) ||
             validationResult.contains("Syntax error", ignoreCase = true) ||

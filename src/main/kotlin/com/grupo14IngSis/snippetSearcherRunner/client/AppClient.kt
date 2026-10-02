@@ -62,6 +62,8 @@ class AppClient(
         userId: String,
         name: String,
         language: String,
+        version: String = "1.1",
+        description: String = "",
     ): ResponseEntity<SnippetCreationResponse> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -70,6 +72,8 @@ class AppClient(
                 userId,
                 name,
                 language,
+                description,
+                version,
             )
         val response =
             restTemplate.exchange(
