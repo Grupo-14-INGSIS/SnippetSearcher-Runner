@@ -1,5 +1,5 @@
 # Stage 1: build
-FROM gradle:8.8-jdk21 AS build
+FROM gradle:8.14-jdk21 AS build
 ARG GITHUB_USER
 ARG GITHUB_TOKEN
 ENV GITHUB_USER=$GITHUB_USER
