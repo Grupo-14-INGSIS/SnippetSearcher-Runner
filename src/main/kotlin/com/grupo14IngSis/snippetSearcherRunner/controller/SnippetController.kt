@@ -70,7 +70,7 @@ class SnippetController(
         @PathVariable snippetId: String,
         @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
-        val version = if (request.version.isNotBlank()) request.version else "1.1"
+        val version = if (!request.version.isNullOrBlank()) request.version else "1.1"
         val validationPlugin = ValidationPlugin()
         val validationResult = validationPlugin.run(request.snippet, mapOf("version" to version)) as String
         val hasError = validationResult.contains("ERROR", ignoreCase = true) ||
@@ -85,7 +85,7 @@ class SnippetController(
         val snippetNotExists = assetServiceClient.getAsset(container, snippetId) == null
         if (snippetNotExists) {
             assetServiceClient.postAsset(container, snippetId, request.snippet)
-            appClient.registerSnippet(snippetId, request.userId, request.name, request.language, version, request.description)
+            appClient.registerSnippet(snippetId, request.userId, request.name, request.language, version, request.description ?: "")
             return ResponseEntity.created(URI.create("/api/v1/snippet/$container/$snippetId"))
                 .body("Snippet created.")
         } else {
