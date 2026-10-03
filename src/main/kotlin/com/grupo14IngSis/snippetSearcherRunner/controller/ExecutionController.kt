@@ -16,31 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/snippets/{snippetId}/executions")
 class ExecutionController(
     private val executionService: ExecutionService,
 ) {
     /**
-     * POST   /api/v1/snippet/snippets/{snippetId}/run
+     * POST    /api/v1/snippets/{snippetId}/executions
      *
-     * Start the execution of a snippet
-     *
-     * Request:
-     *
-     *     {
-     *       userId: String,
-     *       version: String,
-     *       environment: Map<String, String>
-     *     }
-     *
-     * Response:
-     *
-     *     {
-     *       status: FINISHED/WAITING/ERROR
-     *       message: String
-     *     }
+     * Starts the execution of a snippet
      */
-    @PostMapping("/snippet/snippets/{snippetId}/run") // Added /snippet
+    @PostMapping
     fun startSnippetExecution(
         @PathVariable snippetId: String,
         @RequestBody request: ExecutionRequest,
@@ -56,18 +41,11 @@ class ExecutionController(
     }
 
     /**
-     * POST    /api/v1/snippet/snippets/{snippetId}/run/input
+     * POST    /api/v1/snippets/{snippetId}/executions/input
      *
      * Give input to an execution
-     *
-     * Request:
-     *
-     *     {
-     *       val userId: String,
-     *       val input: String?
-     *     }
      */
-    @PostMapping("/snippet/snippets/{snippetId}/run/input") // Added /snippet
+    @PostMapping("/input")
     fun sendInput(
         @PathVariable snippetId: String,
         @RequestBody request: InputRequest,
@@ -77,17 +55,11 @@ class ExecutionController(
     }
 
     /**
-     * DELETE /api/v1/snippet/snippets/{snippetId}/run
+     * DELETE  /api/v1/snippets/{snippetId}/executions
      *
      * Cancel the execution of a snippet
-     *
-     * Request:
-     *
-     *     {
-     *       userID: String
-     *     }
      */
-    @DeleteMapping("/snippet/snippets/{snippetId}/run") // Added /snippet
+    @DeleteMapping
     fun cancelExecution(
         @PathVariable snippetId: String,
         @RequestBody request: CancelExecutionRequest,
@@ -97,22 +69,14 @@ class ExecutionController(
     }
 
     /**
-     * GET    /api/v1/snippet/snippets/{snippetId}/run/status
+     * GET     /api/v1/snippets/{snippetId}/executions/status
      *
      * Get the current status of a snippet execution.
-     *
-     * Response:
-     *
-     *     {
-     *       status: ExecutionEventType,
-     *       message: List<String>
-     *     }
      */
-    @GetMapping("/snippet/snippets/{snippetId}/run/status") // Added /snippet
+    @GetMapping("/status")
     fun getExecutionStatus(
         @PathVariable snippetId: String,
     ): ResponseEntity<ExecutionResponse> {
-        // Placeholder for actual status retrieval logic
         return ResponseEntity.ok().body(ExecutionResponse(ExecutionEventType.COMPLETED, listOf("Mock execution status")))
     }
 }
