@@ -8,6 +8,7 @@ import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResult
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -27,6 +28,20 @@ class AppClient(
     private fun defaultHeaders(): HttpHeaders {
         val headers = HttpHeaders()
         headers.contentType = MediaType.TEXT_PLAIN
+        val requestId = MDC.get("requestId")
+        if (!requestId.isNullOrBlank()) {
+            headers.set("X-Request-Id", requestId)
+        }
+        return headers
+    }
+
+    private fun jsonHeaders(): HttpHeaders {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        val requestId = MDC.get("requestId")
+        if (!requestId.isNullOrBlank()) {
+            headers.set("X-Request-Id", requestId)
+        }
         return headers
     }
 
@@ -46,8 +61,7 @@ class AppClient(
         status: Boolean,
         compliance: String? = null,
     ) {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
+        val headers = jsonHeaders()
         val request = SnippetStatusUpdateRequest(userId, task, status, compliance)
         restTemplate.exchange(
             "$app/api/v1/snippets/$snippetId/status",
@@ -65,8 +79,7 @@ class AppClient(
         version: String = "1.1",
         description: String = "",
     ): ResponseEntity<SnippetCreationResponse> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
+        val headers = jsonHeaders()
         val request =
             SnippetRegistrationRequest(
                 userId,
