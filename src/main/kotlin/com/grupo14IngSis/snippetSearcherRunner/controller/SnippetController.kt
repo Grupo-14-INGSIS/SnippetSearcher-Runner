@@ -8,7 +8,6 @@ import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetUpdateRequest
 import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.ValidationPlugin
-import com.grupo14IngSis.snippetSearcherRunner.service.SnippetCacheService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -25,7 +24,6 @@ import java.net.URI
 class SnippetController(
     private val assetServiceClient: AssetServiceClient,
     private val appClient: AppClient,
-    private val snippetCacheService: SnippetCacheService? = null,
 ) {
     /**
      * GET    /api/v1/snippets/{snippetId}
@@ -39,16 +37,7 @@ class SnippetController(
     ): ResponseEntity<*> {
         val targetContainer = if (container == null || container == snippetId) "snippets" else container
         val snippet = appClient.getSnippet(snippetId)
-        val cachedContent = snippetCacheService?.getFromCache("snippet:$snippetId")
-        val content = if (cachedContent != null) {
-            cachedContent
-        } else {
-            val fromAsset = assetServiceClient.getAsset(targetContainer, snippetId)
-            if (fromAsset != null) {
-                snippetCacheService?.saveToCache("snippet:$snippetId", fromAsset)
-            }
-            fromAsset
-        }
+        val content = assetServiceClient.getAsset(targetContainer, snippetId)
         if (snippet == null || content == null) {
             return ResponseEntity.status(404).body("Snippet with id $snippetId in container $targetContainer not found")
         }
@@ -83,7 +72,6 @@ class SnippetController(
         val snippetNotExists = assetServiceClient.getAsset(targetContainer, snippetId) == null
         if (snippetNotExists) {
             assetServiceClient.postAsset(targetContainer, snippetId, request.snippet)
-            snippetCacheService?.saveToCache("snippet:$snippetId", request.snippet)
             appClient.registerSnippet(snippetId, request.userId, request.name, request.language, version, request.description ?: "")
             return ResponseEntity.created(URI.create("/api/v1/snippets/$snippetId"))
                 .body("Snippet created.")
@@ -119,7 +107,6 @@ class SnippetController(
         val snippetExists = assetServiceClient.getAsset(targetContainer, snippetId) != null
         if (snippetExists) {
             assetServiceClient.postAsset(targetContainer, snippetId, request.snippet)
-            snippetCacheService?.saveToCache("snippet:$snippetId", request.snippet)
             if (request.jwt == null) {
                 return ResponseEntity.ok().body("Snippet updated successfully, but could not run tests.")
             }
@@ -151,9 +138,6 @@ class SnippetController(
     ): ResponseEntity<Any> {
         val targetContainer = if (container == null || container == snippetId) "snippets" else container
         val statusCode = assetServiceClient.deleteAsset(targetContainer, snippetId)
-        if (statusCode in 200..299) {
-            snippetCacheService?.deleteFromCache("snippet:$snippetId")
-        }
         return when {
             statusCode in 200..299 -> ResponseEntity.noContent().build()
             statusCode == 404 -> ResponseEntity.status(404).body("Snippet with id $snippetId in container $targetContainer not found.")
