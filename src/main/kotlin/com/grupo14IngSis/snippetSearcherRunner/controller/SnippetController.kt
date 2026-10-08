@@ -30,18 +30,23 @@ class SnippetController(
      *
      * Fetch the content of a snippet as a String
      */
-    @GetMapping(value = ["/{snippetId}", "/{container}/{snippetId}"])
+    @GetMapping("/{snippetId}")
     fun getSnippet(
-        @PathVariable(required = false) container: String?,
+        @PathVariable snippetId: String,
+    ): ResponseEntity<*> = getSnippet("snippets", snippetId)
+
+    @GetMapping("/{container}/{snippetId}")
+    fun getSnippet(
+        @PathVariable container: String?,
         @PathVariable snippetId: String,
     ): ResponseEntity<*> {
-        val targetContainer = if (container == null || container == snippetId) "snippets" else container
+        val targetContainer = if (container.isNullOrBlank() || container == snippetId) "snippets" else container
         val snippet = appClient.getSnippet(snippetId)
         val content = assetServiceClient.getAsset(targetContainer, snippetId)
-        if (snippet == null || content == null) {
+        if (content == null) {
             return ResponseEntity.status(404).body("Snippet with id $snippetId in container $targetContainer not found")
         }
-        val output = GetSnippetResponse(snippet.name, content)
+        val output = GetSnippetResponse(snippet?.name ?: "Snippet", content)
         return ResponseEntity.ok().body(output)
     }
 
@@ -50,13 +55,19 @@ class SnippetController(
      *
      * Create or upload snippet content
      */
-    @PutMapping(value = ["/{snippetId}", "/{container}/{snippetId}"])
+    @PutMapping("/{snippetId}")
     fun putSnippet(
-        @PathVariable(required = false) container: String?,
+        @PathVariable snippetId: String,
+        @RequestBody request: SnippetCreationRequest,
+    ): ResponseEntity<Any> = putSnippet("snippets", snippetId, request)
+
+    @PutMapping("/{container}/{snippetId}")
+    fun putSnippet(
+        @PathVariable container: String?,
         @PathVariable snippetId: String,
         @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
-        val targetContainer = if (container == null || container == snippetId) "snippets" else container
+        val targetContainer = if (container.isNullOrBlank() || container == snippetId) "snippets" else container
         val version = if (!request.version.isNullOrBlank()) request.version else "1.1"
         val validationPlugin = ValidationPlugin()
         val validationResult = validationPlugin.run(request.snippet, mapOf("version" to version)) as String
@@ -85,13 +96,19 @@ class SnippetController(
      *
      * Update the content of a snippet
      */
-    @PatchMapping(value = ["/{snippetId}", "/{container}/{snippetId}"])
+    @PatchMapping("/{snippetId}")
     fun patchSnippet(
-        @PathVariable(required = false) container: String?,
+        @PathVariable snippetId: String,
+        @RequestBody request: SnippetUpdateRequest,
+    ): ResponseEntity<Any> = patchSnippet("snippets", snippetId, request)
+
+    @PatchMapping("/{container}/{snippetId}")
+    fun patchSnippet(
+        @PathVariable container: String?,
         @PathVariable snippetId: String,
         @RequestBody request: SnippetUpdateRequest,
     ): ResponseEntity<Any> {
-        val targetContainer = if (container == null || container == snippetId) "snippets" else container
+        val targetContainer = if (container.isNullOrBlank() || container == snippetId) "snippets" else container
         val version = request.version ?: "1.1"
         val validationPlugin = ValidationPlugin()
         val validationResult = validationPlugin.run(request.snippet, mapOf("version" to version)) as String
@@ -131,12 +148,17 @@ class SnippetController(
      *
      * Delete a snippet from the service
      */
-    @DeleteMapping(value = ["/{snippetId}", "/{container}/{snippetId}"])
+    @DeleteMapping("/{snippetId}")
     fun deleteSnippet(
-        @PathVariable(required = false) container: String?,
+        @PathVariable snippetId: String,
+    ): ResponseEntity<Any> = deleteSnippet("snippets", snippetId)
+
+    @DeleteMapping("/{container}/{snippetId}")
+    fun deleteSnippet(
+        @PathVariable container: String?,
         @PathVariable snippetId: String,
     ): ResponseEntity<Any> {
-        val targetContainer = if (container == null || container == snippetId) "snippets" else container
+        val targetContainer = if (container.isNullOrBlank() || container == snippetId) "snippets" else container
         val statusCode = assetServiceClient.deleteAsset(targetContainer, snippetId)
         return when {
             statusCode in 200..299 -> ResponseEntity.noContent().build()
