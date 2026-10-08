@@ -92,6 +92,12 @@ springBoot {
     mainClass = 'com.grupo14IngSis.snippetSearcherRunner.ApplicationKt'
 }
 
+// ktlint 1.0.x (default del plugin 12.1.0) no es compatible con Kotlin 2.2 y rompe el CI
+// ("KtTokens does not have member field HEADER_KEYWORD"). Misma versión que App/AccessManager.
+ktlint {
+    version = "1.4.0"
+}
+
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll('-Xjsr305=strict')

@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 @Service("validation")
-class ValidationPlugin() : RunnerPlugin {
+class ValidationPlugin : RunnerPlugin {
     private val runner = Runner()
 
     override fun run(

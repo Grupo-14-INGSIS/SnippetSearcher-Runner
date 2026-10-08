@@ -6,7 +6,7 @@ import runner.src.main.kotlin.Runner
 import java.io.File
 
 @Service("formatter")
-class FormattingPlugin() : RunnerPlugin {
+class FormattingPlugin : RunnerPlugin {
     private val runner = Runner()
 
     override fun run(

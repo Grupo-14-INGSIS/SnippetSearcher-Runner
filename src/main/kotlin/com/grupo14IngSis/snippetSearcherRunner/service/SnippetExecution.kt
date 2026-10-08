@@ -5,6 +5,7 @@ import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.service.inputprovider.ExecutionInputProvider
 import runner.src.main.kotlin.Runner
 import java.io.File.createTempFile
+import java.util.Collections
 import java.util.concurrent.CancellationException
 import kotlin.concurrent.thread
 
@@ -17,10 +18,12 @@ class SnippetExecution(
     private val environment: Map<String, String>,
     private val assetServiceClient: AssetServiceClient,
 ) {
-    private val inputProvider = ExecutionInputProvider(environment)
+    private val inputProvider = ExecutionInputProvider(environment) { prompt -> onOutput(prompt) }
     private lateinit var executionThread: Thread
 
-    private val outputList = mutableListOf<String>()
+    private val outputList: MutableList<String> = Collections.synchronizedList(mutableListOf())
+
+    @Volatile
     private var status: ExecutionEventType? = null
 
     fun onOutput(line: String) {
@@ -71,12 +74,12 @@ class SnippetExecution(
     }
 
     fun getOutput(): List<String> {
-        return outputList.toList()
+        synchronized(outputList) {
+            return outputList.toList()
+        }
     }
 
-    fun getStatus(): ExecutionEventType? {
-        return status
-    }
+    fun getStatus(): ExecutionEventType? = status
 
     /**
      * Send or enqueue a single input.
@@ -93,6 +96,11 @@ class SnippetExecution(
             inputProvider.enqueueInput(input)
         }
     }
+
+    /**
+     * True while the snippet is blocked in `readInput` and no input has been provided yet.
+     */
+    fun isWaitingForInput(): Boolean = isRunning() && inputProvider.isWaitingForInput()
 
     /**
      * Cancel snippet execution.
@@ -118,7 +126,5 @@ class SnippetExecution(
         }
     }
 
-    fun isRunning(): Boolean {
-        return if (this::executionThread.isInitialized) executionThread.isAlive else false
-    }
+    fun isRunning(): Boolean = if (this::executionThread.isInitialized) executionThread.isAlive else false
 }

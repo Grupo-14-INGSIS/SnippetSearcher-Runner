@@ -42,7 +42,8 @@ class AssetServiceClientTest {
         val key = "test-snippet"
         val expectedContent = "println('Hello World')"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.GET))
             .andExpect(header("Content-Type", MediaType.TEXT_PLAIN_VALUE))
             .andRespond(withSuccess(expectedContent, MediaType.TEXT_PLAIN))
@@ -57,7 +58,8 @@ class AssetServiceClientTest {
         val container = "snippets"
         val key = "nonexistent-snippet"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withStatus(HttpStatus.NOT_FOUND))
 
@@ -72,7 +74,8 @@ class AssetServiceClientTest {
         val key = "new-snippet"
         val content = "println('New Snippet')"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.PUT))
             .andExpect(header("Content-Type", MediaType.TEXT_PLAIN_VALUE))
             .andExpect(content().string(content))
@@ -89,7 +92,8 @@ class AssetServiceClientTest {
         val key = "failing-snippet"
         val content = "println('Fail')"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.PUT))
             .andRespond(withServerError())
 
@@ -103,7 +107,8 @@ class AssetServiceClientTest {
         val container = "snippets"
         val key = "delete-snippet"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.DELETE))
             .andExpect(header("Content-Type", MediaType.TEXT_PLAIN_VALUE))
             .andRespond(withSuccess())
@@ -118,7 +123,8 @@ class AssetServiceClientTest {
         val container = "snippets"
         val key = "nonexistent-snippet"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.DELETE))
             .andRespond(withStatus(HttpStatus.NOT_FOUND))
 
@@ -132,7 +138,8 @@ class AssetServiceClientTest {
         val container = "snippets"
         val key = "error-snippet"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.DELETE))
             .andRespond(withServerError())
 
@@ -147,7 +154,8 @@ class AssetServiceClientTest {
         val key = "snippet_2024-01-01"
         val expectedContent = "special content"
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(expectedContent, MediaType.TEXT_PLAIN))
 
@@ -162,7 +170,8 @@ class AssetServiceClientTest {
         val key = "empty-snippet"
         val content = ""
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.PUT))
             .andExpect(content().string(content))
             .andRespond(withSuccess())
@@ -178,7 +187,8 @@ class AssetServiceClientTest {
         val key = "large-snippet"
         val content = "a".repeat(10000)
 
-        mockServer.expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
+        mockServer
+            .expect(requestTo("$bucketUrl/v1/asset/$container/$key"))
             .andExpect(method(HttpMethod.PUT))
             .andExpect(content().string(content))
             .andRespond(withSuccess())

@@ -35,18 +35,22 @@ class SnippetController(
         @PathVariable snippetId: String,
     ): ResponseEntity<*> = getSnippet("snippets", snippetId)
 
+    /**
+     * NOTA: este endpoint NO debe llamar a App. App (`GET /api/v1/snippets/{id}`) llama a este endpoint
+     * para obtener el contenido; si desde acá volviéramos a llamar a App se genera una recursión infinita
+     * App -> Runner -> App -> ... que agota los threads de ambos servicios y termina en 500.
+     */
     @GetMapping("/{container}/{snippetId}")
     fun getSnippet(
         @PathVariable container: String?,
         @PathVariable snippetId: String,
     ): ResponseEntity<*> {
         val targetContainer = if (container.isNullOrBlank() || container == snippetId) "snippets" else container
-        val snippet = appClient.getSnippet(snippetId)
         val content = assetServiceClient.getAsset(targetContainer, snippetId)
         if (content == null) {
             return ResponseEntity.status(404).body("Snippet with id $snippetId in container $targetContainer not found")
         }
-        val output = GetSnippetResponse(snippet?.name ?: "Snippet", content)
+        val output = GetSnippetResponse(snippetId, content)
         return ResponseEntity.ok().body(output)
     }
 
@@ -71,10 +75,11 @@ class SnippetController(
         val version = if (!request.version.isNullOrBlank()) request.version else "1.1"
         val validationPlugin = ValidationPlugin()
         val validationResult = validationPlugin.run(request.snippet, mapOf("version" to version)) as String
-        val hasError = validationResult.contains("ERROR", ignoreCase = true) ||
-            validationResult.contains("Exception", ignoreCase = true) ||
-            validationResult.contains("Syntax error", ignoreCase = true) ||
-            validationResult.contains("Parsing error", ignoreCase = true)
+        val hasError =
+            validationResult.contains("ERROR", ignoreCase = true) ||
+                validationResult.contains("Exception", ignoreCase = true) ||
+                validationResult.contains("Syntax error", ignoreCase = true) ||
+                validationResult.contains("Parsing error", ignoreCase = true)
 
         if (hasError) {
             return ResponseEntity.badRequest().body(validationResult)
@@ -84,7 +89,8 @@ class SnippetController(
         if (snippetNotExists) {
             assetServiceClient.postAsset(targetContainer, snippetId, request.snippet)
             appClient.registerSnippet(snippetId, request.userId, request.name, request.language, version, request.description ?: "")
-            return ResponseEntity.created(URI.create("/api/v1/snippets/$snippetId"))
+            return ResponseEntity
+                .created(URI.create("/api/v1/snippets/$snippetId"))
                 .body("Snippet created.")
         } else {
             return ResponseEntity.badRequest().body("Error processing snippet.")
@@ -112,35 +118,41 @@ class SnippetController(
         val version = request.version ?: "1.1"
         val validationPlugin = ValidationPlugin()
         val validationResult = validationPlugin.run(request.snippet, mapOf("version" to version)) as String
-        val hasError = validationResult.contains("ERROR", ignoreCase = true) ||
-            validationResult.contains("Exception", ignoreCase = true) ||
-            validationResult.contains("Syntax error", ignoreCase = true) ||
-            validationResult.contains("Parsing error", ignoreCase = true)
+        val hasError =
+            validationResult.contains("ERROR", ignoreCase = true) ||
+                validationResult.contains("Exception", ignoreCase = true) ||
+                validationResult.contains("Syntax error", ignoreCase = true) ||
+                validationResult.contains("Parsing error", ignoreCase = true)
 
         if (hasError) {
             return ResponseEntity.badRequest().body(validationResult)
         }
 
-        val snippetExists = assetServiceClient.getAsset(targetContainer, snippetId) != null
-        if (snippetExists) {
-            assetServiceClient.postAsset(targetContainer, snippetId, request.snippet)
-            if (request.jwt == null) {
-                return ResponseEntity.ok().body("Snippet updated successfully, but could not run tests.")
-            }
-            val results = appClient.testAll(snippetId, request.jwt)
-            var message: String
-            if (!results.isEmpty()) {
-                message = " with the following test results:\n"
-                for (result in results) {
-                    message = "$message\n- $result"
-                }
-            } else {
-                message = "."
-            }
-            return ResponseEntity.ok().body("Snippet updated successfully$message")
-        } else {
+        // El asset se crea o reemplaza (upsert): si el snippet quedó registrado en App pero su
+        // contenido nunca llegó al asset service, el PATCH tiene que poder guardarlo igual.
+        val statusCode = assetServiceClient.postAsset(targetContainer, snippetId, request.snippet)
+        if (statusCode !in 200..299) {
             return ResponseEntity.badRequest().body("Error processing snippet.")
         }
+        if (request.jwt.isNullOrBlank()) {
+            return ResponseEntity.ok().body("Snippet updated successfully, but could not run tests.")
+        }
+        val results =
+            try {
+                appClient.testAll(snippetId, request.jwt)
+            } catch (e: Exception) {
+                return ResponseEntity.ok().body("Snippet updated successfully, but tests could not be run: ${e.message}")
+            }
+        var message: String
+        if (!results.isEmpty()) {
+            message = " with the following test results:\n"
+            for (result in results) {
+                message = "$message\n- $result"
+            }
+        } else {
+            message = "."
+        }
+        return ResponseEntity.ok().body("Snippet updated successfully$message")
     }
 
     /**
@@ -185,9 +197,10 @@ class SnippetController(
         @PathVariable snippetId: String,
         @PathVariable task: String,
     ): ResponseEntity<String> {
-        val snippet = assetServiceClient.getAsset("snippets", snippetId)
-            ?: assetServiceClient.getAsset("snippet", snippetId)
-            ?: return ResponseEntity.status(404).body("Snippet not found")
+        val snippet =
+            assetServiceClient.getAsset("snippets", snippetId)
+                ?: assetServiceClient.getAsset("snippet", snippetId)
+                ?: return ResponseEntity.status(404).body("Snippet not found")
         val plugin = tasks[task.lowercase()] ?: return ResponseEntity.badRequest().body("Unknown task: $task")
         val output = plugin.run(snippet, null) as String
         if (task.lowercase().contains("format")) {

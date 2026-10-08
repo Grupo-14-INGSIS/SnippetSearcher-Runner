@@ -45,14 +45,14 @@ class AppClient(
         return headers
     }
 
-    fun getSnippet(snippetId: String): Snippet? {
-        return restTemplate.exchange(
-            "$app/api/v1/snippets/$snippetId",
-            HttpMethod.GET,
-            HttpEntity<Void>(defaultHeaders()),
-            Snippet::class.java,
-        ).body
-    }
+    fun getSnippet(snippetId: String): Snippet? =
+        restTemplate
+            .exchange(
+                "$app/api/v1/snippets/$snippetId",
+                HttpMethod.GET,
+                HttpEntity<Void>(defaultHeaders()),
+                Snippet::class.java,
+            ).body
 
     fun updateSnippetTaskStatus(
         snippetId: String,
@@ -106,22 +106,34 @@ class AppClient(
         headers.contentType = MediaType.APPLICATION_JSON
         headers.setBearerAuth(jwt)
 
-        val testIds =
-            restTemplate.exchange(
-                "$app/api/v1/snippets/$snippetId/tests",
-                HttpMethod.GET,
-                HttpEntity<Void>(headers),
-                List::class.java,
-            ).body ?: return emptyList()
+        // App devuelve un mapa { testId: {...} } (o, por compatibilidad, una lista de ids)
+        val body =
+            restTemplate
+                .exchange(
+                    "$app/api/v1/snippets/$snippetId/tests",
+                    HttpMethod.GET,
+                    HttpEntity<Void>(headers),
+                    Any::class.java,
+                ).body ?: return emptyList()
+        val testIds: List<String> =
+            when (body) {
+                is Map<*, *> -> body.keys.map { it.toString() }
+                is List<*> ->
+                    body.map { item ->
+                        if (item is Map<*, *>) (item["testId"] ?: item["id"]).toString() else item.toString()
+                    }
+                else -> emptyList()
+            }
         val results: MutableList<String> = mutableListOf()
         for (test in testIds) {
             val result =
-                restTemplate.exchange(
-                    "$app/api/v1/snippets/$snippetId/tests/$test",
-                    HttpMethod.PUT,
-                    HttpEntity<Void>(headers),
-                    TestResponse::class.java,
-                ).body ?: continue
+                restTemplate
+                    .exchange(
+                        "$app/api/v1/snippets/$snippetId/tests/$test",
+                        HttpMethod.PUT,
+                        HttpEntity<Void>(headers),
+                        TestResponse::class.java,
+                    ).body ?: continue
             if (result.result != TestResult.SUCCESS) {
                 results.add(
                     result.message,

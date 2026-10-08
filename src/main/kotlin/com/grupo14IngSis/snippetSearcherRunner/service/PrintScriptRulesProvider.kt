@@ -31,11 +31,7 @@ class PrintScriptRulesProvider : RulesProvider {
             "mandatory-variable-or-literal-in-readInput" to true,
         )
 
-    override fun getFormattingRules(version: String?): LanguageRuleEntry {
-        return LanguageRuleEntry("printscript", formattingRules)
-    }
+    override fun getFormattingRules(version: String?): LanguageRuleEntry = LanguageRuleEntry("printscript", formattingRules)
 
-    override fun getLintingRules(version: String?): LanguageRuleEntry {
-        return LanguageRuleEntry("printscript", lintingRules)
-    }
+    override fun getLintingRules(version: String?): LanguageRuleEntry = LanguageRuleEntry("printscript", lintingRules)
 }

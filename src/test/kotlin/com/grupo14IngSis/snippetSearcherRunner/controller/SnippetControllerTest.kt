@@ -59,7 +59,8 @@ class SnippetControllerTest {
         } returns
             ResponseEntity.ok().body(
                 SnippetCreationResponse(
-                    true, "yay",
+                    true,
+                    "yay",
                 ),
             )
 
@@ -87,7 +88,8 @@ class SnippetControllerTest {
         } returns
             ResponseEntity.ok().body(
                 SnippetCreationResponse(
-                    true, "yay",
+                    true,
+                    "yay",
                 ),
             )
 
@@ -112,7 +114,8 @@ class SnippetControllerTest {
         } returns
             ResponseEntity.ok().body(
                 SnippetCreationResponse(
-                    false, "nay",
+                    false,
+                    "nay",
                 ),
             )
 

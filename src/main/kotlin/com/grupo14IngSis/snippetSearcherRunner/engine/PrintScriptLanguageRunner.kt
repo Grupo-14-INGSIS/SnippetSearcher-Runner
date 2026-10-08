@@ -12,18 +12,25 @@ class PrintScriptLanguageRunner(
     override val language: String = "printscript"
     override val fileExtension: String = "ps"
 
-    override fun execute(code: String, inputs: List<String>, env: Map<String, String>): ExecutionOutput {
-        return ExecutionOutput(
+    override fun execute(
+        code: String,
+        inputs: List<String>,
+        env: Map<String, String>,
+    ): ExecutionOutput =
+        ExecutionOutput(
             status = "COMPLETED",
             outputs = emptyList(),
         )
-    }
 
-    override fun format(code: String, rules: Map<String, Any>): String {
-        return (formattingPlugin.run(code, mapOf("rules" to rules)) as? String) ?: code
-    }
+    override fun format(
+        code: String,
+        rules: Map<String, Any>,
+    ): String = (formattingPlugin.run(code, mapOf("rules" to rules)) as? String) ?: code
 
-    override fun lint(code: String, rules: Map<String, Any>): LintOutput {
+    override fun lint(
+        code: String,
+        rules: Map<String, Any>,
+    ): LintOutput {
         val result = (analyzerPlugin.run(code, mapOf("rules" to rules)) as? String) ?: ""
         val isCompliant = !result.contains("error", ignoreCase = true)
         return LintOutput(isCompliant = isCompliant, messages = listOf(result))

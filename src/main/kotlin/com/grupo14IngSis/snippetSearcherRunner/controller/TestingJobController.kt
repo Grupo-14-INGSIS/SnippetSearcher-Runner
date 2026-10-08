@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController
 class TestingJobController(
     private val assetService: AssetServiceClient,
 ) {
+    private val maxTestMillis = 60_000L
+
     /**
      * POST   /api/v1/testing
      *
@@ -56,10 +58,21 @@ class TestingJobController(
 
         execution.sendMultipleInputs(request.input)
 
-        var completed = false
         execution.start()
-        while (!completed) {
-            completed = !execution.isRunning() // && execution.getStatus() != null
+        val deadline = System.currentTimeMillis() + maxTestMillis
+        while (execution.isRunning() && !execution.isWaitingForInput() && System.currentTimeMillis() < deadline) {
+            Thread.sleep(5)
+        }
+        if (execution.isRunning()) {
+            // El snippet pidió más inputs de los que tiene el test (o se colgó): abortamos
+            execution.cancel()
+            val message =
+                if (execution.isWaitingForInput()) {
+                    "Test failed: the snippet requested more inputs than the test provides"
+                } else {
+                    "Test failed: execution timed out"
+                }
+            return ResponseEntity.ok().body(TestResponse(execution.getOutput(), TestResult.ERROR, message))
         }
         val status = execution.getStatus()
         if (status == ExecutionEventType.COMPLETED) {

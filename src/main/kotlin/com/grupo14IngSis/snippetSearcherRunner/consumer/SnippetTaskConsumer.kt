@@ -52,7 +52,8 @@ class SnippetTaskConsumer(
                 logger.error("Key '$streamKey' has wrong type: $type. Deleting...")
                 redisTemplate.delete(streamKey)
             }
-            redisTemplate.opsForStream<String, String>()
+            redisTemplate
+                .opsForStream<String, String>()
                 .createGroup(streamKey, ReadOffset.from("0"), consumerGroup)
             logger.info("Consumer group '$consumerGroup' created for stream '$streamKey'")
         } catch (e: RedisSystemException) {
@@ -73,7 +74,8 @@ class SnippetTaskConsumer(
                         val messages =
                             redisTemplate.opsForStream<String, String>().read(
                                 Consumer.from(consumerGroup, consumerName),
-                                StreamReadOptions.empty()
+                                StreamReadOptions
+                                    .empty()
                                     .count(1)
                                     .block(Duration.ofSeconds(2)),
                                 StreamOffset.create(streamKey, ReadOffset.lastConsumed()),
@@ -87,7 +89,8 @@ class SnippetTaskConsumer(
                                 logger.error("Unexpected error in processMessage for message ${message.id}", e)
                             } finally {
                                 try {
-                                    redisTemplate.opsForStream<String, String>()
+                                    redisTemplate
+                                        .opsForStream<String, String>()
                                         .acknowledge(streamKey, consumerGroup, message.id)
                                     logger.debug("ACK sent for message ${message.id}")
                                 } catch (ackEx: Exception) {

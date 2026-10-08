@@ -8,7 +8,7 @@ import java.io.File
 import java.io.PrintStream
 
 @Service("analyzer")
-class AnalyzerPlugin() : RunnerPlugin {
+class AnalyzerPlugin : RunnerPlugin {
     private val runner = Runner()
 
     override fun run(

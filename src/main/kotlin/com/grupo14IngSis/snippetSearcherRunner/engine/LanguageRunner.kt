@@ -15,7 +15,19 @@ interface LanguageRunner {
     val language: String
     val fileExtension: String
 
-    fun execute(code: String, inputs: List<String>, env: Map<String, String> = emptyMap()): ExecutionOutput
-    fun format(code: String, rules: Map<String, Any> = emptyMap()): String
-    fun lint(code: String, rules: Map<String, Any> = emptyMap()): LintOutput
+    fun execute(
+        code: String,
+        inputs: List<String>,
+        env: Map<String, String> = emptyMap(),
+    ): ExecutionOutput
+
+    fun format(
+        code: String,
+        rules: Map<String, Any> = emptyMap(),
+    ): String
+
+    fun lint(
+        code: String,
+        rules: Map<String, Any> = emptyMap(),
+    ): LintOutput
 }

@@ -54,7 +54,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/data"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess("test response", org.springframework.http.MediaType.TEXT_PLAIN))
 
@@ -71,7 +72,8 @@ class RestTemplateConfigTest {
         val url = "http://test.com/api/data"
         val requestBody = "test data"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.POST))
             .andRespond(withSuccess("created", org.springframework.http.MediaType.TEXT_PLAIN))
 
@@ -87,7 +89,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/data/1"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.PUT))
             .andRespond(withSuccess())
 
@@ -104,7 +107,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/data/1"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.DELETE))
             .andRespond(withSuccess())
 
@@ -121,7 +125,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/number"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess("42", org.springframework.http.MediaType.TEXT_PLAIN))
 
@@ -137,7 +142,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/data"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess("exchange response", org.springframework.http.MediaType.TEXT_PLAIN))
 
@@ -183,7 +189,8 @@ class RestTemplateConfigTest {
         val url = "http://test.com/api/users/{id}"
         val userId = "123"
 
-        mockServer.expect(requestTo("http://test.com/api/users/123"))
+        mockServer
+            .expect(requestTo("http://test.com/api/users/123"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess("user data", org.springframework.http.MediaType.TEXT_PLAIN))
 
@@ -200,7 +207,8 @@ class RestTemplateConfigTest {
         val url = "http://test.com/api/json"
         val jsonResponse = """{"name":"test","value":123}"""
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(jsonResponse, org.springframework.http.MediaType.APPLICATION_JSON))
 
@@ -216,7 +224,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/data"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess("response", org.springframework.http.MediaType.TEXT_PLAIN))
 
@@ -247,7 +256,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/data"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.HEAD))
             .andRespond(withSuccess())
 
@@ -263,7 +273,8 @@ class RestTemplateConfigTest {
         val mockServer = MockRestServiceServer.createServer(restTemplate)
         val url = "http://test.com/api/data"
 
-        mockServer.expect(requestTo(url))
+        mockServer
+            .expect(requestTo(url))
             .andExpect(method(HttpMethod.OPTIONS))
             .andRespond(withSuccess())
 
