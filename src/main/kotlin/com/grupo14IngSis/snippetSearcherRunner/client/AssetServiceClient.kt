@@ -21,9 +21,7 @@ class AssetServiceClient(
     private fun url(
         container: String,
         key: String,
-    ): String {
-        return "$baseURL/$container/$key"
-    }
+    ): String = "$baseURL/$container/$key"
 
     private fun defaultHeaders(): HttpHeaders {
         val headers = HttpHeaders()
@@ -34,8 +32,8 @@ class AssetServiceClient(
     fun getAsset(
         container: String,
         key: String,
-    ): String? {
-        return try {
+    ): String? =
+        try {
             val response =
                 restTemplate.exchange(
                     url(container, key),
@@ -48,14 +46,13 @@ class AssetServiceClient(
             logger.warn("Asset not found $container/$key")
             null
         }
-    }
 
     fun postAsset(
         container: String,
         key: String,
         content: String,
-    ): Int {
-        return try {
+    ): Int =
+        try {
             val entity = HttpEntity<String>(content, defaultHeaders())
             val response =
                 restTemplate.exchange(
@@ -69,13 +66,12 @@ class AssetServiceClient(
             logger.error("Error uploading asset $container/$key", e)
             500
         }
-    }
 
     fun deleteAsset(
         container: String,
         key: String,
-    ): Int {
-        return try {
+    ): Int =
+        try {
             val response =
                 restTemplate.exchange(
                     url(container, key),
@@ -91,5 +87,4 @@ class AssetServiceClient(
             logger.error("Error deleting asset $container/$key", e)
             500
         }
-    }
 }

@@ -9,19 +9,17 @@ import jakarta.persistence.Converter
 class MapJsonConverter : AttributeConverter<Map<String, Any>, String> {
     private val objectMapper = ObjectMapper()
 
-    override fun convertToDatabaseColumn(attribute: Map<String, Any>?): String {
-        return if (attribute.isNullOrEmpty()) {
+    override fun convertToDatabaseColumn(attribute: Map<String, Any>?): String =
+        if (attribute.isNullOrEmpty()) {
             "{}"
         } else {
             objectMapper.writeValueAsString(attribute)
         }
-    }
 
-    override fun convertToEntityAttribute(dbData: String?): Map<String, Any> {
-        return if (dbData.isNullOrBlank()) {
+    override fun convertToEntityAttribute(dbData: String?): Map<String, Any> =
+        if (dbData.isNullOrBlank()) {
             emptyMap()
         } else {
             objectMapper.readValue(dbData, object : TypeReference<Map<String, Any>>() {})
         }
-    }
 }

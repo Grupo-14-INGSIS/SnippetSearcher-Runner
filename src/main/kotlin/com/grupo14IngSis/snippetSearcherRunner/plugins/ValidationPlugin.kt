@@ -1,12 +1,14 @@
 package com.grupo14IngSis.snippetSearcherRunner.plugins
 
-import org.example.Runner
 import org.springframework.stereotype.Service
+import runner.src.main.kotlin.Runner
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 @Service("validation")
-class ValidationPlugin(private val runner: Runner) : RunnerPlugin {
+class ValidationPlugin : RunnerPlugin {
+    private val runner = Runner()
+
     override fun run(
         snippet: String?,
         params: Map<String, Any>?,
