@@ -76,7 +76,7 @@ class TestingJobController(
         }
         val status = execution.getStatus()
         if (status == ExecutionEventType.COMPLETED) {
-            val actual = execution.getOutput().toMutableList()
+            val actual = execution.getPrintedOutput().toMutableList()
             if (actual.isNotEmpty() && actual.last() == "Execution finished") {
                 actual.removeLast()
             }

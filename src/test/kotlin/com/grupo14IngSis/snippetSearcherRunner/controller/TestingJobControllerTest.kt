@@ -41,6 +41,47 @@ class TestingJobControllerTest {
     }
 
     @Test
+    fun `testSnippet should ignore readInput prompts and consume inputs in order`() {
+        val request =
+            TestRequest(
+                "snippetId",
+                "userId",
+                "1.1",
+                emptyMap(),
+                listOf("Lara"),
+                listOf("Hola Lara"),
+            )
+        val snippet = "let name: string = readInput(\"Nombre?\");\nprintln(\"Hola \" + name);"
+        every { assetServiceClient.getAsset("snippets", "snippetId") } returns snippet
+
+        val response = testingJobController.testSnippet(request).body
+
+        assertNotNull(response)
+        assertEquals(TestResult.SUCCESS, response.result)
+        assertEquals(listOf("Hola Lara"), response.actual)
+    }
+
+    @Test
+    fun `testSnippet should return ERROR when snippet needs more inputs than provided`() {
+        val request =
+            TestRequest(
+                "snippetId",
+                "userId",
+                "1.1",
+                emptyMap(),
+                emptyList(),
+                listOf("Hola"),
+            )
+        val snippet = "let name: string = readInput(\"Nombre?\");\nprintln(\"Hola \" + name);"
+        every { assetServiceClient.getAsset("snippets", "snippetId") } returns snippet
+
+        val response = testingJobController.testSnippet(request).body
+
+        assertNotNull(response)
+        assertEquals(TestResult.ERROR, response.result)
+    }
+
+    @Test
     fun `testSnippet should return FAILED`() {
         val request =
             TestRequest(

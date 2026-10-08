@@ -18,16 +18,36 @@ class SnippetExecution(
     private val environment: Map<String, String>,
     private val assetServiceClient: AssetServiceClient,
 ) {
-    private val inputProvider = ExecutionInputProvider(environment) { prompt -> onOutput(prompt) }
+    private val inputProvider = ExecutionInputProvider(environment) { prompt -> onPrompt(prompt) }
     private lateinit var executionThread: Thread
 
     private val outputList: MutableList<String> = Collections.synchronizedList(mutableListOf())
+
+    /** Indices (en outputList) de las lineas que son prompts de readInput y no println. */
+    private val promptIndices: MutableSet<Int> = Collections.synchronizedSet(mutableSetOf())
 
     @Volatile
     private var status: ExecutionEventType? = null
 
     fun onOutput(line: String) {
         outputList.add(line)
+    }
+
+    private fun onPrompt(prompt: String) {
+        synchronized(outputList) {
+            promptIndices.add(outputList.size)
+            outputList.add(prompt)
+        }
+    }
+
+    /**
+     * Output producido solo por `println` (sin los prompts de `readInput`). Es lo que se compara
+     * contra el output esperado de un test.
+     */
+    fun getPrintedOutput(): List<String> {
+        synchronized(outputList) {
+            return outputList.filterIndexed { index, _ -> index !in promptIndices }
+        }
     }
 
     /**
