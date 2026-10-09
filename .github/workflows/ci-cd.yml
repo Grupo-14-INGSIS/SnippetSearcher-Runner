@@ -50,11 +50,22 @@ jobs:
       - name: Run ktlintCheck
         run: ./gradlew ktlintCheck --quiet
 
-      - name: Build with test and coverage
+      - name: Run Detekt
+        run: ./gradlew detekt
+
+      - name: Build with test
         env:
           GITHUB_USERNAME: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew build jacocoTestReport jacocoTestCoverageVerification
+        run: ./gradlew build
+
+      - name: Verify coverage
+        run: |
+          if ! ./gradlew jacocoTestCoverageVerification --quiet; then
+            echo "Build blocked: code coverage below required threshold."
+            ./gradlew jacocoTestReport
+            exit 1
+          fi
 
       - name: Upload JaCoCo coverage report
         if: always()
