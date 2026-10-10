@@ -53,11 +53,17 @@ jobs:
       - name: Run Detekt
         run: ./gradlew detekt
 
-      - name: Build with test
+      - name: Run tests
         env:
           GITHUB_USERNAME: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew build
+        run: |
+          ./gradlew test --continue > .git/test-output.log
+          if grep -q "FAILED" .git/test-output.log; then
+            echo "Build bloqueado: fallaron tests."
+            cat .git/test-output.log | grep FAILED
+            exit 1
+          fi
 
       - name: Verify coverage
         run: |
@@ -66,6 +72,12 @@ jobs:
             ./gradlew jacocoTestReport
             exit 1
           fi
+
+      - name: Build
+        env:
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew build -x test
 
       - name: Upload JaCoCo coverage report
         if: always()
