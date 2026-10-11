@@ -120,7 +120,9 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/grupo-14-ingsis/snippetsearcher-runner:${{ github.ref_name }}
+          tags: |
+            ghcr.io/grupo-14-ingsis/snippetsearcher-runner:${{ github.ref_name }}
+            ghcr.io/grupo-14-ingsis/snippetsearcher-runner:${{ github.ref_name }}-${{ github.sha }}
           build-args: |
             GITHUB_USERNAME=${{ github.repository_owner }}
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}

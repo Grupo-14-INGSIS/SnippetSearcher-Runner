@@ -89,9 +89,20 @@ class SnippetController(
         if (snippetNotExists) {
             assetServiceClient.postAsset(targetContainer, snippetId, request.snippet)
             appClient.registerSnippet(snippetId, request.userId, request.name, request.language, version, request.description ?: "")
+            // Se devuelve el snippet creado (id, name, content, language) como JSON: es el
+            // contrato que esperan los clientes y los tests e2e de la UI.
             return ResponseEntity
                 .created(URI.create("/api/v1/snippets/$snippetId"))
-                .body("Snippet created.")
+                .body(
+                    mapOf(
+                        "id" to snippetId,
+                        "name" to request.name,
+                        "content" to request.snippet,
+                        "language" to request.language,
+                        "version" to version,
+                        "message" to "Snippet created.",
+                    ),
+                )
         } else {
             return ResponseEntity.badRequest().body("Error processing snippet.")
         }
