@@ -20,7 +20,8 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 RUN mkdir -p /usr/local/newrelic
-ADD ./newrelic/newrelic.jar /usr/local/newrelic/newrelic.jar
+# El agente se baja de Maven Central: >= 8.25.0 es necesario para capturar logs de logback 1.5.20+ (Spring Boot 4)
+ADD https://repo1.maven.org/maven2/com/newrelic/agent/java/newrelic-agent/8.25.1/newrelic-agent-8.25.1.jar /usr/local/newrelic/newrelic.jar
 ADD ./newrelic/newrelic.yml /usr/local/newrelic/newrelic.yml
 
 # Copia el JAR con su nombre completo y renómbralo a app.jar
