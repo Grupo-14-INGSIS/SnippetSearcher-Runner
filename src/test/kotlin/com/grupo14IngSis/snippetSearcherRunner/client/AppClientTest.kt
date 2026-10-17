@@ -2,11 +2,9 @@ package com.grupo14IngSis.snippetSearcherRunner.client
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
-import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
@@ -29,67 +27,27 @@ class AppClientTest {
     }
 
     @Test
-    fun `updateSnippetTaskStatus should call correct endpoint with correct body`() {
-        // Arrange
-        val snippetId = "snippet123"
-        val userId = "user456"
-        val task = "format"
-        val status = true
+    fun `requestLint calls the App lint endpoint forwarding the user JWT`() {
+        appClient.requestLint("snippet123", "the-jwt")
 
-        val expectedUrl = "$appUrl/api/v1/snippets/$snippetId/status"
-        val expectedBody = SnippetStatusUpdateRequest(userId, task, status)
-
-        every {
-            restTemplate.exchange(
-                expectedUrl,
-                HttpMethod.PATCH,
-                any<HttpEntity<SnippetStatusUpdateRequest>>(),
-                String::class.java,
-            )
-        } returns ResponseEntity.ok("Success")
-
-        // Act
-        appClient.updateSnippetTaskStatus(snippetId, userId, task, status)
-
-        // Assert
         verify(exactly = 1) {
             restTemplate.exchange(
-                expectedUrl,
-                HttpMethod.PATCH,
-                match<HttpEntity<SnippetStatusUpdateRequest>> { entity ->
-                    val body = entity.body
-                    body?.userId == userId &&
-                        body.task == task &&
-                        body.status == status
-                },
-                String::class.java,
+                "$appUrl/api/v1/snippets/snippet123/lint-jobs",
+                HttpMethod.POST,
+                match<HttpEntity<Void>> { it.headers.getFirst("Authorization") == "Bearer the-jwt" },
+                Void::class.java,
             )
         }
     }
 
     @Test
-    fun `updateSnippetTaskStatus should work with status false`() {
-        // Arrange
-        val snippetId = "snippet789"
-        val userId = "user000"
-        val task = "lint"
-        val status = false
-
+    fun `requestLint propagates RestClientException`() {
         every {
-            restTemplate.exchange(any<String>(), any(), any<HttpEntity<Any>>(), String::class.java)
-        } returns ResponseEntity.ok("Success")
+            restTemplate.exchange(any<String>(), any(), any<HttpEntity<Void>>(), Void::class.java)
+        } throws RestClientException("Service unavailable")
 
-        // Act
-        appClient.updateSnippetTaskStatus(snippetId, userId, task, status)
-
-        // Assert
-        verify(exactly = 1) {
-            restTemplate.exchange(
-                "$appUrl/api/v1/snippets/$snippetId/status",
-                HttpMethod.PATCH,
-                any<HttpEntity<SnippetStatusUpdateRequest>>(),
-                String::class.java,
-            )
+        assertThrows(RestClientException::class.java) {
+            appClient.requestLint("snippet1", "jwt")
         }
     }
 
@@ -244,32 +202,6 @@ class AppClientTest {
         }
     }
      */
-
-    @Test
-    fun `updateSnippetTaskStatus should not throw exception when RestTemplate succeeds`() {
-        // Arrange
-        every {
-            restTemplate.exchange(any<String>(), any(), any<HttpEntity<Any>>(), String::class.java)
-        } returns ResponseEntity.ok("Success")
-
-        // Act & Assert - no exception should be thrown
-        assertDoesNotThrow {
-            appClient.updateSnippetTaskStatus("snippet1", "user1", "format", true)
-        }
-    }
-
-    @Test
-    fun `updateSnippetTaskStatus should propagate RestClientException`() {
-        // Arrange
-        every {
-            restTemplate.exchange(any<String>(), any(), any<HttpEntity<Any>>(), String::class.java)
-        } throws RestClientException("Service unavailable")
-
-        // Act & Assert
-        assertThrows(RestClientException::class.java) {
-            appClient.updateSnippetTaskStatus("snippet1", "user1", "lint", false)
-        }
-    }
 
     @Test
     fun `registerSnippet successfully registers the snippet`() {

@@ -1,6 +1,5 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherRunner.dto.CancelExecutionRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionResponse
@@ -71,23 +70,20 @@ class ExecutionControllerTest {
     @Test
     fun `test cancel execution when found`() {
         val snippetId = "snippetId"
-        val request = CancelExecutionRequest(userId = "userId")
-        every { executionService.cancelExecution(snippetId, request.userId) } returns true
+        every { executionService.cancelExecution(snippetId, "userId") } returns true
 
-        val response = executionController.cancelExecution(snippetId, request)
+        val response = executionController.cancelExecution(snippetId, "userId")
 
         assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
     }
 
     @Test
-    fun `test cancel execution when not found`() {
+    fun `cancel is idempotent - no running execution is also 204`() {
         val snippetId = "snippetId"
-        val request = CancelExecutionRequest(userId = "userId")
-        every { executionService.cancelExecution(snippetId, request.userId) } returns false
+        every { executionService.cancelExecution(snippetId, "userId") } returns false
 
-        val response = executionController.cancelExecution(snippetId, request)
+        val response = executionController.cancelExecution(snippetId, "userId")
 
-        // This asserts the current buggy behavior. The controller should return NOT_FOUND.
         assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
     }
 }

@@ -42,4 +42,33 @@ class AnalyzerPluginTest {
         val output = analyzerPlugin.run(snippet, params)
         assertEquals(snippet, output)
     }
+
+    // ===== lint(): lo que usa el linteo asíncrono =====
+
+    private val camelCase = mapOf<String, Any>("identifier_format" to true, "version" to "1.1")
+
+    @Test
+    fun `lint reports compliant code`() {
+        val report = analyzerPlugin.lint("let myVar: number = 5;\nprintln(myVar);", camelCase)
+        assertEquals(LintOutcome.COMPLIANT, report.outcome)
+    }
+
+    @Test
+    fun `lint reports rule violations as not compliant`() {
+        val report = analyzerPlugin.lint("let my_var: number = 5;\nprintln(my_var);", camelCase)
+        assertEquals(LintOutcome.NOT_COMPLIANT, report.outcome)
+    }
+
+    @Test
+    fun `lint does not confuse the snippet text with an analyzer error`() {
+        // Antes se buscaba "Error:" en lo que devolvía run(), que para código válido es el propio código
+        val report = analyzerPlugin.lint("println(\"Error: not really\");", camelCase)
+        assertEquals(LintOutcome.COMPLIANT, report.outcome)
+    }
+
+    @Test
+    fun `lint reports code that cannot be parsed as invalid`() {
+        val report = analyzerPlugin.lint("let = ;", camelCase)
+        assertEquals(LintOutcome.INVALID, report.outcome)
+    }
 }

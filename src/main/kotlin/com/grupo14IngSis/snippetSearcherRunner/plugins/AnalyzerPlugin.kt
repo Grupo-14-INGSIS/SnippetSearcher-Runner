@@ -7,9 +7,27 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
 
+enum class LintOutcome {
+    COMPLIANT,
+    NOT_COMPLIANT,
+
+    // El analizador no pudo analizarlo (error de sintaxis, configuración inválida)
+    INVALID,
+}
+
+data class LintReport(
+    val outcome: LintOutcome,
+    val output: String,
+)
+
 @Service("analyzer")
 class AnalyzerPlugin : RunnerPlugin {
     private val runner = Runner()
+
+    companion object {
+        // El analizador imprime por System.out, que es global: dos análisis a la vez mezclarían salidas
+        private val STDOUT_LOCK = Any()
+    }
 
     override fun run(
         snippet: String?,
@@ -18,7 +36,35 @@ class AnalyzerPlugin : RunnerPlugin {
         if (snippet.isNullOrBlank()) {
             return ""
         }
+        val output = analyze(snippet, params)
+        return if (output.isBlank() || output.contains("No issues were found") || output.contains("SUCCESS")) snippet else output
+    }
 
+    /**
+     * Linteo para el procesamiento asíncrono: clasifica la salida CRUDA del analizador. (`run`
+     * devuelve el propio snippet cuando no hay problemas, así que buscar "Error:" en lo que devuelve
+     * daba falsos positivos con código como `println("Error: ...")`.)
+     */
+    fun lint(
+        snippet: String,
+        params: Map<String, Any>?,
+    ): LintReport {
+        if (snippet.isBlank()) return LintReport(LintOutcome.COMPLIANT, "")
+        val output = analyze(snippet, params)
+        val outcome =
+            when {
+                output.contains("SYNTAX ERROR") || output.lineSequence().any { it.trim().startsWith("Error:") } -> LintOutcome.INVALID
+                output.contains("ANALYSIS RESULTS") -> LintOutcome.NOT_COMPLIANT
+                output.contains("SUCCESS") -> LintOutcome.COMPLIANT
+                else -> LintOutcome.INVALID
+            }
+        return LintReport(outcome, output.trim())
+    }
+
+    private fun analyze(
+        snippet: String,
+        params: Map<String, Any>?,
+    ): String {
         val version = params?.get("version") as? String ?: "1.0"
 
         val tempSnippetFile = File.createTempFile("snippet-lint-", ".ps")
@@ -81,19 +127,21 @@ class AnalyzerPlugin : RunnerPlugin {
             throw IllegalArgumentException("Configuration file content 'configFileContent' is required for analysis.")
         }
 
-        val originalOut = System.out
-        val outputStream = ByteArrayOutputStream()
-        val printStream = PrintStream(outputStream)
-        System.setOut(printStream)
-
         try {
-            val args = mutableListOf(tempSnippetFile.absolutePath, configFile.absolutePath, version)
-            runner.analyzerCommand(args)
-            System.out.flush()
-            val output = outputStream.toString()
-            return if (output.isBlank() || output.contains("No issues were found") || output.contains("SUCCESS")) snippet else output
+            synchronized(STDOUT_LOCK) {
+                val originalOut = System.out
+                val outputStream = ByteArrayOutputStream()
+                System.setOut(PrintStream(outputStream))
+                try {
+                    val args = mutableListOf(tempSnippetFile.absolutePath, configFile.absolutePath, version)
+                    runner.analyzerCommand(args)
+                    System.out.flush()
+                    return outputStream.toString()
+                } finally {
+                    System.setOut(originalOut)
+                }
+            }
         } finally {
-            System.setOut(originalOut)
             tempSnippetFile.delete()
             tempConfigFile?.delete()
         }

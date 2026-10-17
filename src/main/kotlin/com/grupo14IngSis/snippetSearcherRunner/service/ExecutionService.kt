@@ -1,15 +1,17 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
-import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionResponse
+import com.grupo14IngSis.snippetSearcherRunner.storage.SnippetStorage
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Service
 class ExecutionService(
-    private val assetServiceClient: AssetServiceClient,
+    private val storage: SnippetStorage,
     private val snippetCacheService: SnippetCacheService,
+    private val progress: ExecutionProgressStore,
 ) {
     private val activeExecutions: MutableMap<String, SnippetExecution> = ConcurrentHashMap()
 
@@ -55,44 +57,55 @@ class ExecutionService(
             activeExecutions.remove(executionId)
         }
 
+        // Output en vivo: cada línea va a Redis apenas se imprime y la UI la lee con /status
+        val progressKey = progress.key(ExecutionProgressStore.RUN, userId, snippetId)
+        progress.start(progressKey)
+        // Al cortar la ejecución (queda esperando input) el hilo todavía imprime "Execution canceled":
+        // eso no es output del snippet y no tiene que verse en vivo
+        val live = AtomicBoolean(true)
         val execution =
             SnippetExecution(
                 snippetId,
                 version,
                 environment,
-                assetServiceClient,
-            )
+                storage,
+            ) { line, _ -> if (live.get()) progress.append(progressKey, line) }
 
         activeExecutions[executionId] = execution
 
-        try {
-            execution.sendMultipleInputs(inputs)
-            execution.start()
-            waitUntilIdle(execution, maxExecutionMillis)
+        val response =
+            try {
+                execution.sendMultipleInputs(inputs)
+                execution.start()
+                waitUntilIdle(execution, maxExecutionMillis)
+                if (execution.isRunning()) live.set(false)
 
-            if (execution.isWaitingForInput()) {
-                val output = execution.getOutput()
-                execution.cancel()
+                when {
+                    execution.isWaitingForInput() -> {
+                        val output = execution.getOutput()
+                        execution.cancel()
+                        ExecutionResponse(ExecutionEventType.WAITING, output)
+                    }
+                    execution.isRunning() -> {
+                        val output = execution.getOutput()
+                        execution.cancel()
+                        progress.append(progressKey, "Execution timed out")
+                        ExecutionResponse(ExecutionEventType.ERROR, output + "Execution timed out")
+                    }
+                    else -> {
+                        val output = execution.getOutput()
+                        // Assuming output is a list of strings that can be joined to a single string for caching
+                        snippetCacheService.saveToCache(cacheKey, output.joinToString("\n"))
+                        ExecutionResponse(finalStatus(execution), output)
+                    }
+                }
+            } catch (e: Exception) {
+                ExecutionResponse(ExecutionEventType.ERROR, listOf("Execution error: ${e.message}"))
+            } finally {
                 activeExecutions.remove(executionId)
-                return ExecutionResponse(ExecutionEventType.WAITING, output)
             }
-            if (execution.isRunning()) {
-                val output = execution.getOutput()
-                execution.cancel()
-                activeExecutions.remove(executionId)
-                return ExecutionResponse(ExecutionEventType.ERROR, output + "Execution timed out")
-            }
-
-            val output = execution.getOutput()
-            activeExecutions.remove(executionId)
-            val response = ExecutionResponse(finalStatus(execution), output)
-            // Assuming output is a list of strings that can be joined to a single string for caching
-            snippetCacheService.saveToCache(cacheKey, output.joinToString("\n"))
-            return response
-        } catch (e: Exception) {
-            activeExecutions.remove(executionId)
-            return ExecutionResponse(ExecutionEventType.ERROR, listOf("Execution error: ${e.message}"))
-        }
+        progress.finish(progressKey, response.status)
+        return response
     }
 
     fun sendInput(
@@ -124,12 +137,18 @@ class ExecutionService(
     }
 
     /**
-     * Estado actual de una ejecución en curso (si la hay en esta instancia).
+     * Estado actual de una ejecución (`kind` = run) o de la corrida de un test (`kind` = test), con el
+     * output producido hasta ahora. Se lee de Redis: sirve aunque la ejecución corra en otra réplica.
+     * Sin userId (o sin datos en Redis) cae a las ejecuciones en memoria de esta instancia.
      */
     fun getExecutionStatus(
         snippetId: String,
         userId: String?,
+        kind: String = ExecutionProgressStore.RUN,
     ): ExecutionResponse {
+        if (userId != null) {
+            progress.get(progress.key(kind, userId, snippetId))?.let { return it }
+        }
         val execution =
             if (userId != null) {
                 activeExecutions[executionId(userId, snippetId)]

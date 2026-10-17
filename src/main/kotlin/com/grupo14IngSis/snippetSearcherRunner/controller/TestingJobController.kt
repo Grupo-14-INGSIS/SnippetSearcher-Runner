@@ -1,11 +1,12 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResult
+import com.grupo14IngSis.snippetSearcherRunner.service.ExecutionProgressStore
 import com.grupo14IngSis.snippetSearcherRunner.service.SnippetExecution
+import com.grupo14IngSis.snippetSearcherRunner.storage.SnippetStorage
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/testing")
 class TestingJobController(
-    private val assetService: AssetServiceClient,
+    private val storage: SnippetStorage,
+    private val progress: ExecutionProgressStore,
 ) {
     private val maxTestMillis = 60_000L
 
@@ -47,14 +49,29 @@ class TestingJobController(
     fun testSnippet(
         @RequestBody request: TestRequest,
     ): ResponseEntity<TestResponse> {
+        // Output en vivo del test (US #9): solo lo que imprime println, que es lo que se compara
+        val progressKey = progress.key(ExecutionProgressStore.TEST, request.userId, request.snippetId)
+        progress.start(progressKey)
+        val response = runTest(request, progressKey)
+        val body = response.body
+        progress.finish(progressKey, if (body?.result == TestResult.ERROR) ExecutionEventType.ERROR else ExecutionEventType.COMPLETED)
+        return response
+    }
+
+    private fun runTest(
+        request: TestRequest,
+        progressKey: String,
+    ): ResponseEntity<TestResponse> {
         val result: TestResponse
         val execution =
             SnippetExecution(
                 request.snippetId,
                 request.version,
                 request.environment,
-                assetService,
-            )
+                storage,
+            ) { line, isPrompt ->
+                if (!isPrompt && line != "Execution finished") progress.append(progressKey, line)
+            }
 
         execution.sendMultipleInputs(request.input)
 

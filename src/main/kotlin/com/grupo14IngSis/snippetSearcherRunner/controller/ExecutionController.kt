@@ -1,9 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherRunner.dto.CancelExecutionRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.InputRequest
+import com.grupo14IngSis.snippetSearcherRunner.service.ExecutionProgressStore
 import com.grupo14IngSis.snippetSearcherRunner.service.ExecutionService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -58,27 +58,30 @@ class ExecutionController(
     }
 
     /**
-     * DELETE  /api/v1/snippets/{snippetId}/executions
+     * DELETE  /api/v1/snippets/{snippetId}/executions?userId={userId}
      *
-     * Cancel the execution of a snippet
+     * Cancel the execution of a snippet. El usuario va como query param (igual que en /status) y no en
+     * el body: un DELETE no debería llevar body. Es idempotente: si no había ejecución, igual 204.
      */
     @DeleteMapping
     fun cancelExecution(
         @PathVariable snippetId: String,
-        @RequestBody request: CancelExecutionRequest,
+        @RequestParam userId: String,
     ): ResponseEntity<Void> {
-        executionService.cancelExecution(snippetId, request.userId)
+        executionService.cancelExecution(snippetId, userId)
         return ResponseEntity.noContent().build()
     }
 
     /**
-     * GET     /api/v1/snippets/{snippetId}/executions/status?userId={userId}
+     * GET     /api/v1/snippets/{snippetId}/executions/status?userId={userId}&kind=run|test
      *
-     * Get the current status of a snippet execution.
+     * Get the current status of a snippet execution (kind=run, default) or test run (kind=test), with
+     * the output printed so far: la UI lo consulta mientras corre para mostrar el output en vivo.
      */
     @GetMapping("/status")
     fun getExecutionStatus(
         @PathVariable snippetId: String,
         @RequestParam(required = false) userId: String?,
-    ): ResponseEntity<ExecutionResponse> = ResponseEntity.ok().body(executionService.getExecutionStatus(snippetId, userId))
+        @RequestParam(defaultValue = ExecutionProgressStore.RUN) kind: String,
+    ): ResponseEntity<ExecutionResponse> = ResponseEntity.ok().body(executionService.getExecutionStatus(snippetId, userId, kind))
 }

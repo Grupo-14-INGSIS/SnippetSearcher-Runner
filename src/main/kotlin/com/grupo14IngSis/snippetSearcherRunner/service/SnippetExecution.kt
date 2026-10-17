@@ -1,8 +1,8 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
-import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.service.inputprovider.ExecutionInputProvider
+import com.grupo14IngSis.snippetSearcherRunner.storage.SnippetStorage
 import runner.src.main.kotlin.Runner
 import java.io.File.createTempFile
 import java.util.Collections
@@ -16,7 +16,9 @@ class SnippetExecution(
     private val snippetId: String,
     private val version: String,
     private val environment: Map<String, String>,
-    private val assetServiceClient: AssetServiceClient,
+    private val storage: SnippetStorage,
+    /** Se llama con cada línea apenas se produce (isPrompt = es el prompt de un readInput): output en vivo. */
+    private val onLine: ((line: String, isPrompt: Boolean) -> Unit)? = null,
 ) {
     private val inputProvider = ExecutionInputProvider(environment) { prompt -> onPrompt(prompt) }
     private lateinit var executionThread: Thread
@@ -31,12 +33,26 @@ class SnippetExecution(
 
     fun onOutput(line: String) {
         outputList.add(line)
+        notifyLine(line, false)
     }
 
     private fun onPrompt(prompt: String) {
         synchronized(outputList) {
             promptIndices.add(outputList.size)
             outputList.add(prompt)
+        }
+        notifyLine(prompt, true)
+    }
+
+    // Un fallo del listener (p. ej. Redis caído) no puede cortar la ejecución
+    @Suppress("TooGenericExceptionCaught")
+    private fun notifyLine(
+        line: String,
+        isPrompt: Boolean,
+    ) {
+        try {
+            onLine?.invoke(line, isPrompt)
+        } catch (_: Exception) {
         }
     }
 
@@ -61,7 +77,7 @@ class SnippetExecution(
                 val tempFile = createTempFile(snippetId, ".ps")
                 try {
                     val snippet =
-                        assetServiceClient.getAsset("snippets", snippetId)
+                        storage.get(snippetId)
                             ?: throw IllegalArgumentException("Snippet $snippetId not found")
                     tempFile.writeText(snippet)
                     tempFile.deleteOnExit()

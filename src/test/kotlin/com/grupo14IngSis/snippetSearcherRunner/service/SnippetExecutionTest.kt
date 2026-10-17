@@ -1,6 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
+import com.grupo14IngSis.snippetSearcherRunner.storage.SnippetStorage
 import inputprovider.src.main.kotlin.ConsoleInputProvider
 import io.mockk.every
 import io.mockk.mockk
@@ -21,7 +22,7 @@ class SnippetExecutionTest {
                 "snippetId",
                 "1.1",
                 mapOf(),
-                assetService,
+                SnippetStorage(assetService),
             )
     }
 
