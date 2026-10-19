@@ -15,8 +15,15 @@ spring:
     password: ${DB_PASSWORD}
 
 redis:
-  stream:
-    key: "jobs"
+  streams:
+    # App -> Runner: trabajos de linteo/formateo. Runner -> App: resultados.
+    jobs: "snippet-jobs"
+    jobs-group: "runner_group"
+    results: "snippet-job-results"
+    # XADD con MAXLEN ~ : el stream guarda historial pero recortado
+    max-length: 10000
+    # Cada cuánto se reintentan los mensajes que quedaron sin ACK (réplica caída, error transitorio)
+    reclaim-interval-ms: 30000
 
 app:
   bucket:

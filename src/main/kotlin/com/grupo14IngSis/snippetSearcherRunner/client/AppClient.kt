@@ -4,7 +4,6 @@ import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.Snippet
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetRegistrationRequest
-import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetStatusUpdateRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResult
 import org.slf4j.LoggerFactory
@@ -54,20 +53,21 @@ class AppClient(
                 Snippet::class.java,
             ).body
 
-    fun updateSnippetTaskStatus(
+    /**
+     * Le pide al App que encole el linteo del snippet (el App es quien conoce al dueño y marca
+     * "pending"). Se reenvía el JWT del usuario que editó: el endpoint está autenticado.
+     */
+    fun requestLint(
         snippetId: String,
-        userId: String,
-        task: String,
-        status: Boolean,
-        compliance: String? = null,
+        jwt: String,
     ) {
         val headers = jsonHeaders()
-        val request = SnippetStatusUpdateRequest(userId, task, status, compliance)
+        headers.setBearerAuth(jwt)
         restTemplate.exchange(
-            "$app/api/v1/snippets/$snippetId/status",
-            HttpMethod.PATCH,
-            HttpEntity(request, headers),
-            String::class.java,
+            "$app/api/v1/snippets/$snippetId/lint-jobs",
+            HttpMethod.POST,
+            HttpEntity<Void>(headers),
+            Void::class.java,
         )
     }
 
@@ -129,8 +129,9 @@ class AppClient(
             val result =
                 restTemplate
                     .exchange(
-                        "$app/api/v1/snippets/$snippetId/tests/$test",
-                        HttpMethod.PUT,
+                        // Correr un test crea una "corrida": POST .../runs (PUT reemplazaría el test)
+                        "$app/api/v1/snippets/$snippetId/tests/$test/runs",
+                        HttpMethod.POST,
                         HttpEntity<Void>(headers),
                         TestResponse::class.java,
                     ).body ?: continue
