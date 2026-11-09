@@ -212,7 +212,7 @@ class AppClientTest {
         val app = appUrl
         every {
             restTemplate.exchange(
-                "$app/api/v1/snippets/$snippetId",
+                "$app/internal/snippets/$snippetId",
                 HttpMethod.PUT,
                 any<HttpEntity<*>>(),
                 SnippetCreationResponse::class.java,

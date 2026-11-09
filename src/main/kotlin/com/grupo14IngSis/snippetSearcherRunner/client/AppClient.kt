@@ -1,7 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
-import com.grupo14IngSis.snippetSearcherRunner.dto.Snippet
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetRegistrationRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResponse
@@ -44,15 +43,6 @@ class AppClient(
         return headers
     }
 
-    fun getSnippet(snippetId: String): Snippet? =
-        restTemplate
-            .exchange(
-                "$app/api/v1/snippets/$snippetId",
-                HttpMethod.GET,
-                HttpEntity<Void>(defaultHeaders()),
-                Snippet::class.java,
-            ).body
-
     /**
      * Le pide al App que encole el linteo del snippet (el App es quien conoce al dueño y marca
      * "pending"). Se reenvía el JWT del usuario que editó: el endpoint está autenticado.
@@ -88,9 +78,11 @@ class AppClient(
                 description,
                 version,
             )
+        // Ruta interna de App: sin token y fuera de lo que nginx publica. El userId es el dueño que App
+        // le pasó al Runner, tomado del token del usuario.
         val response =
             restTemplate.exchange(
-                "$app/api/v1/snippets/$snippetId",
+                "$app/internal/snippets/$snippetId",
                 HttpMethod.PUT,
                 HttpEntity(request, headers),
                 SnippetCreationResponse::class.java,
