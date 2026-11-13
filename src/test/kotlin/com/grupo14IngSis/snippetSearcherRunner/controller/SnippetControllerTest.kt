@@ -1,6 +1,5 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.GetSnippetResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
@@ -22,13 +21,12 @@ import org.springframework.http.ResponseEntity
 
 class SnippetControllerTest {
     private val assetServiceClient: AssetServiceClient = mockk()
-    private val appClient: AppClient = mockk(relaxed = true)
     private val lintingService: LintingService = mockk()
     private val formattingService: FormattingService = mockk()
     private val analyzer: AnalyzerPlugin = mockk()
     private val formatter: FormattingPlugin = mockk()
     private val snippetController =
-        SnippetController(SnippetStorage(assetServiceClient), appClient, lintingService, formattingService, analyzer, formatter)
+        SnippetController(SnippetStorage(assetServiceClient), lintingService, formattingService, analyzer, formatter)
     private val rules = mapOf<String, Any>("identifier_format" to true)
 
     @Test
@@ -140,16 +138,15 @@ class SnippetControllerTest {
     }
 
     @Test
-    fun `patchSnippet saves the content and asks App to lint it again`() {
+    fun `patchSnippet validates and saves the content, and nothing else`() {
         val snippetContent = "println(\"Updated content\");"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 200
         every { assetServiceClient.postAsset(container, original, snippetContent) } returns 200
-        every { appClient.testAll(snippetId, any()) } returns listOf()
 
-        val response = snippetController.patchSnippet(snippetId, SnippetUpdateRequest("the-jwt", snippetContent))
+        val response = snippetController.patchSnippet(snippetId, SnippetUpdateRequest(snippetContent))
 
         assertEquals(HttpStatus.OK, response.statusCode)
-        verify(exactly = 1) { appClient.requestLint(snippetId, "the-jwt") }
+        assertEquals("Snippet content updated.", response.body)
         // Lo que escribe el usuario es el nuevo original (US #13)
         verify { assetServiceClient.postAsset(container, original, snippetContent) }
     }
@@ -204,15 +201,11 @@ class SnippetControllerTest {
     }
 
     @Test
-    fun `patchSnippet without JWT saves but cannot request lint or run tests`() {
-        val snippetContent = "println(\"Updated content\");"
-        every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 200
-        every { assetServiceClient.postAsset(container, original, snippetContent) } returns 200
+    fun `patchSnippet returns 400 for invalid code and stores nothing`() {
+        val response = snippetController.patchSnippet(snippetId, SnippetUpdateRequest("New content"))
 
-        val response = snippetController.patchSnippet(snippetId, SnippetUpdateRequest(null, snippetContent))
-
-        assertEquals(HttpStatus.OK, response.statusCode)
-        verify(exactly = 0) { appClient.requestLint(any(), any()) }
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        verify(exactly = 0) { assetServiceClient.postAsset(any(), any(), any()) }
     }
 
     @Test
@@ -220,10 +213,9 @@ class SnippetControllerTest {
         val snippetContent = "println(\"Updated content\");"
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 500
 
-        val response = snippetController.patchSnippet(snippetId, SnippetUpdateRequest("jwt", snippetContent))
+        val response = snippetController.patchSnippet(snippetId, SnippetUpdateRequest(snippetContent))
 
         assertEquals(HttpStatus.BAD_GATEWAY, response.statusCode)
-        verify(exactly = 0) { appClient.requestLint(any(), any()) }
     }
 
     @Test
@@ -233,32 +225,30 @@ class SnippetControllerTest {
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 201
         every { assetServiceClient.postAsset(container, original, snippetContent) } returns 201
 
-        val request = SnippetCreationRequest("test-user", "script", "printscript", snippetContent)
+        val request = SnippetCreationRequest("script", "printscript", snippetContent)
         val response: ResponseEntity<Any> = snippetController.putSnippet(snippetId, request)
 
         assertEquals(HttpStatus.CREATED, response.statusCode)
         verify { assetServiceClient.postAsset(container, original, snippetContent) }
-        verify(exactly = 1) { appClient.registerSnippet(snippetId, "test-user", "script", "printscript", "1.1", "") }
     }
 
     @Test
-    fun `putSnippet does not register in App when the bucket fails`() {
+    fun `putSnippet returns 502 when the bucket fails`() {
         val snippetContent = "println(\"New content\");"
         every { assetServiceClient.getAsset(container, snippetId) } returns null
         every { assetServiceClient.postAsset(container, snippetId, snippetContent) } returns 500
 
-        val request = SnippetCreationRequest("test-user", "script", "printscript", snippetContent)
+        val request = SnippetCreationRequest("script", "printscript", snippetContent)
         val response: ResponseEntity<Any> = snippetController.putSnippet(snippetId, request)
 
         assertEquals(HttpStatus.BAD_GATEWAY, response.statusCode)
-        verify(exactly = 0) { appClient.registerSnippet(any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
     fun `putSnippet returns 400 when the snippet already exists`() {
         every { assetServiceClient.getAsset(container, snippetId) } returns "existing"
 
-        val request = SnippetCreationRequest("test-user", "script", "printscript", "println(\"x\");")
+        val request = SnippetCreationRequest("script", "printscript", "println(\"x\");")
         val response: ResponseEntity<Any> = snippetController.putSnippet(snippetId, request)
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
@@ -266,7 +256,7 @@ class SnippetControllerTest {
 
     @Test
     fun `putSnippet returns 400 for invalid code`() {
-        val request = SnippetCreationRequest("test-user", "script", "printscript", "New content")
+        val request = SnippetCreationRequest("script", "printscript", "New content")
         val response: ResponseEntity<Any> = snippetController.putSnippet(snippetId, request)
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
