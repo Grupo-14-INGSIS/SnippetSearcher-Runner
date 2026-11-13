@@ -1,6 +1,5 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
-import com.grupo14IngSis.snippetSearcherRunner.client.AppClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.GetSnippetResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetUpdateRequest
@@ -34,7 +33,6 @@ import java.net.URI
 @RequestMapping("/api/v1/snippets")
 class SnippetController(
     private val storage: SnippetStorage,
-    private val appClient: AppClient,
     private val lintingService: LintingService,
     private val formattingService: FormattingService,
     private val analyzerPlugin: AnalyzerPlugin,
@@ -64,8 +62,8 @@ class SnippetController(
     /**
      * PUT    /api/v1/snippets/{snippetId}
      *
-     * Create a snippet: validates the code, uploads it to the bucket and registers it in App
-     * (App queues its first lint).
+     * Create a snippet: validates the code and uploads it to the bucket. Registering it (metadata, owner,
+     * first lint) is App's job: the Runner never calls App.
      */
     @PutMapping("/{snippetId}")
     fun putSnippet(
@@ -82,11 +80,10 @@ class SnippetController(
             // Código escrito por el usuario: contenido actual + copia del original (US #13)
             storage.saveUserCode(snippetId, request.snippet)
         } catch (e: SnippetStorageException) {
-            // Sin contenido guardado no se registra en App: no quedan snippets "fantasma"
+            // App solo registra el snippet si el código quedó guardado: no quedan snippets "fantasma"
             logger.error(e.message)
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Could not store snippet content.")
         }
-        appClient.registerSnippet(snippetId, request.userId, request.name, request.language, version, request.description ?: "")
         // Se devuelve el snippet creado (id, name, content, language) como JSON: es el
         // contrato que esperan los clientes y los tests e2e de la UI.
         return ResponseEntity
@@ -106,7 +103,8 @@ class SnippetController(
     /**
      * PATCH    /api/v1/snippets/{snippetId}
      *
-     * Update the content of a snippet, ask App to lint it again and run its tests.
+     * Update the content of a snippet: validates it and stores it. Linting it again and running its tests
+     * is App's job after this returns.
      */
     @PatchMapping("/{snippetId}")
     fun patchSnippet(
@@ -125,31 +123,7 @@ class SnippetController(
             logger.error(e.message)
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Could not store snippet content.")
         }
-        if (request.jwt.isNullOrBlank()) {
-            return ResponseEntity.ok().body("Snippet updated successfully, but could not run tests.")
-        }
-        // El contenido cambió: el compliance anterior ya no vale. App lo pasa a "pending" y lo encola.
-        try {
-            appClient.requestLint(snippetId, request.jwt)
-        } catch (e: Exception) {
-            logger.warn("Could not request lint for snippet $snippetId: ${e.message}")
-        }
-        val results =
-            try {
-                appClient.testAll(snippetId, request.jwt)
-            } catch (e: Exception) {
-                return ResponseEntity.ok().body("Snippet updated successfully, but tests could not be run: ${e.message}")
-            }
-        var message: String
-        if (!results.isEmpty()) {
-            message = " with the following test results:\n"
-            for (result in results) {
-                message = "$message\n- $result"
-            }
-        } else {
-            message = "."
-        }
-        return ResponseEntity.ok().body("Snippet updated successfully$message")
+        return ResponseEntity.ok().body("Snippet content updated.")
     }
 
     /**
@@ -176,8 +150,9 @@ class SnippetController(
      * POST /api/v1/snippets/{snippetId}/tasks/{task}?userId=&language=&version=
      *
      * Applies a task (format / lint) to a snippet synchronously with the rules of [userId].
-     * POST: es una acción con resultado, no un reemplazo. El formateo guarda el resultado en el bucket.
-     * Body opcional (texto, solo lint): código a analizar en lugar del guardado (lo que hay en el editor).
+     * POST: es una acción con resultado, no un reemplazo.
+     * Body opcional (texto): código a procesar en lugar del guardado (lo que hay en el editor). Con body es
+     * una vista previa y no se guarda nada; sin body, el formateo guarda el resultado en el bucket.
      */
     @PostMapping("/{snippetId}/tasks/{task}")
     fun applyTask(
@@ -192,8 +167,9 @@ class SnippetController(
         if (!isFormat && !task.contains("lint", ignoreCase = true)) {
             return ResponseEntity.badRequest().body("Unknown task: $task")
         }
+        val preview = !content.isNullOrBlank()
         val snippet =
-            (if (isFormat) null else content)
+            content?.takeIf { preview }
                 ?: storage.get(snippetId)
                 ?: return ResponseEntity.status(404).body("Snippet not found")
         // Antes se llamaba al plugin con config null y los dos plugins fallaban (500): necesitan las reglas
@@ -211,7 +187,7 @@ class SnippetController(
             } catch (e: Exception) {
                 return ResponseEntity.badRequest().body(e.message ?: "Could not apply $task")
             }
-        if (isFormat) {
+        if (isFormat && !preview) {
             try {
                 storage.save(snippetId, output)
             } catch (e: SnippetStorageException) {
