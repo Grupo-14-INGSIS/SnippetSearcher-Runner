@@ -30,6 +30,10 @@ app:
     url: http://${BUCKET_SERVICE}:${BUCKET_PORT}
   # Sin URL de App: el Runner nunca llama a App, solo responde lo que App le pide
 
+printscript:
+  # Lo completa Gradle con la versión de las librerías de PrintScript (ver build.gradle)
+  version: "@printscriptVersion@"
+
 server:
   port: 8080
 

@@ -71,15 +71,17 @@ class SnippetControllerTest {
     }
 
     @Test
-    fun `format task ignores a body and formats the stored content`() {
-        every { assetServiceClient.getAsset(container, snippetId) } returns "let a:number=1;"
+    fun `format task with a body is a preview that formats that content and saves nothing`() {
+        // El botón Format de la UI manda lo que hay en el editor y solo quiere ver el resultado
         every { formattingService.getRules("u1", "printscript") } returns rules
-        every { formatter.run("let a:number=1;", any()) } returns "let a : number = 1;"
-        every { assetServiceClient.postAsset(container, snippetId, "let a : number = 1;") } returns 201
+        every { formatter.run("let a:number=1;", rules + ("version" to "1.1")) } returns "let a : number = 1;"
 
-        val response = snippetController.applyTask(snippetId, "format", "u1", "printscript", "1.1", "otro codigo")
+        val response = snippetController.applyTask(snippetId, "format", "u1", "printscript", "1.1", "let a:number=1;")
 
+        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals("let a : number = 1;", response.body)
+        verify(exactly = 0) { assetServiceClient.getAsset(any(), any()) }
+        verify(exactly = 0) { assetServiceClient.postAsset(any(), any(), any()) }
     }
 
     @Test

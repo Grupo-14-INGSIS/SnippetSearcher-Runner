@@ -150,8 +150,9 @@ class SnippetController(
      * POST /api/v1/snippets/{snippetId}/tasks/{task}?userId=&language=&version=
      *
      * Applies a task (format / lint) to a snippet synchronously with the rules of [userId].
-     * POST: es una acción con resultado, no un reemplazo. El formateo guarda el resultado en el bucket.
-     * Body opcional (texto, solo lint): código a analizar en lugar del guardado (lo que hay en el editor).
+     * POST: es una acción con resultado, no un reemplazo.
+     * Body opcional (texto): código a procesar en lugar del guardado (lo que hay en el editor). Con body es
+     * una vista previa y no se guarda nada; sin body, el formateo guarda el resultado en el bucket.
      */
     @PostMapping("/{snippetId}/tasks/{task}")
     fun applyTask(
@@ -166,8 +167,9 @@ class SnippetController(
         if (!isFormat && !task.contains("lint", ignoreCase = true)) {
             return ResponseEntity.badRequest().body("Unknown task: $task")
         }
+        val preview = !content.isNullOrBlank()
         val snippet =
-            (if (isFormat) null else content)
+            content?.takeIf { preview }
                 ?: storage.get(snippetId)
                 ?: return ResponseEntity.status(404).body("Snippet not found")
         // Antes se llamaba al plugin con config null y los dos plugins fallaban (500): necesitan las reglas
@@ -185,7 +187,7 @@ class SnippetController(
             } catch (e: Exception) {
                 return ResponseEntity.badRequest().body(e.message ?: "Could not apply $task")
             }
-        if (isFormat) {
+        if (isFormat && !preview) {
             try {
                 storage.save(snippetId, output)
             } catch (e: SnippetStorageException) {

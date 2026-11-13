@@ -72,14 +72,26 @@ repositories {
     }
 }
 
+// Versión de las librerías de PrintScript (parser, linter, formatter...). Se publica en application.yml
+// (printscript.version) para que App detecte un parser nuevo y vuelva a validar todos los snippets.
+def printscriptVersion = '2.0.12'
+
+processResources {
+    filteringCharset = 'UTF-8'
+    inputs.property('printscriptVersion', printscriptVersion)
+    filesMatching('application.yml') {
+        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [printscriptVersion: printscriptVersion])
+    }
+}
+
 dependencies {
-    implementation 'IngsisTP:token:2.0.12'
-    implementation 'IngsisTP:ast:2.0.12'
-    implementation 'IngsisTP:lexer:2.0.12'
-    implementation 'IngsisTP:parser:2.0.12'
-    implementation 'IngsisTP:interpreter:2.0.12'
-    implementation 'IngsisTP:formatter:2.0.12'
-    implementation 'IngsisTP:linter:2.0.12'
+    implementation "IngsisTP:token:${printscriptVersion}"
+    implementation "IngsisTP:ast:${printscriptVersion}"
+    implementation "IngsisTP:lexer:${printscriptVersion}"
+    implementation "IngsisTP:parser:${printscriptVersion}"
+    implementation "IngsisTP:interpreter:${printscriptVersion}"
+    implementation "IngsisTP:formatter:${printscriptVersion}"
+    implementation "IngsisTP:linter:${printscriptVersion}"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
