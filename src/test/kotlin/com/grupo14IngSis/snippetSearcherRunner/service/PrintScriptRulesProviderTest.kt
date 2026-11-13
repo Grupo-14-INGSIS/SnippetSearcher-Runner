@@ -26,9 +26,10 @@ class PrintScriptRulesProviderTest {
         assertEquals(false, entry.rules["enforce-no-spacing-around-equals"])
         assertEquals(false, entry.rules["enforce-spacing-before-colon-in-declaration"])
         assertEquals(true, entry.rules["enforce-spacing-after-colon-in-declaration"])
-        assertEquals(true, entry.rules["line-breaks-after-println"])
-        assertEquals(true, entry.rules["line-breaks-before-println"])
-        assertEquals(true, entry.rules["indent-inside-if"])
+        // Números, no booleanos: la librería las lee como cantidad de líneas en blanco y de espacios de sangría
+        assertEquals(0, entry.rules["line-breaks-after-println"])
+        assertEquals(0, entry.rules["line-breaks-before-println"])
+        assertEquals(2, entry.rules["indent-inside-if"])
         assertEquals(true, entry.rules["if-brace-below-line"])
         assertEquals(true, entry.rules["mandatory-single-space-separation"])
         assertEquals(true, entry.rules["mandatory-space-surrounding-operations"])
