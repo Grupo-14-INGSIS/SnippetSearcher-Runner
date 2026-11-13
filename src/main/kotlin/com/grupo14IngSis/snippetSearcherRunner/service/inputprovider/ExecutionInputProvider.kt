@@ -49,6 +49,4 @@ class ExecutionInputProvider(
     }
 
     fun isWaitingForInput(): Boolean = waitingForInput
-
-    fun hasPendingInputs(): Boolean = inputQueue.isNotEmpty()
 }

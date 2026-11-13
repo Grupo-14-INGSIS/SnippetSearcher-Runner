@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Service
 class ExecutionService(
     private val storage: SnippetStorage,
-    private val snippetCacheService: SnippetCacheService,
     private val progress: ExecutionProgressStore,
 ) {
     private val activeExecutions: MutableMap<String, SnippetExecution> = ConcurrentHashMap()
@@ -37,9 +36,6 @@ class ExecutionService(
         environment: Map<String, String>,
         inputs: List<String> = emptyList(),
     ): ExecutionResponse {
-        val cacheKey = "snippet:$snippetId:$version"
-        // Always execute snippet fresh to avoid returning stale cached errors
-
         if (activeExecutions.size >= maxConcurrentExecutions) {
             return ExecutionResponse(
                 ExecutionEventType.ERROR,
@@ -94,8 +90,6 @@ class ExecutionService(
                     }
                     else -> {
                         val output = execution.getOutput()
-                        // Assuming output is a list of strings that can be joined to a single string for caching
-                        snippetCacheService.saveToCache(cacheKey, output.joinToString("\n"))
                         ExecutionResponse(finalStatus(execution), output)
                     }
                 }

@@ -1,11 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.client
 
-import com.grupo14IngSis.snippetSearcherRunner.dto.ExecutionEventType
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetRegistrationRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.TestResult
-import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -21,18 +19,6 @@ class AppClient(
     private val restTemplate: RestTemplate,
     @Value("\${app.app.url}") private val app: String,
 ) {
-    private val logger = LoggerFactory.getLogger(AssetServiceClient::class.java)
-
-    private fun defaultHeaders(): HttpHeaders {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.TEXT_PLAIN
-        val requestId = MDC.get("requestId")
-        if (!requestId.isNullOrBlank()) {
-            headers.set("X-Request-Id", requestId)
-        }
-        return headers
-    }
-
     private fun jsonHeaders(): HttpHeaders {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -134,22 +120,5 @@ class AppClient(
             }
         }
         return results
-    }
-
-    fun sendLine(
-        snippetId: String,
-        executionId: String,
-        line: String,
-        status: ExecutionEventType,
-    ) {
-        /*
-        val message = ExecutionEvent(status, line)
-        restTemplate.exchange(
-            "$app/v1/snippets/$snippetId/run",
-            HttpMethod.POST,
-            HttpEntity(message, defaultHeaders()),
-            Void::class.java,
-        )
-         */
     }
 }
