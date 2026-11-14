@@ -31,7 +31,7 @@ class UserServiceTest {
     @Test
     fun `check should return true when user exists`() {
         val userId = "test-user"
-        every { formattingRepository.findByUserId(userId) } returns listOf(mockk())
+        every { formattingRepository.existsByUserId(userId) } returns true
 
         assertTrue(userService.check(userId))
     }
@@ -39,7 +39,7 @@ class UserServiceTest {
     @Test
     fun `check should return false when user does not exist`() {
         val userId = "test-user"
-        every { formattingRepository.findByUserId(userId) } returns emptyList()
+        every { formattingRepository.existsByUserId(userId) } returns false
 
         assertFalse(userService.check(userId))
     }

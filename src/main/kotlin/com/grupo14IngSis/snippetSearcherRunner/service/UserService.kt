@@ -13,10 +13,7 @@ class UserService(
     private val formattingRepository: FormattingRulesRepository,
     private val lintingRepository: LintingRulesRepository,
 ) {
-    fun check(userId: String): Boolean {
-        val user = formattingRepository.findByUserId(userId)
-        return user.isNotEmpty()
-    }
+    fun check(userId: String): Boolean = formattingRepository.existsByUserId(userId)
 
     @Transactional
     fun addUser(
