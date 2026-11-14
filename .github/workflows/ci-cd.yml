@@ -13,7 +13,10 @@ on:
 jobs:
   ci-cd:
     runs-on: ubuntu-latest
-
+    # Las librerías de PrintScript se bajan de GitHub Packages (ver build.gradle)
+    env:
+      GITHUB_USERNAME: ${{ github.repository_owner }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,60 +30,17 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Run ktlintFormat
-        run: |
-          CHANGES_BEFORE=$(git diff --name-only)
-          ./gradlew ktlintFormat --quiet
-          CHANGES_AFTER=$(git diff --name-only)
-          if [ "$CHANGES_BEFORE" != "$CHANGES_AFTER" ]; then
-            echo "Build bloqueado: ktlintFormat modificó archivos."
-            exit 1
-          fi
+      # Igual que PrintScript-Tools. Primero el formato, que falla rápido.
+      - name: Check format
+        run: ./gradlew ktlintCheck
 
-      - name: Run ktlintCheck
-        run: ./gradlew ktlintCheck --quiet
-
-      - name: Run Detekt
-        run: ./gradlew detekt
-
-      - name: Run tests
-        env:
-          GITHUB_USERNAME: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./gradlew test --continue > .git/test-output.log
-          if grep -q "FAILED" .git/test-output.log; then
-            echo "Build bloqueado: fallaron tests."
-            cat .git/test-output.log | grep FAILED
-            exit 1
-          fi
-
-      - name: Verify coverage
-        run: |
-          if ! ./gradlew jacocoTestCoverageVerification --quiet; then
-            echo "Build blocked: code coverage below required threshold."
-            ./gradlew jacocoTestReport
-            exit 1
-          fi
-
+      # myPlugin hace que build corra check: ktlint, detekt, tests y cobertura mínima del 80 %.
+      # Si algo falla, el pipeline se corta acá y no se construye la imagen.
       - name: Build
-        env:
-          GITHUB_USERNAME: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew build -x test
+        run: ./gradlew build
 
       - name: Upload JaCoCo coverage report
         if: always()
@@ -88,20 +48,6 @@ jobs:
         with:
           name: jacoco-report
           path: build/reports/jacoco/test/html/
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: build/reports/tests/test/
-
-      - name: Upload build artifacts
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: application-jar
-          path: build/libs/*.jar
 
   build-and-push:
     if: github.event_name == 'push'

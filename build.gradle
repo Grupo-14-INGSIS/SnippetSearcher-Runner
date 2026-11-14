@@ -32,13 +32,10 @@ tasks.register("installGitHook") {
 group = 'com.example'
 version = '1.0-SNAPSHOT'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-def jacocoExclusions = [
+// Java 21, JUnit 5, ktlint, detekt y la cobertura mínima del 80 % vienen de myPlugin
+// (buildSrc/.../buildlogic.kotlin-myPlugin-conventions.gradle). Acá solo lo propio de este servicio.
+// No se mide cobertura de DTOs, configuración de Spring, consumidores de Redis ni de la clase main:
+ext.jacocoExclusions = [
         '**/dto/**',
         '**/config/**',
         '**/consumer/**',
@@ -116,53 +113,8 @@ springBoot {
     mainClass = 'com.grupo14IngSis.snippetSearcherRunner.ApplicationKt'
 }
 
-// ktlint 1.0.x (default del plugin 12.1.0) no es compatible con Kotlin 2.2 y rompe el CI
-// ("KtTokens does not have member field HEADER_KEYWORD"). Misma versión que App/AccessManager.
-ktlint {
-    version = "1.4.0"
-}
-
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll('-Xjsr305=strict')
-    }
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
-test {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-        html.required = true
-    }
-
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: jacocoExclusions)
-        }))
-    }
-}
-
-jacocoTestCoverageVerification {
-    dependsOn jacocoTestReport
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.80
-            }
-        }
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: jacocoExclusions)
-        }))
     }
 }
