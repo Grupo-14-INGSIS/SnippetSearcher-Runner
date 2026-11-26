@@ -1,8 +1,14 @@
 package com.grupo14IngSis.snippetSearcherRunner.redis
 
+import com.newrelic.api.agent.ConcurrentHashMapHeaders
+import com.newrelic.api.agent.HeaderType
+import com.newrelic.api.agent.NewRelic
+import com.newrelic.api.agent.Trace
+import com.newrelic.api.agent.TransportType
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.data.domain.Range
 import org.springframework.data.redis.connection.stream.Consumer
@@ -124,26 +130,55 @@ abstract class RedisStreamConsumer(
             }
     }
 
-    internal fun process(record: MapRecord<String, String, String>) =
+    // dispatcher = true: cada mensaje es una transacción de New Relic (no hay pedido HTTP que la abra).
+    // Sin esto, lo que hace el consumidor no aparece en APM ni en la traza.
+    @Trace(dispatcher = true)
+    internal fun process(record: MapRecord<String, String, String>) {
         lock.withLock {
+            continueTrace(record)
             try {
                 onMessage(record)
                 acknowledge(record.id)
             } catch (e: Exception) {
                 logger.warn("Message ${record.id} of '$streamKey' failed, it stays pending to be retried: ${e.message}")
+            } finally {
+                MDC.remove("requestId")
             }
         }
+    }
 
-    private fun deadLetter(record: MapRecord<String, String, String>) =
+    @Trace(dispatcher = true)
+    private fun deadLetter(record: MapRecord<String, String, String>) {
         lock.withLock {
+            continueTrace(record)
             logger.error("Message ${record.id} of '$streamKey' exhausted ${settings.maxDeliveries} deliveries: ${record.value}")
             try {
                 onDeadLetter(record)
             } catch (e: Exception) {
                 logger.error("Dead letter handler failed for ${record.id}", e)
+            } finally {
+                MDC.remove("requestId")
             }
             acknowledge(record.id)
         }
+    }
+
+    /**
+     * Continúa la traza y el requestId que dejó el productor en el mensaje (ver RedisStreamProducer):
+     * los logs de este mensaje llevan el mismo requestId y quedan en la misma traza que el pedido original.
+     */
+    private fun continueTrace(record: MapRecord<String, String, String>) {
+        NewRelic.setTransactionName("RedisStream", "/$streamKey")
+        val headers = ConcurrentHashMapHeaders.build(HeaderType.MESSAGE)
+        record.value
+            .filterKeys { it.startsWith("trace.") }
+            .forEach { (key, value) -> headers.addHeader(key.removePrefix("trace."), value) }
+        NewRelic.getAgent().transaction.acceptDistributedTraceHeaders(TransportType.Other, headers)
+        record.value["requestId"]?.let {
+            MDC.put("requestId", it)
+            NewRelic.addCustomParameter("request_id", it)
+        }
+    }
 
     private fun acknowledge(id: RecordId) {
         redis.opsForStream<String, String>().acknowledge(streamKey, groupId, id)
