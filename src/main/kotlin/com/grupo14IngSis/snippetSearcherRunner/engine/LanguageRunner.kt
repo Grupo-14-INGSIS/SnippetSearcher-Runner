@@ -1,33 +1,26 @@
 package com.grupo14IngSis.snippetSearcherRunner.engine
 
-data class ExecutionOutput(
-    val status: String,
-    val outputs: List<String>,
-    val error: String? = null,
-)
-
-data class LintOutput(
-    val isCompliant: Boolean,
-    val messages: List<String> = emptyList(),
-)
+import com.grupo14IngSis.snippetSearcherRunner.plugins.LintReport
 
 interface LanguageRunner {
     val language: String
     val fileExtension: String
 
-    fun execute(
+    fun validate(
         code: String,
-        inputs: List<String>,
+        version: String,
         env: Map<String, String> = emptyMap(),
-    ): ExecutionOutput
+    ): String?
 
     fun format(
         code: String,
-        rules: Map<String, Any> = emptyMap(),
+        rules: Map<String, Any>,
+        version: String,
     ): String
 
     fun lint(
         code: String,
-        rules: Map<String, Any> = emptyMap(),
-    ): LintOutput
+        rules: Map<String, Any>,
+        version: String,
+    ): LintReport
 }

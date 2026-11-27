@@ -1,7 +1,9 @@
 package com.grupo14IngSis.snippetSearcherRunner.service
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.LanguageRuleEntry
+import org.springframework.stereotype.Component
 
+@Component
 class PrintScriptRulesProvider : RulesProvider {
     private val formattingRules =
         mapOf(

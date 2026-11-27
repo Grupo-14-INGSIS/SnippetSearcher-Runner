@@ -4,10 +4,13 @@ import com.grupo14IngSis.snippetSearcherRunner.client.AssetServiceClient
 import com.grupo14IngSis.snippetSearcherRunner.dto.GetSnippetResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetUpdateRequest
+import com.grupo14IngSis.snippetSearcherRunner.engine.LanguageRunnerRegistry
+import com.grupo14IngSis.snippetSearcherRunner.engine.PrintScriptLanguageRunner
 import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.LintOutcome
 import com.grupo14IngSis.snippetSearcherRunner.plugins.LintReport
+import com.grupo14IngSis.snippetSearcherRunner.plugins.ValidationPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
 import com.grupo14IngSis.snippetSearcherRunner.service.LintingService
 import com.grupo14IngSis.snippetSearcherRunner.storage.SnippetStorage
@@ -26,7 +29,13 @@ class SnippetControllerTest {
     private val analyzer: AnalyzerPlugin = mockk()
     private val formatter: FormattingPlugin = mockk()
     private val snippetController =
-        SnippetController(SnippetStorage(assetServiceClient), lintingService, formattingService, analyzer, formatter)
+        SnippetController(
+            SnippetStorage(assetServiceClient),
+            lintingService,
+            formattingService,
+            // Runner real de PrintScript con los plugins mockeados (la validación usa el plugin real, como antes)
+            LanguageRunnerRegistry(listOf(PrintScriptLanguageRunner(ValidationPlugin(), formatter, analyzer))),
+        )
     private val rules = mapOf<String, Any>("identifier_format" to true)
 
     @Test

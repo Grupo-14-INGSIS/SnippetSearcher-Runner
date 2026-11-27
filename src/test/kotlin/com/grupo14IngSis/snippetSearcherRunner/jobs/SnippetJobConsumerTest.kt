@@ -1,9 +1,12 @@
 package com.grupo14IngSis.snippetSearcherRunner.jobs
 
+import com.grupo14IngSis.snippetSearcherRunner.engine.LanguageRunnerRegistry
+import com.grupo14IngSis.snippetSearcherRunner.engine.PrintScriptLanguageRunner
 import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
 import com.grupo14IngSis.snippetSearcherRunner.plugins.LintOutcome
 import com.grupo14IngSis.snippetSearcherRunner.plugins.LintReport
+import com.grupo14IngSis.snippetSearcherRunner.plugins.ValidationPlugin
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
 import com.grupo14IngSis.snippetSearcherRunner.service.LintingService
 import com.grupo14IngSis.snippetSearcherRunner.storage.SnippetStorage
@@ -37,8 +40,7 @@ class SnippetJobConsumerTest {
             lintingService,
             formattingService,
             resultProducer,
-            analyzer,
-            formatter,
+            LanguageRunnerRegistry(listOf(PrintScriptLanguageRunner(ValidationPlugin(), formatter, analyzer))),
         )
 
     private val rules = mapOf<String, Any>("identifier_format" to true)

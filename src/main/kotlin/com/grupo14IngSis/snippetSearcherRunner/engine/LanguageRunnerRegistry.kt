@@ -1,6 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.engine
 
 import org.springframework.stereotype.Service
+import java.lang.IllegalArgumentException
 
 @Service
 class LanguageRunnerRegistry(
@@ -13,4 +14,6 @@ class LanguageRunnerRegistry(
     fun isSupported(language: String): Boolean = runnerMap.containsKey(language.lowercase())
 
     fun getSupportedLanguages(): Set<String> = runnerMap.keys
+
+    fun require(language: String): LanguageRunner = getRunner(language) ?: throw IllegalArgumentException("Unsupported language: $language")
 }
