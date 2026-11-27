@@ -3,9 +3,7 @@ package com.grupo14IngSis.snippetSearcherRunner.controller
 import com.grupo14IngSis.snippetSearcherRunner.dto.GetSnippetResponse
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetCreationRequest
 import com.grupo14IngSis.snippetSearcherRunner.dto.SnippetUpdateRequest
-import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
-import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
-import com.grupo14IngSis.snippetSearcherRunner.plugins.ValidationPlugin
+import com.grupo14IngSis.snippetSearcherRunner.engine.LanguageRunnerRegistry
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
 import com.grupo14IngSis.snippetSearcherRunner.service.LintingService
 import com.grupo14IngSis.snippetSearcherRunner.storage.SnippetStorage
@@ -35,8 +33,7 @@ class SnippetController(
     private val storage: SnippetStorage,
     private val lintingService: LintingService,
     private val formattingService: FormattingService,
-    private val analyzerPlugin: AnalyzerPlugin,
-    private val formattingPlugin: FormattingPlugin,
+    private val registry: LanguageRunnerRegistry,
 ) {
     private val logger = LoggerFactory.getLogger(SnippetController::class.java)
 
@@ -71,7 +68,7 @@ class SnippetController(
         @RequestBody request: SnippetCreationRequest,
     ): ResponseEntity<Any> {
         val version = if (!request.version.isNullOrBlank()) request.version else "1.1"
-        validate(request.snippet, version)?.let { return ResponseEntity.badRequest().body(it) }
+        validate(request.snippet, request.language, version)?.let { return ResponseEntity.badRequest().body(it) }
 
         if (storage.exists(snippetId)) {
             return ResponseEntity.badRequest().body("Snippet $snippetId already exists.")
@@ -112,7 +109,7 @@ class SnippetController(
         @RequestBody request: SnippetUpdateRequest,
     ): ResponseEntity<Any> {
         val version = request.version ?: "1.1"
-        validate(request.snippet, version)?.let { return ResponseEntity.badRequest().body(it) }
+        validate(request.snippet, request.language, version)?.let { return ResponseEntity.badRequest().body(it) }
 
         // El asset se crea o reemplaza (upsert): si el snippet quedó registrado en App pero su
         // contenido nunca llegó al asset service, el PATCH tiene que poder guardarlo igual.
@@ -177,13 +174,14 @@ class SnippetController(
         if (rules.isEmpty()) {
             return ResponseEntity.badRequest().body("User has no ${if (isFormat) "formatting" else "linting"} rules for $language")
         }
-        val config = rules + ("version" to version)
 
-        // Los plugins no hacen I/O: si lanzan es por el código o la configuración, no un error del servidor
+        // Los runners no hacen I/O: si lanzan es por el código, la configuración o un lenguaje que no
+        // existe (registry.require), no un error del servidor
         @Suppress("TooGenericExceptionCaught")
         val output =
             try {
-                if (isFormat) formattingPlugin.run(snippet, config) as String else analyzerPlugin.lint(snippet, config).output
+                val runner = registry.require(language)
+                if (isFormat) runner.format(snippet, rules, version) else runner.lint(snippet, rules, version).output
             } catch (e: Exception) {
                 return ResponseEntity.badRequest().body(e.message ?: "Could not apply $task")
             }
@@ -228,23 +226,22 @@ class SnippetController(
         if (rules.isEmpty()) return ResponseEntity.ok(current)
         @Suppress("TooGenericExceptionCaught")
         return try {
-            ResponseEntity.ok(formattingPlugin.run(current, rules + ("version" to version)) as String)
+            ResponseEntity.ok(registry.require(language).format(current, rules, version))
         } catch (e: Exception) {
             ResponseEntity.badRequest().body(e.message ?: "Could not format snippet")
         }
     }
 
-    /** Devuelve el mensaje de error si el código no es válido para esa versión, o null si lo es. */
+    /**
+     * Devuelve el mensaje de error si el código no es válido para ese lenguaje y versión, o null si lo es.
+     * El registro elige quién valida según el lenguaje: no hay un if por lenguaje.
+     */
     private fun validate(
         snippet: String,
+        language: String,
         version: String,
     ): String? {
-        val validationResult = ValidationPlugin().run(snippet, mapOf("version" to version)) as String
-        val hasError =
-            validationResult.contains("ERROR", ignoreCase = true) ||
-                validationResult.contains("Exception", ignoreCase = true) ||
-                validationResult.contains("Syntax error", ignoreCase = true) ||
-                validationResult.contains("Parsing error", ignoreCase = true)
-        return if (hasError) validationResult else null
+        val runner = registry.getRunner(language) ?: return "Unsupported language: $language"
+        return runner.validate(snippet, version)
     }
 }

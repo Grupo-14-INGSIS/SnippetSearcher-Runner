@@ -1,7 +1,7 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
 import com.grupo14IngSis.snippetSearcherRunner.dto.UserCreationRequest
-import com.grupo14IngSis.snippetSearcherRunner.service.PrintScriptRulesProvider
+import com.grupo14IngSis.snippetSearcherRunner.service.RulesProvider
 import com.grupo14IngSis.snippetSearcherRunner.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/users")
 class UserController(
     private val userService: UserService,
+    // Spring inyecta todos los @Component que implementan RulesProvider: uno por lenguaje
+    private val rulesProviders: List<RulesProvider>,
 ) {
     /**
      * PUT    /api/v1/users/{userId}
@@ -25,9 +27,8 @@ class UserController(
         @PathVariable userId: String,
     ): ResponseEntity<*> {
         try {
-            val rulesProvider = PrintScriptRulesProvider()
-            val formattingRules = UserCreationRequest(listOf(rulesProvider.getFormattingRules(null)))
-            val lintingRules = UserCreationRequest(listOf(rulesProvider.getLintingRules(null)))
+            val formattingRules = UserCreationRequest(rulesProviders.map { it.getFormattingRules(null) })
+            val lintingRules = UserCreationRequest(rulesProviders.map { it.getLintingRules(null) })
             val userExists = userService.check(userId)
             if (userExists) {
                 return ResponseEntity.status(409).body("User already exists")

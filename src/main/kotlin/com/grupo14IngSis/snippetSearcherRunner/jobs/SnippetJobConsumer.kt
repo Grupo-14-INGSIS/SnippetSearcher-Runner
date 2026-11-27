@@ -1,7 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.jobs
 
-import com.grupo14IngSis.snippetSearcherRunner.plugins.AnalyzerPlugin
-import com.grupo14IngSis.snippetSearcherRunner.plugins.FormattingPlugin
+import com.grupo14IngSis.snippetSearcherRunner.engine.LanguageRunnerRegistry
 import com.grupo14IngSis.snippetSearcherRunner.plugins.LintOutcome
 import com.grupo14IngSis.snippetSearcherRunner.redis.RedisStreamConsumer
 import com.grupo14IngSis.snippetSearcherRunner.service.FormattingService
@@ -36,8 +35,7 @@ class SnippetJobConsumer(
     private val lintingService: LintingService,
     private val formattingService: FormattingService,
     private val resultProducer: SnippetJobResultProducer,
-    private val analyzerPlugin: AnalyzerPlugin,
-    private val formattingPlugin: FormattingPlugin,
+    private val registry: LanguageRunnerRegistry,
 ) : RedisStreamConsumer(streamKey, groupId, redis) {
     private val logger = LoggerFactory.getLogger(SnippetJobConsumer::class.java)
 
@@ -78,7 +76,7 @@ class SnippetJobConsumer(
         @Suppress("TooGenericExceptionCaught")
         val report =
             try {
-                analyzerPlugin.lint(content, rules + ("version" to job.version))
+                registry.require(job.language).lint(content, rules, job.version)
             } catch (e: Exception) {
                 return failed(job, e.message ?: "could not lint snippet")
             }
@@ -101,7 +99,7 @@ class SnippetJobConsumer(
         @Suppress("TooGenericExceptionCaught")
         val formatted =
             try {
-                formattingPlugin.run(content, rules + ("version" to job.version)) as String
+                registry.require(job.language).format(content, rules, job.version)
             } catch (e: Exception) {
                 return failed(job, e.message ?: "could not format snippet")
             }

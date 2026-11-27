@@ -1,5 +1,6 @@
 package com.grupo14IngSis.snippetSearcherRunner.controller
 
+import com.grupo14IngSis.snippetSearcherRunner.service.PrintScriptRulesProvider
 import com.grupo14IngSis.snippetSearcherRunner.service.UserService
 import io.mockk.every
 import io.mockk.mockk
@@ -10,7 +11,7 @@ import kotlin.test.assertEquals
 
 class UserControllerTest {
     private val userService: UserService = mockk(relaxed = true)
-    private val userController = UserController(userService)
+    private val userController = UserController(userService, listOf(PrintScriptRulesProvider()))
 
     @Test
     fun `addUser should return 200 when user is created`() {
